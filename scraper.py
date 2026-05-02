@@ -19,11 +19,15 @@ from encryptor import encrypt_file
 
 
 BASE_URL = "https://mibiodata.hospitalclinico.cl"
-AGENDA_URL = f"{BASE_URL}/newmbd/prof/atenciones"
+AGENDA_URL = f"{BASE_URL}/newmbd/prof/atenciones/atenciones"
 FICHA_URL_TPL = f"{BASE_URL}/newmbd/prof/atenciones/atencion-paciente?cap={{cap}}"
 
 DAYS_BACK = 730
-EXCLUDED_STATES = {"cancelado", "cancelada", "no asistio", "no asistió", "no asistido"}
+EXCLUDED_STATES = {
+    "cancelado", "cancelada",
+    "no asistio", "no asistió", "no asistido",
+    "en espera",
+}
 
 DELAY_BETWEEN_FICHAS = 1.0
 DELAY_BETWEEN_DAYS = 0.5
