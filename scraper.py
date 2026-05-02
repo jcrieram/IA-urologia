@@ -184,18 +184,53 @@ def select_state_by_text(page: Page, target_text: str) -> bool:
     return False
 
 
-def collect_rows_in_table(page: Page) -> list[dict]:
+def collect_rows_in_table(page: Page, debug: bool = False) -> list[dict]:
+    all_trs = page.locator("table tbody tr").all()
+    if debug and all_trs:
+        # Log structure of first row to help diagnose selector issues
+        first = all_trs[0]
+        cells = first.locator("td").all_text_contents()
+        links = first.locator("a").all()
+        hrefs    = [l.get_attribute("href")    or "" for l in links]
+        onclicks = [l.get_attribute("onclick") or "" for l in links]
+        log(f"  DEBUG filas en tbody: {len(all_trs)}")
+        log(f"  DEBUG primera fila celdas: {cells[:7]}")
+        log(f"  DEBUG primera fila hrefs: {hrefs}")
+        log(f"  DEBUG primera fila onclicks: {onclicks}")
+
     rows = []
-    for tr in page.locator("table tbody tr").all():
-        link = tr.locator("a[href*='cap=']").first
-        if link.count() == 0:
+    for tr in all_trs:
+        cap = None
+
+        # Intento 1: link con cap= en href
+        for a in tr.locator("a").all():
+            href = a.get_attribute("href") or ""
+            if "cap=" in href:
+                cap = href.split("cap=")[-1].split("&")[0].strip()
+                break
+
+        # Intento 2: cap= en algún atributo onclick
+        if not cap:
+            for a in tr.locator("a").all():
+                onclick = a.get_attribute("onclick") or ""
+                if "cap=" in onclick:
+                    cap = onclick.split("cap=")[-1].split(")")[0].split(",")[0].strip().strip("'\"")
+                    break
+
+        # Intento 3: cualquier número en onclick que parezca un ID de atención
+        if not cap:
+            for a in tr.locator("a, button").all():
+                onclick = a.get_attribute("onclick") or ""
+                nums = [w.strip("(), '\"") for w in onclick.split() if w.strip("(), '\"").isdigit()]
+                if nums and len(nums[0]) > 4:   # IDs de atención suelen ser >4 dígitos
+                    cap = nums[0]
+                    break
+
+        if not cap or not cap.isdigit():
             continue
-        href = link.get_attribute("href") or ""
-        cap = href.split("cap=")[-1].split("&")[0].strip()
-        if not cap.isdigit():
-            continue
+
         cells = tr.locator("td").all_text_contents()
-        ficha = cells[1].strip() if len(cells) > 1 else ""
+        ficha  = cells[1].strip() if len(cells) > 1 else ""
         estado = cells[5].strip() if len(cells) > 5 else ""
         rows.append({"cap": cap, "ficha": ficha, "estado": estado})
     return rows
@@ -240,7 +275,7 @@ def scrape_day(page: Page, fecha) -> list[dict]:
         else:
             log("  ! No hay opción 'Todas'; leeré con el filtro actual")
 
-    rows = collect_rows_in_table(page)
+    rows = collect_rows_in_table(page, debug=True)
     out = []
     excluidos = 0
     for row in rows:
