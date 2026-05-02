@@ -20,7 +20,7 @@ from encryptor import encrypt_file
 
 BASE_URL = "https://mibiodata.hospitalclinico.cl"
 AGENDA_URL = f"{BASE_URL}/newmbd/prof/atenciones/atenciones"
-FICHA_URL_TPL = f"{BASE_URL}/newmbd/prof/atenciones/atencion-paciente?cap={{cap}}"
+FICHA_URL_TPL = f"{BASE_URL}/newmbd/prof/fichas/historial?cf={{cf}}"
 
 DAYS_BACK = 730
 EXCLUDED_STATES = {
@@ -186,53 +186,21 @@ def select_state_by_text(page: Page, target_text: str) -> bool:
 
 def collect_rows_in_table(page: Page, debug: bool = False) -> list[dict]:
     all_trs = page.locator("table tbody tr").all()
-    if debug and all_trs:
-        # Log structure of first row to help diagnose selector issues
-        first = all_trs[0]
-        cells = first.locator("td").all_text_contents()
-        links = first.locator("a").all()
-        hrefs    = [l.get_attribute("href")    or "" for l in links]
-        onclicks = [l.get_attribute("onclick") or "" for l in links]
-        log(f"  DEBUG filas en tbody: {len(all_trs)}")
-        log(f"  DEBUG primera fila celdas: {cells[:7]}")
-        log(f"  DEBUG primera fila hrefs: {hrefs}")
-        log(f"  DEBUG primera fila onclicks: {onclicks}")
-
     rows = []
     for tr in all_trs:
-        cap = None
-
-        # Intento 1: link con cap= en href
+        cf = None
         for a in tr.locator("a").all():
             href = a.get_attribute("href") or ""
-            if "cap=" in href:
-                cap = href.split("cap=")[-1].split("&")[0].strip()
+            if "cf=" in href:
+                cf = href.split("cf=")[-1].split("&")[0].strip()
                 break
-
-        # Intento 2: cap= en algún atributo onclick
-        if not cap:
-            for a in tr.locator("a").all():
-                onclick = a.get_attribute("onclick") or ""
-                if "cap=" in onclick:
-                    cap = onclick.split("cap=")[-1].split(")")[0].split(",")[0].strip().strip("'\"")
-                    break
-
-        # Intento 3: cualquier número en onclick que parezca un ID de atención
-        if not cap:
-            for a in tr.locator("a, button").all():
-                onclick = a.get_attribute("onclick") or ""
-                nums = [w.strip("(), '\"") for w in onclick.split() if w.strip("(), '\"").isdigit()]
-                if nums and len(nums[0]) > 4:   # IDs de atención suelen ser >4 dígitos
-                    cap = nums[0]
-                    break
-
-        if not cap or not cap.isdigit():
+        if not cf or not cf.isdigit():
             continue
-
         cells = tr.locator("td").all_text_contents()
         ficha  = cells[1].strip() if len(cells) > 1 else ""
+        nombre = cells[2].strip() if len(cells) > 2 else ""
         estado = cells[5].strip() if len(cells) > 5 else ""
-        rows.append({"cap": cap, "ficha": ficha, "estado": estado})
+        rows.append({"cf": cf, "ficha": ficha, "nombre_row": nombre, "estado": estado})
     return rows
 
 
@@ -248,13 +216,24 @@ def extract_field(page: Page, label: str) -> str:
         return ""
 
 
-def scrape_ficha(page: Page, cap: str) -> dict:
-    page.goto(FICHA_URL_TPL.format(cap=cap), wait_until="networkidle")
+_DUMP_DONE = {"once": False}
+
+
+def scrape_ficha(page: Page, cf: str) -> dict:
+    page.goto(FICHA_URL_TPL.format(cf=cf), wait_until="networkidle")
+    if not _DUMP_DONE["once"]:
+        _DUMP_DONE["once"] = True
+        try:
+            body = page.locator("body").inner_text()[:2000]
+            (OUT_DIR / "debug_historial.txt").write_text(body, encoding="utf-8")
+            log(f"  DEBUG primer historial guardado en out/debug_historial.txt")
+        except Exception:
+            pass
     return {
         "nombre": extract_field(page, "Nombre"),
         "rut": extract_field(page, "Rut"),
-        "telefono": extract_field(page, "Número contacto"),
-        "correo": extract_field(page, "Correo electrónico"),
+        "telefono": extract_field(page, "Número contacto") or extract_field(page, "Celular"),
+        "correo": extract_field(page, "Correo electrónico") or extract_field(page, "Email"),
         "fecha_nacimiento": extract_field(page, "Fecha nacimiento"),
         "prevision": extract_field(page, "Previsión"),
     }
@@ -377,11 +356,14 @@ def main() -> int:
                     continue
                 try:
                     detail = context.new_page()
-                    data = scrape_ficha(detail, row["cap"])
+                    data = scrape_ficha(detail, row["cf"])
                     detail.close()
                 except Exception as e:
-                    log(f"  ! Error en ficha {ficha} (cap={row['cap']}): {e}")
-                    continue
+                    log(f"  ! Error en ficha {ficha} (cf={row['cf']}): {e}")
+                    data = {}
+
+                if not data.get("nombre"):
+                    data["nombre"] = row.get("nombre_row", "")
 
                 state["pacientes"][ficha] = {
                     "ficha": ficha,
