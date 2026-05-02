@@ -93,26 +93,52 @@ def set_date(page: Page, fecha) -> bool:
     if inp is None:
         return False
     fecha_str = fecha.strftime("%d-%m-%Y")
-    inp.click(click_count=3)
-    inp.fill(fecha_str)
-    inp.dispatch_event("input")
-    inp.dispatch_event("change")
-    inp.press("Enter")
-    inp.evaluate(
-        "el => { el.blur(); if (window.jQuery) { jQuery(el).trigger('change'); jQuery(el).trigger('changeDate'); } }"
-    )
+
+    method = "no-datepicker"
+    try:
+        method = inp.evaluate(
+            """(el, args) => {
+                const [y, m, d] = args;
+                if (!window.jQuery || typeof jQuery(el).datepicker !== 'function') {
+                    return 'no-datepicker';
+                }
+                try {
+                    jQuery(el).datepicker('setDate', new Date(y, m - 1, d));
+                    return 'datepicker.setDate';
+                } catch (err) {
+                    try {
+                        jQuery(el).datepicker('update', new Date(y, m - 1, d));
+                        return 'datepicker.update';
+                    } catch (err2) {
+                        return 'datepicker-error:' + (err2.message || err2);
+                    }
+                }
+            }""",
+            [fecha.year, fecha.month, fecha.day],
+        )
+    except Exception as e:
+        log(f"  ! evaluate falló: {e}")
+
+    if "datepicker" not in str(method):
+        inp.click(click_count=3)
+        inp.fill(fecha_str)
+        inp.dispatch_event("input")
+        inp.dispatch_event("change")
+        inp.press("Enter")
+
     try:
         page.wait_for_load_state("networkidle", timeout=15000)
     except Exception:
         pass
-    page.wait_for_timeout(800)
+    page.wait_for_timeout(1000)
+
     actual = (inp.input_value() or "").strip()
     if actual != fecha_str:
-        log(f"  ! Fecha no se aplicó: input quedó en '{actual}', esperado '{fecha_str}'")
+        log(f"  ! Fecha no aplicada (método={method}): input quedó en '{actual}'")
         return False
     body = page.locator("body").inner_text()
     if fecha_str not in body and fecha.strftime("%d/%m/%Y") not in body:
-        log(f"  ! Fecha {fecha_str} no aparece en el encabezado de la página.")
+        log(f"  ! Fecha {fecha_str} no aparece en el encabezado.")
         return False
     return True
 
@@ -130,9 +156,6 @@ def select_state(page: Page, estado: str) -> bool:
         return False
     sel.select_option(label=estado)
     sel.dispatch_event("change")
-    sel.evaluate(
-        "el => { if (window.jQuery) jQuery(el).trigger('change'); }"
-    )
     try:
         page.wait_for_load_state("networkidle", timeout=15000)
     except Exception:
