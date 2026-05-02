@@ -3,6 +3,7 @@
 Login manual, scraping con Playwright. Resume si se interrumpe.
 """
 
+import argparse
 import csv
 import json
 import sys
@@ -189,18 +190,33 @@ def export_csv(state: dict) -> Path:
     return csv_path
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Exportador Mibiodata")
+    parser.add_argument("--days", type=int, default=DAYS_BACK,
+                        help=f"Días hacia atrás a recorrer (default: {DAYS_BACK})")
+    parser.add_argument("--reset", action="store_true",
+                        help="Borra progreso previo antes de comenzar")
+    return parser.parse_args()
+
+
 def main() -> int:
+    args = parse_args()
+
     print("=" * 64)
-    print("  Exportador Mibiodata — pacientes atendidos en los últimos 24 meses")
+    print(f"  Exportador Mibiodata — últimos {args.days} días")
     print("=" * 64)
     print()
     print("Pasos:")
     print("  1) Se abrirá un navegador en mibiodata.hospitalclinico.cl")
     print("  2) Inicia sesión MANUALMENTE (usuario + médico + clave).")
     print("  3) Cuando veas tu agenda, vuelve aquí y presiona ENTER.")
-    print("  4) El script recorrerá 730 días hacia atrás día a día.")
+    print(f"  4) El script recorrerá {args.days} días hacia atrás día a día.")
     print("  5) Si se interrumpe, vuelve a correrlo y retoma donde quedó.")
     print()
+
+    if args.reset and PROGRESS_FILE.exists():
+        PROGRESS_FILE.unlink()
+        log("Progreso anterior borrado por --reset.")
 
     state = load_progress()
     if state["pacientes"] or state["fechas_completas"]:
@@ -219,7 +235,7 @@ def main() -> int:
             page.goto(AGENDA_URL)
             page.wait_for_load_state("networkidle")
 
-        all_dates = daterange_back(DAYS_BACK)
+        all_dates = daterange_back(args.days)
         completed = set(state["fechas_completas"])
 
         for i, fecha in enumerate(all_dates, start=1):
