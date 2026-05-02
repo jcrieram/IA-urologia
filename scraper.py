@@ -143,6 +143,10 @@ def set_date(page: Page, fecha) -> bool:
     return True
 
 
+def normalize_state(s: str) -> str:
+    return " ".join((s or "").lower().split())
+
+
 def list_states(page: Page) -> list[str]:
     sel = find_state_select(page)
     if sel is None:
@@ -150,18 +154,34 @@ def list_states(page: Page) -> list[str]:
     return [o.strip() for o in sel.locator("option").all_text_contents() if o.strip()]
 
 
-def select_state(page: Page, estado: str) -> bool:
+def select_state_by_text(page: Page, target_text: str) -> bool:
+    """Selecciona en el <select> de estados la opción cuyo texto normalizado
+    coincide con target_text. Usa value (no label) para evitar problemas de
+    whitespace/saltos de línea en el HTML."""
     sel = find_state_select(page)
     if sel is None:
         return False
-    sel.select_option(label=estado)
-    sel.dispatch_event("change")
-    try:
-        page.wait_for_load_state("networkidle", timeout=15000)
-    except Exception:
-        pass
-    page.wait_for_timeout(600)
-    return True
+    target = normalize_state(target_text)
+    options = sel.locator("option").all()
+    for opt in options:
+        text = normalize_state(opt.text_content() or "")
+        if text == target:
+            value = opt.get_attribute("value")
+            if value is None:
+                return False
+            try:
+                sel.select_option(value=value, timeout=5000)
+            except Exception as e:
+                log(f"  ! select_option falló: {e}")
+                return False
+            sel.dispatch_event("change")
+            try:
+                page.wait_for_load_state("networkidle", timeout=15000)
+            except Exception:
+                pass
+            page.wait_for_timeout(600)
+            return True
+    return False
 
 
 def collect_rows_in_table(page: Page) -> list[dict]:
@@ -176,7 +196,8 @@ def collect_rows_in_table(page: Page) -> list[dict]:
             continue
         cells = tr.locator("td").all_text_contents()
         ficha = cells[1].strip() if len(cells) > 1 else ""
-        rows.append({"cap": cap, "ficha": ficha})
+        estado = cells[5].strip() if len(cells) > 5 else ""
+        rows.append({"cap": cap, "ficha": ficha, "estado": estado})
     return rows
 
 
@@ -210,27 +231,25 @@ def scrape_day(page: Page, fecha) -> list[dict]:
         return []
 
     estados = list_states(page)
-    if not estados:
-        log("  ! No encontré dropdown de estados; leeré la tabla con el filtro actual.")
-        return collect_rows_in_table(page)
+    if estados:
+        log(f"  Estados disponibles: {[normalize_state(e) for e in estados]}")
+        todas = next((e for e in estados if normalize_state(e) == "todas"), None)
+        if todas:
+            if not select_state_by_text(page, todas):
+                log("  ! No pude seleccionar 'Todas', uso el filtro actual")
+        else:
+            log("  ! No hay opción 'Todas'; leeré con el filtro actual")
 
-    incluidos = [e for e in estados if e.lower() not in EXCLUDED_STATES]
-    log(f"  Estados detectados: {estados}")
-    log(f"  Iterando estados incluidos: {incluidos}")
-
-    visited_caps = set()
+    rows = collect_rows_in_table(page)
     out = []
-    for estado in estados:
-        if estado.lower() in EXCLUDED_STATES:
+    excluidos = 0
+    for row in rows:
+        if normalize_state(row.get("estado", "")) in EXCLUDED_STATES:
+            excluidos += 1
             continue
-        if not select_state(page, estado):
-            continue
-        for row in collect_rows_in_table(page):
-            if row["cap"] in visited_caps:
-                continue
-            visited_caps.add(row["cap"])
-            row["estado"] = estado
-            out.append(row)
+        out.append(row)
+    if rows:
+        log(f"  Filas en tabla: {len(rows)} (atendidos: {len(out)}, excluidos: {excluidos})")
     return out
 
 
