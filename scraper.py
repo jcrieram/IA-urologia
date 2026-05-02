@@ -184,7 +184,7 @@ def select_state_by_text(page: Page, target_text: str) -> bool:
     return False
 
 
-def collect_rows_in_table(page: Page, debug: bool = False) -> list[dict]:
+def collect_rows_in_table(page: Page) -> list[dict]:
     all_trs = page.locator("table tbody tr").all()
     rows = []
     for tr in all_trs:
@@ -219,14 +219,30 @@ def extract_field(page: Page, label: str) -> str:
 _DUMP_DONE = {"once": False}
 
 
+def safe_goto(page: Page, url: str, retries: int = 3, timeout: int = 60000) -> bool:
+    last_err = None
+    for attempt in range(retries):
+        try:
+            page.goto(url, wait_until="networkidle", timeout=timeout)
+            return True
+        except Exception as e:
+            last_err = e
+            wait = 2 ** attempt
+            log(f"  ! goto falló (intento {attempt + 1}/{retries}): retry en {wait}s")
+            time.sleep(wait)
+    raise last_err  # type: ignore[misc]
+
+
 def scrape_ficha(page: Page, cf: str) -> dict:
-    page.goto(FICHA_URL_TPL.format(cf=cf), wait_until="networkidle")
+    try:
+        safe_goto(page, FICHA_URL_TPL.format(cf=cf), retries=2, timeout=45000)
+    except Exception:
+        return {}
     if not _DUMP_DONE["once"]:
         _DUMP_DONE["once"] = True
         try:
             body = page.locator("body").inner_text()[:2000]
             (OUT_DIR / "debug_historial.txt").write_text(body, encoding="utf-8")
-            log(f"  DEBUG primer historial guardado en out/debug_historial.txt")
         except Exception:
             pass
     return {
@@ -254,7 +270,7 @@ def scrape_day(page: Page, fecha) -> list[dict]:
         else:
             log("  ! No hay opción 'Todas'; leeré con el filtro actual")
 
-    rows = collect_rows_in_table(page, debug=True)
+    rows = collect_rows_in_table(page)
     out = []
     excluidos = 0
     for row in rows:
@@ -337,11 +353,11 @@ def main() -> int:
             log(f"[{i}/{len(all_dates)}] {fecha_str}")
 
             try:
-                page.goto(AGENDA_URL, wait_until="networkidle")
+                safe_goto(page, AGENDA_URL, retries=3, timeout=60000)
                 if not is_logged_in(page):
                     log("  ! Sesión expiró. Re-loguéate en el navegador.")
                     input("  Presiona ENTER cuando hayas vuelto a entrar... ")
-                    page.goto(AGENDA_URL, wait_until="networkidle")
+                    safe_goto(page, AGENDA_URL, retries=3, timeout=60000)
 
                 rows = scrape_day(page, fecha)
             except Exception as e:
