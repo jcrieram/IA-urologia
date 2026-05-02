@@ -92,9 +92,28 @@ def set_date(page: Page, fecha) -> bool:
     inp = find_date_input(page)
     if inp is None:
         return False
-    inp.fill(fecha.strftime("%d-%m-%Y"))
-    page.keyboard.press("Enter")
-    page.wait_for_load_state("networkidle", timeout=15000)
+    fecha_str = fecha.strftime("%d-%m-%Y")
+    inp.click(click_count=3)
+    inp.fill(fecha_str)
+    inp.dispatch_event("input")
+    inp.dispatch_event("change")
+    inp.press("Enter")
+    inp.evaluate(
+        "el => { el.blur(); if (window.jQuery) { jQuery(el).trigger('change'); jQuery(el).trigger('changeDate'); } }"
+    )
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    page.wait_for_timeout(800)
+    actual = (inp.input_value() or "").strip()
+    if actual != fecha_str:
+        log(f"  ! Fecha no se aplicó: input quedó en '{actual}', esperado '{fecha_str}'")
+        return False
+    body = page.locator("body").inner_text()
+    if fecha_str not in body and fecha.strftime("%d/%m/%Y") not in body:
+        log(f"  ! Fecha {fecha_str} no aparece en el encabezado de la página.")
+        return False
     return True
 
 
@@ -110,7 +129,15 @@ def select_state(page: Page, estado: str) -> bool:
     if sel is None:
         return False
     sel.select_option(label=estado)
-    page.wait_for_load_state("networkidle", timeout=15000)
+    sel.dispatch_event("change")
+    sel.evaluate(
+        "el => { if (window.jQuery) jQuery(el).trigger('change'); }"
+    )
+    try:
+        page.wait_for_load_state("networkidle", timeout=15000)
+    except Exception:
+        pass
+    page.wait_for_timeout(600)
     return True
 
 
@@ -163,6 +190,10 @@ def scrape_day(page: Page, fecha) -> list[dict]:
     if not estados:
         log("  ! No encontré dropdown de estados; leeré la tabla con el filtro actual.")
         return collect_rows_in_table(page)
+
+    incluidos = [e for e in estados if e.lower() not in EXCLUDED_STATES]
+    log(f"  Estados detectados: {estados}")
+    log(f"  Iterando estados incluidos: {incluidos}")
 
     visited_caps = set()
     out = []
