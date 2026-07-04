@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dictado de Uretrocistoscopía — Dr. Juan Carlos Riera Medina</title>
+<meta name="description" content="Aplicación de dictado por voz para informes de uretrocistoscopía. 100% offline, manos libres, exporta Word y PDF.">
+<style>
+/* ============================================================
+   DICTADO DE URETROCISTOSCOPÍA — v7
+   App autocontenida: sin CDN, sin internet, sin instalación.
+   Funciona abriendo este archivo en Chrome o Edge.
+   ============================================================ */
+:root{
+  --navy:#0f2a43;
+  --navy-2:#16385a;
+  --teal:#0e7490;
+  --teal-light:#e0f2f7;
+  --accent:#0891b2;
+  --ok:#16a34a;
+  --ok-bg:#dcfce7;
+  --warn:#b45309;
+  --warn-bg:#fef3c7;
+  --danger:#dc2626;
+  --bg:#eef2f6;
+  --panel:#ffffff;
+  --ink:#1e293b;
+  --ink-soft:#64748b;
+  --line:#dbe3ec;
+  --paper-shadow:0 10px 30px rgba(15,42,67,.14), 0 2px 6px rgba(15,42,67,.08);
+  --radius:12px;
+  --font:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --serif:Georgia, "Times New Roman", serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.5;
+}
+
+/* ---------- Barra superior ---------- */
+.topbar{
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 60%,#1d4e6e 100%);
+  color:#fff;
+  padding:.8rem 1.4rem;
+  display:flex;
+  align-items:center;
+  gap:1rem;
+  flex-wrap:wrap;
+  box-shadow:0 2px 10px rgba(15,42,67,.25);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.topbar .brand{display:flex;align-items:center;gap:.75rem;min-width:0}
+.brand-icon{
+  width:42px;height:42px;border-radius:10px;flex-shrink:0;
+  background:rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.18);
+}
+.brand h1{font-size:1.05rem;margin:0;font-weight:700;letter-spacing:.02em}
+.brand p{margin:0;font-size:.75rem;opacity:.75}
+.topbar .spacer{flex:1}
+.status-pill{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);
+  padding:.35rem .9rem;border-radius:999px;
+  font-size:.8rem;font-weight:600;white-space:nowrap;
+}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#94a3b8;flex-shrink:0}
+.status-pill.listening .status-dot{background:#4ade80;animation:pulse 1.2s infinite}
+.status-pill.error .status-dot{background:#f87171}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(74,222,128,.6)}50%{box-shadow:0 0 0 7px rgba(74,222,128,0)}}
+
+/* ---------- Layout ---------- */
+.layout{
+  display:grid;
+  grid-template-columns:minmax(360px,470px) 1fr;
+  gap:1.25rem;
+  padding:1.25rem;
+  max-width:1600px;
+  margin:0 auto;
+  align-items:start;
+}
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+}
+
+/* ---------- Panel izquierdo ---------- */
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:1.1rem 1.2rem;
+  margin-bottom:1.1rem;
+  box-shadow:0 1px 3px rgba(15,42,67,.06);
+}
+.card h2{
+  margin:0 0 .75rem;
+  font-size:.8rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--teal);
+  display:flex;align-items:center;gap:.5rem;
+}
+
+/* Botón de micrófono */
+.mic-row{display:flex;align-items:center;gap:1rem}
+.mic-btn{
+  width:88px;height:88px;border-radius:50%;
+  border:none;cursor:pointer;flex-shrink:0;
+  background:radial-gradient(circle at 35% 30%,#12547a,var(--navy));
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 18px rgba(15,42,67,.35);
+  transition:transform .15s ease, box-shadow .2s ease;
+  position:relative;
+}
+.mic-btn:hover{transform:scale(1.04)}
+.mic-btn:active{transform:scale(.97)}
+.mic-btn.on{
+  background:radial-gradient(circle at 35% 30%,#f05252,#b91c1c);
+  box-shadow:0 6px 22px rgba(220,38,38,.45);
+}
+.mic-btn.on::after{
+  content:"";position:absolute;inset:-7px;border-radius:50%;
+  border:3px solid rgba(220,38,38,.35);
+  animation:ring 1.4s infinite;
+}
+@keyframes ring{0%{transform:scale(.9);opacity:1}100%{transform:scale(1.25);opacity:0}}
+.mic-btn svg{width:38px;height:38px}
+.mic-info{min-width:0;flex:1}
+.mic-info .mic-state{font-weight:700;font-size:1rem;color:var(--navy)}
+.mic-info .mic-hint{font-size:.8rem;color:var(--ink-soft);margin-top:.15rem}
+.lang-row{margin-top:.55rem;display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--ink-soft)}
+.lang-row select{
+  font-size:.78rem;padding:.2rem .4rem;border:1px solid var(--line);
+  border-radius:6px;background:#fff;color:var(--ink);
+}
+
+/* Transcripción en vivo */
+.live-box{
+  margin-top:.9rem;
+  background:#f8fafc;
+  border:1px dashed var(--line);
+  border-radius:8px;
+  min-height:52px;
+  padding:.55rem .8rem;
+  font-size:.9rem;
+  color:var(--ink-soft);
+  font-style:italic;
+}
+.live-box.active{border-color:var(--accent);color:var(--ink);background:var(--teal-light)}
+.last-action{
+  margin-top:.55rem;font-size:.8rem;font-weight:600;color:var(--ok);
+  min-height:1.2em;
+}
+.last-action.warn{color:var(--warn)}
+
+/* Botones de acción */
+.actions{display:flex;flex-wrap:wrap;gap:.5rem}
+.btn{
+  display:inline-flex;align-items:center;gap:.45rem;
+  border:1px solid var(--line);
+  background:#fff;color:var(--navy);
+  font-family:inherit;font-size:.85rem;font-weight:600;
+  padding:.55rem .95rem;border-radius:8px;cursor:pointer;
+  transition:all .15s ease;
+}
+.btn:hover{border-color:var(--accent);background:var(--teal-light)}
+.btn svg{width:16px;height:16px;flex-shrink:0}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.primary:hover{background:#0a5e75}
+.btn.ghost-danger:hover{border-color:var(--danger);color:var(--danger);background:#fef2f2}
+
+/* Campos */
+.field{margin-bottom:.85rem}
+.field label{
+  display:flex;align-items:baseline;gap:.5rem;
+  font-size:.8rem;font-weight:700;color:var(--navy);
+  margin-bottom:.25rem;
+}
+.field .kw{
+  font-size:.68rem;font-weight:600;color:var(--teal);
+  background:var(--teal-light);
+  padding:.05rem .45rem;border-radius:999px;
+  white-space:nowrap;
+}
+.field input,.field textarea{
+  width:100%;
+  font-family:inherit;font-size:.9rem;color:var(--ink);
+  border:1px solid var(--line);border-radius:8px;
+  padding:.5rem .7rem;
+  background:#fff;
+  transition:border-color .15s, box-shadow .15s, background .3s;
+  resize:vertical;
+}
+.field input:focus,.field textarea:focus{
+  outline:none;border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(8,145,178,.15);
+}
+.field textarea{min-height:56px}
+.field.flash input,.field.flash textarea{
+  background:var(--ok-bg);border-color:var(--ok);
+}
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 .8rem}
+.fields-grid .full{grid-column:1/-1}
+@media (max-width:460px){.fields-grid{grid-template-columns:1fr}}
+
+/* Ayuda */
+details.help{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:1.1rem}
+details.help summary{
+  cursor:pointer;padding: .8rem 1.2rem;font-weight:700;font-size:.85rem;color:var(--navy);
+  list-style:none;display:flex;align-items:center;gap:.5rem;
+}
+details.help summary::-webkit-details-marker{display:none}
+details.help[open] summary{border-bottom:1px solid var(--line)}
+details.help .help-body{padding:.9rem 1.2rem;font-size:.83rem;color:var(--ink)}
+details.help table{border-collapse:collapse;width:100%;font-size:.8rem}
+details.help td{padding:.3rem .5rem;border-bottom:1px solid #eef2f6;vertical-align:top}
+details.help td:first-child{font-weight:600;color:var(--teal);white-space:nowrap}
+details.help code{
+  background:var(--teal-light);color:var(--navy);
+  padding:.05rem .35rem;border-radius:4px;font-size:.78rem;
+}
+
+/* ---------- Panel derecho: informe ---------- */
+.report-toolbar{
+  display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;
+  margin-bottom:1rem;
+}
+.report-toolbar .spacer{flex:1}
+.completeness{font-size:.78rem;color:var(--ink-soft);font-weight:600}
+.completeness b{color:var(--teal)}
+
+/* Hoja del informe (vista previa) */
+.sheet-wrap{overflow-x:auto}
+.sheet{
+  background:#fff;
+  width:100%;
+  max-width:820px;
+  margin:0 auto;
+  padding:2.6rem 3rem;
+  box-shadow:var(--paper-shadow);
+  border-radius:4px;
+  font-family:var(--serif);
+  color:#111827;
+  font-size:14.5px;
+  line-height:1.55;
+}
+@media (max-width:640px){.sheet{padding:1.4rem 1.2rem}}
+.sheet .hosp-header{
+  text-align:center;
+  border-bottom:3px double var(--navy);
+  padding-bottom:.8rem;margin-bottom:1rem;
+}
+.sheet .hosp-header .h-name{font-size:1.15rem;font-weight:700;letter-spacing:.05em;color:var(--navy)}
+.sheet .hosp-header .h-unit{font-size:.85rem;font-weight:600;letter-spacing:.09em;color:#374151;margin-top:.15rem}
+.sheet .hosp-header .h-doc{font-size:.8rem;color:#4b5563;margin-top:.35rem;font-style:italic}
+.sheet .r-date{text-align:right;font-size:.85rem;margin-bottom:.9rem}
+.sheet .r-title{
+  text-align:center;font-weight:700;font-size:1.05rem;
+  letter-spacing:.12em;text-decoration:underline;
+  margin:0 0 1.1rem;color:var(--navy);
+}
+.sheet table.pt{
+  width:100%;border-collapse:collapse;margin-bottom:1.1rem;font-size:.92rem;
+}
+.sheet table.pt td{border:1px solid #9ca3af;padding:.35rem .7rem}
+.sheet table.pt td.lbl{font-weight:700;width:120px;background:#f3f4f6}
+.sheet .sec-title{
+  font-weight:700;font-size:.85rem;letter-spacing:.08em;
+  color:var(--navy);
+  border-bottom:1px solid #cbd5e1;
+  margin:1.1rem 0 .4rem;padding-bottom:.15rem;
+  text-transform:uppercase;
+}
+.sheet .sec-body{white-space:pre-wrap;min-height:1.3em}
+.sheet .sub-lbl{font-weight:700;font-size:.85rem;margin-top:.55rem}
+.sheet .empty{color:#9ca3af}
+.sheet .tech-line{font-size:.85rem;color:#374151;margin-top:.5rem;font-style:italic}
+.sheet .dx-line{margin-top:.4rem}
+.sheet .dx-line b{letter-spacing:.03em}
+.sheet .sig{
+  margin-top:3.2rem;
+  display:flex;justify-content:flex-end;
+}
+.sheet .sig-inner{text-align:center;min-width:260px}
+.sheet .sig-inner .sig-line{border-top:1px solid #111827;margin-bottom:.3rem}
+.sheet .sig-inner .sig-name{font-weight:700;font-size:.9rem}
+.sheet .sig-inner .sig-role{font-size:.8rem;color:#374151}
+
+/* Aviso de compatibilidad */
+.compat{
+  background:var(--warn-bg);border:1px solid #f59e0b;color:#78350f;
+  border-radius:var(--radius);padding: .8rem 1.1rem;font-size:.85rem;
+  margin-bottom:1.1rem;display:none;
+}
+.compat.show{display:block}
+
+/* Toast */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--navy);color:#fff;
+  padding:.65rem 1.3rem;border-radius:999px;
+  font-size:.85rem;font-weight:600;
+  box-shadow:0 8px 24px rgba(15,42,67,.4);
+  opacity:0;pointer-events:none;
+  transition:opacity .25s, transform .25s;
+  z-index:100;max-width:90vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ---------- Impresión: solo el informe ---------- */
+@media print{
+  body{background:#fff}
+  .topbar,.panel-left,.report-toolbar,.compat,#toast{display:none !important}
+  .layout{display:block;padding:0;margin:0;max-width:none}
+  .sheet-wrap{overflow:visible}
+  .sheet{
+    box-shadow:none;border-radius:0;max-width:none;
+    padding:0;font-size:12.5pt;
+  }
+  .sheet .empty{color:#6b7280}
+  .sheet .sig{margin-top:1.8rem;page-break-inside:avoid}
+  @page{size:letter;margin:1.6cm 2.2cm}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon" aria-hidden="true">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+        <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Dictado de Uretrocistoscopía</h1>
+      <p>Hospital Clínico Viña del Mar · Unidad de Urología Ambulatoria · Dr. Juan Carlos Riera Medina</p>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div id="statusPill" class="status-pill">
+    <span class="status-dot"></span>
+    <span id="statusText">Micrófono inactivo</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- ================= PANEL IZQUIERDO ================= -->
+  <div class="panel-left">
+
+    <div id="compatWarn" class="compat">
+      <b>⚠ Este navegador no soporta dictado por voz.</b><br>
+      Use <b>Google Chrome</b> o <b>Microsoft Edge</b> para dictar manos libres.
+      Igualmente puede escribir los campos manualmente y exportar el informe.
+    </div>
+
+    <div class="card">
+      <h2>Dictado por voz</h2>
+      <div class="mic-row">
+        <button id="micBtn" class="mic-btn" title="Iniciar / detener dictado" aria-label="Iniciar o detener dictado">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/>
+          </svg>
+        </button>
+        <div class="mic-info">
+          <div class="mic-state" id="micState">Detenido</div>
+          <div class="mic-hint">Diga el <b>nombre del campo</b> seguido del contenido.<br>Ej: <i>«vejiga mucosa de aspecto normal»</i></div>
+          <div class="lang-row">
+            <label for="langSel">Idioma:</label>
+            <select id="langSel">
+              <option value="es-CL" selected>Español (Chile)</option>
+              <option value="es-419">Español (Latinoamérica)</option>
+              <option value="es-MX">Español (México)</option>
+              <option value="es-ES">Español (España)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="liveBox" class="live-box">La transcripción en vivo aparecerá aquí…</div>
+      <div id="lastAction" class="last-action"></div>
+    </div>
+
+    <div class="card">
+      <h2>Acciones rápidas</h2>
+      <div class="actions">
+        <button class="btn" id="btnNormal" title="Rellena los hallazgos con valores de examen normal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Examen normal
+        </button>
+        <button class="btn" id="btnHoy" title="Coloca la fecha de hoy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Fecha de hoy
+        </button>
+        <button class="btn ghost-danger" id="btnClear" title="Borra todos los campos y comienza un informe nuevo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Nuevo informe
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Datos del paciente</h2>
+      <div class="fields-grid">
+        <div class="field full" data-field="nombre">
+          <label for="nombre">Nombre <span class="kw">🎤 «nombre …»</span></label>
+          <input id="nombre" type="text" autocomplete="off" placeholder="Nombre completo del paciente">
+        </div>
+        <div class="field" data-field="rut">
+          <label for="rut">RUT <span class="kw">🎤 «rut …»</span></label>
+          <input id="rut" type="text" autocomplete="off" placeholder="12.345.678-9">
+        </div>
+        <div class="field" data-field="edad">
+          <label for="edad">Edad <span class="kw">🎤 «edad …»</span></label>
+          <input id="edad" type="text" autocomplete="off" placeholder="65 años">
+        </div>
+        <div class="field full" data-field="fecha">
+          <label for="fecha">Fecha <span class="kw">🎤 «fecha …»</span></label>
+          <input id="fecha" type="text" autocomplete="off" placeholder="04 de julio de 2026">
+        </div>
+        <div class="field full" data-field="indicacion">
+          <label for="indicacion">Indicación / Diagnóstico de ingreso <span class="kw">🎤 «indicación …»</span></label>
+          <textarea id="indicacion" placeholder="Motivo del examen"></textarea>
+        </div>
+        <div class="field" data-field="anestesia">
+          <label for="anestesia">Anestesia <span class="kw">🎤 «anestesia …»</span></label>
+          <input id="anestesia" type="text" autocomplete="off" placeholder="Lidocaína intrauretral">
+        </div>
+        <div class="field" data-field="equipo">
+          <label for="equipo">Equipo <span class="kw">🎤 «equipo …»</span></label>
+          <input id="equipo" type="text" autocomplete="off" placeholder="Cistoscopio flexible">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Hallazgos endoscópicos</h2>
+      <div class="field" data-field="uretra">
+        <label for="uretra">Uretra anterior <span class="kw">🎤 «uretra …»</span></label>
+        <textarea id="uretra"></textarea>
+      </div>
+      <div class="field" data-field="prostata">
+        <label for="prostata">Uretra posterior / Próstata <span class="kw">🎤 «próstata …»</span></label>
+        <textarea id="prostata"></textarea>
+      </div>
+      <div class="field" data-field="cuello">
+        <label for="cuello">Cuello vesical <span class="kw">🎤 «cuello …»</span></label>
+        <textarea id="cuello"></textarea>
+      </div>
+      <div class="field" data-field="vejiga">
+        <label for="vejiga">Vejiga <span class="kw">🎤 «vejiga …»</span></label>
+        <textarea id="vejiga"></textarea>
+      </div>
+      <div class="field" data-field="diagnostico">
+        <label for="diagnostico">Diagnóstico endoscópico <span class="kw">🎤 «diagnóstico …»</span></label>
+        <textarea id="diagnostico"></textarea>
+      </div>
+      <div class="field" data-field="conducta">
+        <label for="conducta">Conducta / Sugerencia <span class="kw">🎤 «conducta …»</span></label>
+        <textarea id="conducta"></textarea>
+      </div>
+    </div>
+
+    <details class="help">
+      <summary>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Comandos de voz disponibles
+      </summary>
+      <div class="help-body">
+        <table>
+          <tr><td><code>[campo] [texto]</code></td><td>Rellena el campo. Ej: «uretra sin alteraciones». El contenido nuevo <b>reemplaza</b> al anterior.</td></tr>
+          <tr><td><code>agregar [campo] [texto]</code></td><td>Agrega texto al final del campo sin borrar lo dictado antes.</td></tr>
+          <tr><td><code>borrar [campo]</code></td><td>Deja el campo vacío. Ej: «borrar vejiga».</td></tr>
+          <tr><td><code>examen normal</code></td><td>Rellena todos los hallazgos con la plantilla de examen normal.</td></tr>
+          <tr><td><code>fecha hoy</code></td><td>Coloca la fecha de hoy automáticamente.</td></tr>
+          <tr><td><code>descargar informe</code></td><td>Descarga el archivo Word (.docx).</td></tr>
+          <tr><td><code>imprimir informe</code></td><td>Abre el diálogo de impresión (para papel o PDF).</td></tr>
+          <tr><td><code>limpiar todo</code></td><td>Comienza un informe nuevo (borra todos los campos).</td></tr>
+          <tr><td>Puntuación</td><td>Diga «punto», «coma», «punto y coma», «dos puntos», «nueva línea» o «punto aparte» dentro del dictado.</td></tr>
+        </table>
+        <p style="margin:.7rem 0 0">Campos reconocidos: <b>nombre/paciente · rut · edad · fecha · indicación/motivo · anestesia · equipo · uretra · próstata/uretra posterior · cuello (vesical) · vejiga · diagnóstico/conclusión · conducta/sugerencia/plan</b>.</p>
+        <p style="margin:.5rem 0 0;color:var(--ink-soft)">El borrador se guarda automáticamente en este computador: si cierra la página por accidente, al reabrirla recuperará lo dictado.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- ================= PANEL DERECHO: INFORME ================= -->
+  <div class="panel-right">
+    <div class="report-toolbar">
+      <button class="btn primary" id="btnDocx">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar Word (.docx)
+      </button>
+      <button class="btn" id="btnPrint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir / PDF
+      </button>
+      <button class="btn" id="btnCopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar texto
+      </button>
+      <div class="spacer"></div>
+      <div class="completeness" id="completeness"></div>
+    </div>
+
+    <div class="sheet-wrap">
+      <!-- Vista previa del informe: es exactamente lo que se imprime -->
+      <div class="sheet" id="reportSheet">
+        <div class="hosp-header">
+          <div class="h-name">HOSPITAL CLÍNICO VIÑA DEL MAR</div>
+          <div class="h-unit">UNIDAD DE UROLOGÍA AMBULATORIA</div>
+          <div class="h-doc">Dr. Juan Carlos Riera Medina — Urólogo</div>
+        </div>
+
+        <div class="r-date">Fecha: <span id="pv-fecha" class="empty">—</span></div>
+
+        <div class="r-title">INFORME DE URETROCISTOSCOPÍA</div>
+
+        <table class="pt">
+          <tr><td class="lbl">Nombre</td><td id="pv-nombre" class="empty">—</td></tr>
+          <tr><td class="lbl">RUT</td><td id="pv-rut" class="empty">—</td></tr>
+          <tr><td class="lbl">Edad</td><td id="pv-edad" class="empty">—</td></tr>
+        </table>
+
+        <div class="sec-title">Indicación</div>
+        <div class="sec-body empty" id="pv-indicacion">—</div>
+        <div class="tech-line">Anestesia: <span id="pv-anestesia">—</span> · Equipo: <span id="pv-equipo">—</span></div>
+
+        <div class="sec-title">Hallazgos endoscópicos</div>
+        <div class="sub-lbl">Uretra anterior</div>
+        <div class="sec-body empty" id="pv-uretra">—</div>
+        <div class="sub-lbl">Uretra posterior / Próstata</div>
+        <div class="sec-body empty" id="pv-prostata">—</div>
+        <div class="sub-lbl">Cuello vesical</div>
+        <div class="sec-body empty" id="pv-cuello">—</div>
+        <div class="sub-lbl">Vejiga</div>
+        <div class="sec-body empty" id="pv-vejiga">—</div>
+
+        <div class="sec-title">Conclusión</div>
+        <div class="dx-line"><b>DIAGNÓSTICO ENDOSCÓPICO:</b> <span id="pv-diagnostico" class="empty">—</span></div>
+        <div class="dx-line"><b>SUGERENCIA:</b> <span id="pv-conducta" class="empty">—</span></div>
+
+        <div class="sig">
+          <div class="sig-inner">
+            <div class="sig-line"></div>
+            <div class="sig-name">Dr. Juan Carlos Riera Medina</div>
+            <div class="sig-role">Urólogo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ============================================================
+   1. DEFINICIÓN DE CAMPOS Y ALIAS DE VOZ
+   ============================================================ */
+const FIELDS = [
+  { id:'nombre',      label:'Nombre',                    keys:['nombre','paciente','nombre del paciente'] },
+  { id:'rut',         label:'RUT',                       keys:['rut','run','ruth','root','runt','ruta','rud'] },
+  { id:'edad',        label:'Edad',                      keys:['edad'] },
+  { id:'fecha',       label:'Fecha',                     keys:['fecha'] },
+  { id:'indicacion',  label:'Indicación',                keys:['indicacion','motivo','diagnostico de ingreso','indicacion diagnostico'] },
+  { id:'anestesia',   label:'Anestesia',                 keys:['anestesia'] },
+  { id:'equipo',      label:'Equipo',                    keys:['equipo','instrumento','cistoscopio'] },
+  { id:'uretra',      label:'Uretra anterior',           keys:['uretra','uretra anterior'] },
+  { id:'prostata',    label:'Uretra posterior / Próstata', keys:['prostata','uretra posterior','uretra prostatica'] },
+  { id:'cuello',      label:'Cuello vesical',            keys:['cuello','cuello vesical'] },
+  { id:'vejiga',      label:'Vejiga',                    keys:['vejiga'] },
+  { id:'diagnostico', label:'Diagnóstico endoscópico',   keys:['diagnostico','diagnostico endoscopico','conclusion','impresion'] },
+  { id:'conducta',    label:'Conducta / Sugerencia',     keys:['conducta','sugerencia','plan','tratamiento','recomendacion'] },
+];
+const FIELD_BY_ID = Object.fromEntries(FIELDS.map(f => [f.id, f]));
+// Campos que cuentan para el indicador de completitud
+const CORE_FIELDS = ['nombre','rut','edad','fecha','indicacion','uretra','prostata','cuello','vejiga','diagnostico','conducta'];
+
+const NORMAL_TEMPLATE = {
+  uretra:      'De aspecto y calibre normal en todo su trayecto, sin estenosis ni lesiones de la mucosa.',
+  prostata:    'Uretra prostática sin crecimiento obstructivo. Lóbulos laterales no obstructivos. Verumontanum de aspecto normal.',
+  cuello:      'De aspecto normal, sin esclerosis ni lesiones.',
+  vejiga:      'Capacidad adecuada. Mucosa de aspecto normal en todas sus paredes, sin lesiones exofíticas, eritematosas ni sospechosas. Meatos ureterales en posición habitual, eyaculando orina clara. Sin litiasis ni cuerpos extraños.',
+  diagnostico: 'Uretrocistoscopía sin alteraciones patológicas evidentes.',
+  conducta:    'Control en policlínico de Urología con resultado.',
+};
+const DEFAULTS = { anestesia:'Lidocaína intrauretral', equipo:'Cistoscopio flexible' };
+
+const STORAGE_KEY = 'cistoscopia_borrador_v7';
+
+/* ============================================================
+   2. UTILIDADES
+   ============================================================ */
+const $ = id => document.getElementById(id);
+
+function normalizar(s){
+  return (s||'').toLowerCase()
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9ñ ]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+
+function capitalizar(s){
+  if(!s) return s;
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Convierte palabras de puntuación dictadas en signos reales
+function aplicarPuntuacion(t){
+  let s = ' ' + t + ' ';
+  s = s.replace(/\s+(punto y aparte|punto aparte|nueva linea|nueva línea|nuevo parrafo|nuevo párrafo)\s+/gi, '.\n');
+  s = s.replace(/\s+(punto y aparte|punto aparte|nueva linea|nueva línea|nuevo parrafo|nuevo párrafo)\s*$/gi, '.');
+  s = s.replace(/\s+punto y coma\s+/gi, '; ');
+  s = s.replace(/\s+dos puntos\s+/gi, ': ');
+  s = s.replace(/\s+punto\s+/gi, '. ');
+  s = s.replace(/\s+punto\s*$/gi, '.');
+  s = s.replace(/\s+coma\s+/gi, ', ');
+  // Capitalizar después de punto o salto de línea
+  s = s.replace(/([.\n]\s*)([a-záéíóúñ])/g, (m,p,c) => p + c.toUpperCase());
+  return s.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim();
+}
+
+// Da formato chileno a un RUT dictado como dígitos: 12345678k -> 12.345.678-K
+function formatearRut(s){
+  const limpio = s.replace(/[.\-\s]/g,'').toUpperCase();
+  if(!/^\d{6,8}[\dK]$/.test(limpio)) return s; // no parece RUT, dejar tal cual
+  const cuerpo = limpio.slice(0,-1), dv = limpio.slice(-1);
+  let fmt = '', c = 0;
+  for(let i = cuerpo.length-1; i >= 0; i--){
+    fmt = cuerpo[i] + fmt;
+    if(++c % 3 === 0 && i > 0) fmt = '.' + fmt;
+  }
+  return fmt + '-' + dv;
+}
+
+function fechaHoy(){
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const d = new Date();
+  return `${String(d.getDate()).padStart(2,'0')} de ${meses[d.getMonth()]} de ${d.getFullYear()}`;
+}
+
+let toastTimer = null;
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// Sonido corto de confirmación (feedback manos libres, sin archivos)
+let audioCtx = null;
+function beep(ok = true){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = 'sine';
+    o.frequency.value = ok ? 880 : 220;
+    g.gain.setValueAtTime(0.12, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+    o.start(); o.stop(audioCtx.currentTime + 0.2);
+  }catch(e){ /* sin audio disponible */ }
+}
+
+/* ============================================================
+   3. ESTADO, AUTOGUARDADO Y VISTA PREVIA
+   ============================================================ */
+function getDatos(){
+  const d = {};
+  FIELDS.forEach(f => d[f.id] = $(f.id).value.trim());
+  return d;
+}
+
+function setCampo(id, valor, {append = false, flash = true} = {}){
+  const el = $(id);
+  if(append && el.value.trim()){
+    const sep = /[.;:]$/.test(el.value.trim()) ? ' ' : '. ';
+    el.value = el.value.trim() + sep + valor;
+  }else{
+    el.value = valor;
+  }
+  if(flash){
+    const wrap = el.closest('.field');
+    wrap.classList.remove('flash');
+    void wrap.offsetWidth; // reinicia la animación
+    wrap.classList.add('flash');
+    setTimeout(() => wrap.classList.remove('flash'), 1200);
+  }
+  actualizar();
+}
+
+function guardarBorrador(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(getDatos())); }catch(e){}
+}
+
+function cargarBorrador(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const d = JSON.parse(raw);
+    let alguno = false;
+    FIELDS.forEach(f => {
+      if(d[f.id]){ $(f.id).value = d[f.id]; alguno = true; }
+    });
+    return alguno;
+  }catch(e){ return false; }
+}
+
+function renderPreview(){
+  const d = getDatos();
+  FIELDS.forEach(f => {
+    const el = $('pv-' + f.id);
+    if(!el) return;
+    const v = d[f.id];
+    el.textContent = v || '—';
+    el.classList.toggle('empty', !v);
+  });
+  // Completitud
+  const llenos = CORE_FIELDS.filter(id => d[id]).length;
+  $('completeness').innerHTML = `Campos completados: <b>${llenos} / ${CORE_FIELDS.length}</b>`;
+}
+
+function actualizar(){
+  renderPreview();
+  guardarBorrador();
+}
+
+/* ============================================================
+   4. DETECCIÓN DE CAMPO Y COMANDOS DE VOZ
+   ============================================================ */
+function detectarCampo(fraseNorm){
+  // quitar artículos/preposiciones iniciales: "en la vejiga..." -> "vejiga..."
+  const frase = fraseNorm.replace(/^((en|el|la|los|las|del|de|un|una)\s+)+/,'');
+  const candidatos = [];
+  for(const campo of FIELDS){
+    for(const key of campo.keys){
+      const k = normalizar(key);
+      if(frase === k || frase.startsWith(k + ' ')){
+        candidatos.push({ campo, klen: k.length });
+      }
+    }
+  }
+  if(!candidatos.length) return null;
+  candidatos.sort((a,b) => b.klen - a.klen);
+  const best = candidatos[0];
+  return { id: best.campo.id, contenido: frase.slice(best.klen).trim() };
+}
+
+// Recupera el contenido con mayúsculas/tildes originales del texto dictado
+function extraerContenidoOriginal(original, contenidoNorm){
+  if(!contenidoNorm) return '';
+  const palabras = contenidoNorm.split(' ').length;
+  const origPalabras = original.trim().split(/\s+/);
+  return origPalabras.slice(origPalabras.length - palabras).join(' ');
+}
+
+function procesarFrase(original){
+  const norm = normalizar(original);
+  if(!norm) return;
+
+  /* ---- Comandos globales ---- */
+  if(/^(descargar|descarga|generar|bajar)( el)?( informe| reporte| word| documento)?$/.test(norm)){
+    descargarDocx(); return;
+  }
+  if(/^imprimir( el)?( informe| reporte)?$/.test(norm)){
+    setLastAction('🖨 Abriendo impresión…');
+    beep(); window.print(); return;
+  }
+  if(/^(limpiar|borrar) todo$/.test(norm) || norm === 'nuevo informe'){
+    nuevoInforme(); beep();
+    setLastAction('🗑 Informe nuevo: todos los campos en blanco.'); return;
+  }
+  if(norm === 'examen normal' || norm === 'todo normal' || norm === 'hallazgos normales'){
+    aplicarNormal(); beep();
+    setLastAction('✔ Plantilla de examen normal aplicada.'); return;
+  }
+  if(norm === 'fecha hoy' || norm === 'fecha de hoy'){
+    setCampo('fecha', fechaHoy()); beep();
+    setLastAction('✔ Fecha: ' + fechaHoy()); return;
+  }
+
+  /* ---- borrar [campo] ---- */
+  let m = norm.match(/^(borrar|borra|limpiar|limpia)\s+(.+)$/);
+  if(m){
+    const det = detectarCampo(m[2]);
+    if(det){
+      setCampo(det.id, '');
+      beep();
+      setLastAction('🗑 Campo «' + FIELD_BY_ID[det.id].label + '» borrado.');
+      return;
+    }
+  }
+
+  /* ---- agregar [campo] [texto] ---- */
+  let append = false;
+  let fraseCampo = norm;
+  let originalCampo = original;
+  m = norm.match(/^(agregar|agrega|anadir|anade|sumar)\s+(.+)$/);
+  if(m){
+    append = true;
+    fraseCampo = m[2];
+    originalCampo = original.replace(/^\s*\S+\s+/,'');
+  }
+
+  /* ---- [campo] [contenido] ---- */
+  const det = detectarCampo(fraseCampo);
+  if(det && det.contenido){
+    let contenido = extraerContenidoOriginal(originalCampo, det.contenido);
+    contenido = aplicarPuntuacion(contenido);
+    if(det.id === 'rut') contenido = formatearRut(contenido);
+    if(det.id === 'edad' && /^\d+$/.test(contenido)) contenido += ' años';
+    contenido = capitalizar(contenido);
+    setCampo(det.id, contenido, {append});
+    beep();
+    setLastAction((append ? '➕ Agregado a' : '✔') + ' «' + FIELD_BY_ID[det.id].label + '»: ' + contenido);
+    return;
+  }
+
+  // No reconocido
+  setLastAction('⚠ No se reconoció un campo en: «' + original.trim() + '». Comience con el nombre del campo.', true);
+}
+
+function setLastAction(msg, warn = false){
+  const el = $('lastAction');
+  el.textContent = msg;
+  el.classList.toggle('warn', warn);
+}
+
+function aplicarNormal(){
+  Object.entries(NORMAL_TEMPLATE).forEach(([id,v]) => setCampo(id, v, {flash:true}));
+  if(!$('anestesia').value) setCampo('anestesia', DEFAULTS.anestesia, {flash:false});
+  if(!$('equipo').value) setCampo('equipo', DEFAULTS.equipo, {flash:false});
+  if(!$('fecha').value) setCampo('fecha', fechaHoy(), {flash:false});
+}
+
+function nuevoInforme(){
+  FIELDS.forEach(f => { $(f.id).value = ''; });
+  setCampo('fecha', fechaHoy(), {flash:false});
+  setCampo('anestesia', DEFAULTS.anestesia, {flash:false});
+  setCampo('equipo', DEFAULTS.equipo, {flash:false});
+  actualizar();
+}
+
+/* ============================================================
+   5. RECONOCIMIENTO DE VOZ
+   ============================================================ */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let micActivo = false;
+
+function crearReconocedor(){
+  const r = new SR();
+  r.lang = $('langSel').value;
+  r.continuous = true;
+  r.interimResults = true;
+  r.maxAlternatives = 1;
+
+  r.onresult = (e) => {
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if(e.results[i].isFinal){
+        // Usar SOLO el resultado final (t): el interino ya contiene el mismo texto
+        $('liveBox').textContent = t.trim();
+        procesarFrase(t.trim());
+      }else{
+        $('liveBox').textContent = t;
+        $('liveBox').classList.add('active');
+      }
+    }
+  };
+
+  r.onerror = (e) => {
+    if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){
+      detenerMic();
+      setEstado('error', 'Permiso de micrófono denegado');
+      toast('Debe permitir el acceso al micrófono en el navegador.');
+    }
+    // 'no-speech' y 'aborted' se manejan con el reinicio automático en onend
+  };
+
+  r.onend = () => {
+    // Reinicio automático mientras el dictado esté activo (timeouts del motor)
+    if(micActivo){
+      try{ r.start(); }catch(e){ /* ya iniciado */ }
+    }
+  };
+  return r;
+}
+
+function setEstado(estado, texto){
+  const pill = $('statusPill');
+  pill.classList.remove('listening','error');
+  if(estado === 'on') pill.classList.add('listening');
+  if(estado === 'error') pill.classList.add('error');
+  $('statusText').textContent = texto;
+}
+
+function iniciarMic(){
+  if(!SR) return;
+  recognition = crearReconocedor();
+  try{ recognition.start(); }catch(e){}
+  micActivo = true;
+  $('micBtn').classList.add('on');
+  $('micState').textContent = 'Escuchando…';
+  setEstado('on','Micrófono activo — dictando');
+  $('liveBox').textContent = 'Escuchando… diga el campo y su contenido.';
+  $('liveBox').classList.add('active');
+  beep();
+}
+
+function detenerMic(){
+  micActivo = false;
+  if(recognition){ try{ recognition.stop(); }catch(e){} }
+  $('micBtn').classList.remove('on');
+  $('micState').textContent = 'Detenido';
+  setEstado('off','Micrófono inactivo');
+  $('liveBox').classList.remove('active');
+  $('liveBox').textContent = 'La transcripción en vivo aparecerá aquí…';
+}
+
+/* ============================================================
+   6. GENERACIÓN DEL .DOCX (OOXML + ZIP escritos a mano,
+      sin librerías externas — 100% offline)
+   ============================================================ */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for(let n = 0; n < 256; n++){
+    let c = n;
+    for(let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c;
+  }
+  return t;
+})();
+function crc32(u8){
+  let c = 0xFFFFFFFF;
+  for(let i = 0; i < u8.length; i++) c = CRC_TABLE[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+// ZIP sin compresión (método store) — válido para .docx
+function makeZip(entries){
+  const enc = new TextEncoder();
+  const chunks = [], central = [];
+  let offset = 0;
+  for(const e of entries){
+    const name = enc.encode(e.name);
+    const data = e.data;
+    const crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true);   // firma local
+    lh.setUint16(4, 20, true);           // versión
+    lh.setUint16(6, 0x0800, true);       // flags: nombres UTF-8
+    lh.setUint16(8, 0, true);            // método: store
+    lh.setUint16(10, 0, true);           // hora
+    lh.setUint16(12, 0x5821, true);      // fecha (fija, irrelevante)
+    lh.setUint32(14, crc, true);
+    lh.setUint32(18, data.length, true);
+    lh.setUint32(22, data.length, true);
+    lh.setUint16(26, name.length, true);
+    lh.setUint16(28, 0, true);
+    chunks.push(new Uint8Array(lh.buffer), name, data);
+
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true);   // firma central
+    ch.setUint16(4, 20, true);
+    ch.setUint16(6, 20, true);
+    ch.setUint16(8, 0x0800, true);
+    ch.setUint16(10, 0, true);
+    ch.setUint16(12, 0, true);
+    ch.setUint16(14, 0x5821, true);
+    ch.setUint32(16, crc, true);
+    ch.setUint32(20, data.length, true);
+    ch.setUint32(24, data.length, true);
+    ch.setUint16(28, name.length, true);
+    ch.setUint32(42, offset, true);      // offset del header local
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + data.length;
+  }
+  let centralSize = 0;
+  central.forEach(c => centralSize += c.length);
+  const eocd = new DataView(new ArrayBuffer(22));
+  eocd.setUint32(0, 0x06054b50, true);
+  eocd.setUint16(8, entries.length, true);
+  eocd.setUint16(10, entries.length, true);
+  eocd.setUint32(12, centralSize, true);
+  eocd.setUint32(16, offset, true);
+  const all = [...chunks, ...central, new Uint8Array(eocd.buffer)];
+  let total = 0; all.forEach(a => total += a.length);
+  const out = new Uint8Array(total);
+  let p = 0; all.forEach(a => { out.set(a, p); p += a.length; });
+  return out;
+}
+
+function esc(s){
+  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* --- Helpers OOXML --- */
+function wRun(text, o = {}){
+  const sz = o.sz || 22; // half-points (22 = 11pt)
+  const rpr = `<w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>` +
+    (o.b ? '<w:b/>' : '') + (o.i ? '<w:i/>' : '') + (o.u ? '<w:u w:val="single"/>' : '') +
+    (o.color ? `<w:color w:val="${o.color}"/>` : '') +
+    (o.caps ? '<w:caps/>' : '') +
+    `<w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/></w:rPr>`;
+  return `<w:r>${rpr}<w:t xml:space="preserve">${esc(text)}</w:t></w:r>`;
+}
+function wP(runs, o = {}){
+  let pPr = '';
+  if(o.align) pPr += `<w:jc w:val="${o.align}"/>`;
+  pPr += `<w:spacing w:before="${o.before||0}" w:after="${o.after != null ? o.after : 100}" w:line="264" w:lineRule="auto"/>`;
+  if(o.borderBottom) pPr += `<w:pBdr><w:bottom w:val="${o.borderBottom}" w:sz="12" w:space="4" w:color="0F2A43"/></w:pBdr>`;
+  if(o.borderTop) pPr += `<w:pBdr><w:top w:val="single" w:sz="6" w:space="2" w:color="000000"/></w:pBdr>`;
+  return `<w:p><w:pPr>${pPr}</w:pPr>${runs}</w:p>`;
+}
+// Texto de campo con soporte de varios párrafos
+function wBody(text, o = {}){
+  const v = (text || '—');
+  return v.split('\n').filter((l,i,arr) => l.trim() || arr.length === 1)
+    .map(l => wP(wRun(l.trim() || '—', o), {after:60})).join('');
+}
+function wRowPT(label, value){
+  return `<w:tr>` +
+    `<w:tc><w:tcPr><w:tcW w:w="1800" w:type="dxa"/><w:shd w:val="clear" w:fill="F3F4F6"/></w:tcPr>${wP(wRun(label,{b:true}),{after:40})}</w:tc>` +
+    `<w:tc><w:tcPr><w:tcW w:w="7900" w:type="dxa"/></w:tcPr>${wP(wRun(value || '—'),{after:40})}</w:tc>` +
+    `</w:tr>`;
+}
+
+function buildDocumentXml(d){
+  const body = [];
+
+  // Encabezado institucional
+  body.push(wP(wRun('HOSPITAL CLÍNICO VIÑA DEL MAR', {b:true, sz:28, color:'0F2A43'}), {align:'center', after:40}));
+  body.push(wP(wRun('UNIDAD DE UROLOGÍA AMBULATORIA', {b:true, sz:22, color:'374151'}), {align:'center', after:40}));
+  body.push(wP(wRun('Dr. Juan Carlos Riera Medina — Urólogo', {i:true, sz:20, color:'4B5563'}), {align:'center', after:120, borderBottom:'double'}));
+
+  // Fecha
+  body.push(wP(wRun('Fecha: ', {b:true, sz:20}) + wRun(d.fecha || '—', {sz:20}), {align:'right', after:160}));
+
+  // Título
+  body.push(wP(wRun('INFORME DE URETROCISTOSCOPÍA', {b:true, u:true, sz:26, color:'0F2A43'}), {align:'center', before:60, after:220}));
+
+  // Tabla del paciente
+  body.push(
+    `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/>` +
+    `<w:tblBorders><w:top w:val="single" w:sz="6" w:color="9CA3AF"/><w:left w:val="single" w:sz="6" w:color="9CA3AF"/>` +
+    `<w:bottom w:val="single" w:sz="6" w:color="9CA3AF"/><w:right w:val="single" w:sz="6" w:color="9CA3AF"/>` +
+    `<w:insideH w:val="single" w:sz="6" w:color="9CA3AF"/><w:insideV w:val="single" w:sz="6" w:color="9CA3AF"/></w:tblBorders></w:tblPr>` +
+    wRowPT('Nombre', d.nombre) + wRowPT('RUT', d.rut) + wRowPT('Edad', d.edad) +
+    `</w:tbl><w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>`
+  );
+
+  const secTitle = t => wP(wRun(t, {b:true, sz:21, color:'0F2A43', caps:true}), {before:160, after:80, borderBottom:'single'});
+  const subLbl = t => wP(wRun(t, {b:true, sz:21}), {before:100, after:40});
+
+  // Indicación
+  body.push(secTitle('Indicación'));
+  body.push(wBody(d.indicacion));
+  body.push(wP(
+    wRun('Anestesia: ', {b:true, i:true, sz:20}) + wRun((d.anestesia || '—') + '   ·   ', {i:true, sz:20}) +
+    wRun('Equipo: ', {b:true, i:true, sz:20}) + wRun(d.equipo || '—', {i:true, sz:20}),
+    {after:120}
+  ));
+
+  // Hallazgos
+  body.push(secTitle('Hallazgos endoscópicos'));
+  body.push(subLbl('Uretra anterior'));
+  body.push(wBody(d.uretra));
+  body.push(subLbl('Uretra posterior / Próstata'));
+  body.push(wBody(d.prostata));
+  body.push(subLbl('Cuello vesical'));
+  body.push(wBody(d.cuello));
+  body.push(subLbl('Vejiga'));
+  body.push(wBody(d.vejiga));
+
+  // Conclusión
+  body.push(secTitle('Conclusión'));
+  body.push(wP(wRun('DIAGNÓSTICO ENDOSCÓPICO: ', {b:true}) + wRun(d.diagnostico || '—'), {after:80}));
+  body.push(wP(wRun('SUGERENCIA: ', {b:true}) + wRun(d.conducta || '—'), {after:80}));
+
+  // Firma
+  body.push('<w:p><w:pPr><w:spacing w:before="900" w:after="0"/></w:pPr></w:p>');
+  body.push(wP(wRun('Dr. Juan Carlos Riera Medina', {b:true, sz:21}), {align:'right', before:200, after:20}));
+  body.push(wP(wRun('Urólogo — Hospital Clínico Viña del Mar', {sz:19, color:'374151'}), {align:'right', after:0}));
+
+  // Página carta, márgenes 2cm laterales / 1.5cm sup / 1.8cm inf
+  const sectPr = `<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>` +
+    `<w:pgMar w:top="850" w:right="1134" w:bottom="1020" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`;
+
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+    `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">` +
+    `<w:body>${body.join('')}${sectPr}</w:body></w:document>`;
+}
+
+function buildDocx(d){
+  const enc = new TextEncoder();
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+    `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
+    `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
+    `<Default Extension="xml" ContentType="application/xml"/>` +
+    `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>` +
+    `</Types>`;
+  const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>` +
+    `</Relationships>`;
+  const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`;
+  return makeZip([
+    { name:'[Content_Types].xml', data: enc.encode(contentTypes) },
+    { name:'_rels/.rels',         data: enc.encode(rels) },
+    { name:'word/_rels/document.xml.rels', data: enc.encode(docRels) },
+    { name:'word/document.xml',   data: enc.encode(buildDocumentXml(d)) },
+  ]);
+}
+
+function nombreArchivo(d){
+  const partes = (d.nombre || '').trim().split(/\s+/).filter(Boolean);
+  let ap = 'paciente';
+  if(partes.length >= 3) ap = partes.slice(-2).join('_');
+  else if(partes.length) ap = partes[partes.length-1];
+  ap = ap.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^A-Za-z0-9_]/g,'');
+  const hoy = new Date();
+  const ymd = hoy.getFullYear() + String(hoy.getMonth()+1).padStart(2,'0') + String(hoy.getDate()).padStart(2,'0');
+  return `cistoscopia_${ap || 'paciente'}_${ymd}.docx`;
+}
+
+function descargarDocx(){
+  const d = getDatos();
+  const bytes = buildDocx(d);
+  const blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = nombreArchivo(d);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  beep();
+  setLastAction('📄 Informe Word descargado: ' + a.download);
+  toast('Informe Word descargado');
+}
+
+/* ============================================================
+   7. TEXTO PLANO (copiar)
+   ============================================================ */
+function informeTexto(){
+  const d = getDatos();
+  const v = x => x || '—';
+  return [
+    'HOSPITAL CLÍNICO VIÑA DEL MAR',
+    'UNIDAD DE UROLOGÍA AMBULATORIA',
+    'Dr. Juan Carlos Riera Medina — Urólogo',
+    '',
+    'Fecha: ' + v(d.fecha),
+    '',
+    'INFORME DE URETROCISTOSCOPÍA',
+    '',
+    'Nombre: ' + v(d.nombre),
+    'RUT: ' + v(d.rut),
+    'Edad: ' + v(d.edad),
+    '',
+    'INDICACIÓN',
+    v(d.indicacion),
+    'Anestesia: ' + v(d.anestesia) + ' · Equipo: ' + v(d.equipo),
+    '',
+    'HALLAZGOS ENDOSCÓPICOS',
+    'Uretra anterior: ' + v(d.uretra),
+    'Uretra posterior / Próstata: ' + v(d.prostata),
+    'Cuello vesical: ' + v(d.cuello),
+    'Vejiga: ' + v(d.vejiga),
+    '',
+    'DIAGNÓSTICO ENDOSCÓPICO: ' + v(d.diagnostico),
+    'SUGERENCIA: ' + v(d.conducta),
+    '',
+    '',
+    'Dr. Juan Carlos Riera Medina',
+    'Urólogo',
+  ].join('\n');
+}
+
+/* ============================================================
+   8. EVENTOS E INICIALIZACIÓN
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  // Restaurar borrador o inicializar valores por defecto
+  const habia = cargarBorrador();
+  if(!$('fecha').value) $('fecha').value = fechaHoy();
+  if(!$('anestesia').value) $('anestesia').value = DEFAULTS.anestesia;
+  if(!$('equipo').value) $('equipo').value = DEFAULTS.equipo;
+  renderPreview();
+  if(habia) toast('Borrador anterior recuperado');
+
+  // Edición manual
+  FIELDS.forEach(f => $(f.id).addEventListener('input', actualizar));
+  $('rut').addEventListener('blur', () => {
+    const fmt = formatearRut($('rut').value.trim());
+    if(fmt !== $('rut').value){ $('rut').value = fmt; actualizar(); }
+  });
+
+  // Botones
+  $('btnDocx').addEventListener('click', descargarDocx);
+  $('btnPrint').addEventListener('click', () => window.print());
+  $('btnCopy').addEventListener('click', async () => {
+    try{
+      await navigator.clipboard.writeText(informeTexto());
+      toast('Informe copiado al portapapeles');
+    }catch(e){
+      // Fallback para contextos sin Clipboard API
+      const ta = document.createElement('textarea');
+      ta.value = informeTexto();
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      toast('Informe copiado al portapapeles');
+    }
+  });
+  $('btnNormal').addEventListener('click', () => { aplicarNormal(); toast('Plantilla de examen normal aplicada'); });
+  $('btnHoy').addEventListener('click', () => { setCampo('fecha', fechaHoy()); });
+  $('btnClear').addEventListener('click', () => {
+    if(confirm('¿Borrar todos los campos y comenzar un informe nuevo?')){
+      nuevoInforme();
+      toast('Informe nuevo');
+    }
+  });
+
+  // Micrófono
+  if(!SR){
+    $('compatWarn').classList.add('show');
+    $('micBtn').style.opacity = '.4';
+    $('micBtn').style.cursor = 'not-allowed';
+    setEstado('error','Dictado no disponible en este navegador');
+  }else{
+    $('micBtn').addEventListener('click', () => micActivo ? detenerMic() : iniciarMic());
+    $('langSel').addEventListener('change', () => {
+      if(micActivo){ detenerMic(); iniciarMic(); }
+    });
+  }
+
+  // Atajos de teclado: Ctrl+D descarga, Ctrl+P imprime (nativo), Espacio con Ctrl alterna mic
+  document.addEventListener('keydown', (e) => {
+    if(e.ctrlKey && e.key.toLowerCase() === 'd'){ e.preventDefault(); descargarDocx(); }
+    if(e.ctrlKey && e.code === 'Space' && SR){ e.preventDefault(); micActivo ? detenerMic() : iniciarMic(); }
+  });
+});
+</script>
+</body>
+</html>
