@@ -1,6 +1,6 @@
 # Dictado de Uretrocistoscopía — v7
 
-## Dr. Juan Carlos Riera Medina — Urología Ambulatoria, Hospital Clínico Viña del Mar
+## Dr. Juan Carlos Riera Medina — Urología
 
 Aplicación web de una sola página para dictar informes de uretrocistoscopía **completamente manos libres**, pensada para uso intraoperatorio con guantes estériles.
 
@@ -68,6 +68,6 @@ También entiende artículos: «en la vejiga…», «la uretra…».
 
 ## Estructura del informe generado
 
-Encabezado institucional → Fecha → Título → Tabla del paciente (Nombre/RUT/Edad) → Indicación + Anestesia/Equipo → Hallazgos (Uretra anterior, Uretra posterior/Próstata, Cuello vesical, Vejiga) → Diagnóstico endoscópico + Sugerencia → Firma.
+Encabezado (Dr. Riera — Urología) → Fecha → Título → Tabla del paciente (Nombre/RUT/Edad) → Indicación + Anestesia/Equipo → Hallazgos (Uretra anterior, Uretra posterior/Próstata, Cuello vesical, Vejiga) → Diagnóstico endoscópico + Sugerencia → Firma.
 
 El archivo se descarga como `cistoscopia_[Apellidos]_[YYYYMMDD].docx`.

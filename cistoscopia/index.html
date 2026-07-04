@@ -346,7 +346,7 @@ details.help code{
     </div>
     <div>
       <h1>Dictado de Uretrocistoscopía</h1>
-      <p>Hospital Clínico Viña del Mar · Unidad de Urología Ambulatoria · Dr. Juan Carlos Riera Medina</p>
+      <p>Dr. Juan Carlos Riera Medina · Urología</p>
     </div>
   </div>
   <div class="spacer"></div>
@@ -519,9 +519,8 @@ details.help code{
       <!-- Vista previa del informe: es exactamente lo que se imprime -->
       <div class="sheet" id="reportSheet">
         <div class="hosp-header">
-          <div class="h-name">HOSPITAL CLÍNICO VIÑA DEL MAR</div>
-          <div class="h-unit">UNIDAD DE UROLOGÍA AMBULATORIA</div>
-          <div class="h-doc">Dr. Juan Carlos Riera Medina — Urólogo</div>
+          <div class="h-name">DR. JUAN CARLOS RIERA MEDINA</div>
+          <div class="h-unit">UROLOGÍA</div>
         </div>
 
         <div class="r-date">Fecha: <span id="pv-fecha" class="empty">—</span></div>
@@ -1044,10 +1043,9 @@ function wRowPT(label, value){
 function buildDocumentXml(d){
   const body = [];
 
-  // Encabezado institucional
-  body.push(wP(wRun('HOSPITAL CLÍNICO VIÑA DEL MAR', {b:true, sz:28, color:'0F2A43'}), {align:'center', after:40}));
-  body.push(wP(wRun('UNIDAD DE UROLOGÍA AMBULATORIA', {b:true, sz:22, color:'374151'}), {align:'center', after:40}));
-  body.push(wP(wRun('Dr. Juan Carlos Riera Medina — Urólogo', {i:true, sz:20, color:'4B5563'}), {align:'center', after:120, borderBottom:'double'}));
+  // Encabezado
+  body.push(wP(wRun('DR. JUAN CARLOS RIERA MEDINA', {b:true, sz:28, color:'0F2A43'}), {align:'center', after:40}));
+  body.push(wP(wRun('UROLOGÍA', {b:true, sz:22, color:'374151'}), {align:'center', after:120, borderBottom:'double'}));
 
   // Fecha
   body.push(wP(wRun('Fecha: ', {b:true, sz:20}) + wRun(d.fecha || '—', {sz:20}), {align:'right', after:160}));
@@ -1096,7 +1094,7 @@ function buildDocumentXml(d){
   // Firma
   body.push('<w:p><w:pPr><w:spacing w:before="900" w:after="0"/></w:pPr></w:p>');
   body.push(wP(wRun('Dr. Juan Carlos Riera Medina', {b:true, sz:21}), {align:'right', before:200, after:20}));
-  body.push(wP(wRun('Urólogo — Hospital Clínico Viña del Mar', {sz:19, color:'374151'}), {align:'right', after:0}));
+  body.push(wP(wRun('Urólogo', {sz:19, color:'374151'}), {align:'right', after:0}));
 
   // Página carta, márgenes 2cm laterales / 1.5cm sup / 1.8cm inf
   const sectPr = `<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>` +
@@ -1164,9 +1162,8 @@ function informeTexto(){
   const d = getDatos();
   const v = x => x || '—';
   return [
-    'HOSPITAL CLÍNICO VIÑA DEL MAR',
-    'UNIDAD DE UROLOGÍA AMBULATORIA',
-    'Dr. Juan Carlos Riera Medina — Urólogo',
+    'DR. JUAN CARLOS RIERA MEDINA',
+    'UROLOGÍA',
     '',
     'Fecha: ' + v(d.fecha),
     '',
