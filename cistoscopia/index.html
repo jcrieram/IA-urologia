@@ -334,14 +334,14 @@ details.help code{
 /* ---------- Hoja: empujar firma al pie + imágenes del estudio ---------- */
 .sheet{display:flex;flex-direction:column;min-height:1040px}
 .bottom-block{margin-top:auto;padding-top:1.2rem}
-.study-images{margin-bottom:1.6rem;page-break-inside:avoid}
-.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.5rem}
+.study-images{margin-bottom:1.4rem;page-break-inside:avoid}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:.55rem}
 .img-slot{
-  border:1px dashed #9ca3af;border-radius:5px;min-height:135px;
+  border:1.5px dashed #9ca3af;border-radius:6px;min-height:185px;
   display:flex;align-items:center;justify-content:center;
   color:#9ca3af;font-family:var(--font);font-size:.78rem;text-align:center;
 }
-.sheet .sig-img{max-width:290px;max-height:150px;display:block;margin:0 auto .1rem}
+.sheet .sig-img{max-width:300px;max-height:150px;display:block;margin:0 auto .1rem}
 .sheet .sig-inner .sig-id{font-size:.8rem;color:#374151}
 
 /* ---------- Impresión: solo el informe ---------- */
@@ -365,12 +365,12 @@ details.help code{
   .sheet .tech-line{margin-top:.3rem}
   /* En impresión el bloque fluye tras la conclusión con un espacio fijo,
      evitando que se empuje a una segunda página innecesariamente */
-  .bottom-block{margin-top:.5cm;page-break-inside:avoid}
-  .study-images{margin-bottom:.5cm}
+  .bottom-block{margin-top:.4cm;page-break-inside:avoid}
+  .study-images{margin-bottom:.45cm}
   .sheet .sig{page-break-inside:avoid}
-  .img-slot{min-height:2.5cm}
+  .img-slot{min-height:4cm}
   .sheet .sig-img{max-height:2.5cm}
-  @page{size:letter;margin:1.3cm 2.2cm}
+  @page{size:letter;margin:1.2cm 2.2cm}
 }
 </style>
 </head>
@@ -463,6 +463,11 @@ details.help code{
         <button class="btn ghost-danger" id="btnQuitarFirma" style="display:none">Quitar firma</button>
       </div>
       <img id="firmaThumb" class="firma-thumb" style="display:none" alt="Firma cargada">
+      <button class="btn" id="btnFijarFirma" style="display:none;margin-top:.6rem">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Guardar app con mi firma incluida
+      </button>
+      <p class="hint-sm" id="fijarHint" style="display:none;margin-top:.5rem">Genera un archivo <code>.html</code> con su firma ya incrustada, para usarlo en cualquier computador sin volver a cargarla.</p>
       <label class="check-row"><input type="checkbox" id="chkImagenes" checked> Incluir espacio para 3 imágenes del estudio</label>
     </div>
 
@@ -624,6 +629,7 @@ details.help code{
               <div id="pv-sig-text">
                 <div class="sig-line"></div>
                 <div class="sig-name">Dr. Juan Carlos Riera Medina</div>
+                <div class="sig-id">RUT: 25.279.729-7</div>
                 <div class="sig-role">Urólogo</div>
               </div>
             </div>
@@ -674,7 +680,12 @@ const STORAGE_KEY = 'cistoscopia_borrador_v7';
 const FIRMA_KEY   = 'cistoscopia_firma_v1';   // firma/timbre — separada del informe, persiste entre pacientes
 const PREF_KEY    = 'cistoscopia_pref_v1';    // preferencias (incluir imágenes)
 
-// Estado de la firma cargada por el usuario (queda solo en este navegador)
+// Firma incrustada de forma permanente en este archivo (se rellena al usar
+// "Guardar app con mi firma"). Si está presente, la firma viaja con el archivo
+// y funciona en cualquier computador sin volver a cargarla.
+const FIRMA_EMBEBIDA = ""; /*__FIRMA_SLOT__*/
+
+// Estado de la firma en uso
 let firma = { dataUrl:null, w:0, h:0 };
 let incluirImagenes = true;
 
@@ -884,16 +895,41 @@ function procesarImagenFirma(file){
 }
 
 function renderFirmaUI(){
-  const thumb = $('firmaThumb'), quitar = $('btnQuitarFirma'), cargar = $('btnCargarFirma');
-  if(firma.dataUrl){
-    thumb.src = firma.dataUrl;
-    thumb.style.display = 'block';
-    quitar.style.display = '';
-    cargar.innerHTML = cargar.innerHTML.replace('Cargar firma / timbre','Cambiar firma / timbre');
-  }else{
-    thumb.style.display = 'none';
-    quitar.style.display = 'none';
-  }
+  const thumb = $('firmaThumb'), quitar = $('btnQuitarFirma'), fijar = $('btnFijarFirma'), hint = $('fijarHint');
+  const hay = !!firma.dataUrl;
+  thumb.style.display = hay ? 'block' : 'none';
+  if(hay) thumb.src = firma.dataUrl;
+  quitar.style.display = hay ? '' : 'none';
+  if(fijar) fijar.style.display = hay ? '' : 'none';
+  if(hint) hint.style.display = hay ? '' : 'none';
+}
+
+// Genera una copia de esta misma app con la firma actual incrustada de forma
+// permanente, para llevarla a cualquier computador. No incluye datos de pacientes.
+function descargarAppConFirma(){
+  if(!firma.dataUrl){ toast('Primero cargue una firma'); return; }
+  // Clonar el documento y limpiar cualquier dato variable (paciente, vista previa)
+  const clone = document.documentElement.cloneNode(true);
+  clone.querySelectorAll('input, textarea').forEach(el => { el.removeAttribute('value'); el.textContent = ''; });
+  clone.querySelectorAll('[id^="pv-"]').forEach(el => {
+    if(el.id === 'pv-firma'){ el.removeAttribute('src'); el.setAttribute('style','display:none'); }
+    else if(el.id === 'pv-imagenes'){ /* mantener */ }
+    else { el.textContent = '—'; }
+  });
+  const sigText = clone.querySelector('#pv-sig-text'); if(sigText) sigText.removeAttribute('style');
+  let html = '<!DOCTYPE html>\n' + clone.outerHTML;
+  // Inyectar la firma en la constante FIRMA_EMBEBIDA
+  const payload = JSON.stringify({ dataUrl: firma.dataUrl, w: firma.w, h: firma.h });
+  html = html.replace('const FIRMA_EMBEBIDA = ""; /*__FIRMA_SLOT__*/',
+                      'const FIRMA_EMBEBIDA = ' + payload + '; /*__FIRMA_SLOT__*/');
+  const blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'cistoscopia_con_firma.html';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  beep();
+  toast('App con su firma guardada: úsela en cualquier computador');
 }
 
 /* ============================================================
@@ -1277,7 +1313,7 @@ function buildDocumentXml(d, opts = {}){
       `<w:tblBorders><w:top w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:left w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
       `<w:bottom w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:right w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
       `<w:insideH w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:insideV w:val="${dash}" w:sz="6" w:color="9CA3AF"/></w:tblBorders></w:tblPr>` +
-      `<w:tr><w:trPr><w:trHeight w:val="2100" w:hRule="atLeast"/></w:trPr>` +
+      `<w:tr><w:trPr><w:trHeight w:val="2650" w:hRule="atLeast"/></w:trPr>` +
       celda(1) + celda(2) + celda(3) + `</w:tr></w:tbl>`
     );
     body.push('<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>');
@@ -1305,6 +1341,7 @@ function buildDocumentXml(d, opts = {}){
     body.push(`<w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="0"/></w:pPr>${drawing}</w:p>`);
   }else{
     body.push(wP(wRun('Dr. Juan Carlos Riera Medina', {b:true, sz:21}), {align:'right', before:200, after:20}));
+    body.push(wP(wRun('RUT: 25.279.729-7', {sz:19, color:'374151'}), {align:'right', after:20}));
     body.push(wP(wRun('Urólogo', {sz:19, color:'374151'}), {align:'right', after:0}));
   }
 
@@ -1433,6 +1470,7 @@ function informeTexto(){
     '',
     '',
     'Dr. Juan Carlos Riera Medina',
+    'RUT: 25.279.729-7',
     'Urólogo',
   ].join('\n');
 }
@@ -1444,6 +1482,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Restaurar borrador, firma y preferencias
   const habia = cargarBorrador();
   cargarFirmaGuardada();
+  // Si el archivo trae una firma incrustada y no hay ninguna guardada localmente, usarla
+  if(!firma.dataUrl && FIRMA_EMBEBIDA && FIRMA_EMBEBIDA.dataUrl){
+    firma = { dataUrl: FIRMA_EMBEBIDA.dataUrl, w: FIRMA_EMBEBIDA.w||1, h: FIRMA_EMBEBIDA.h||1 };
+  }
   cargarPrefs();
   if(!$('fecha').value) $('fecha').value = fechaHoy();
   if(!$('anestesia').value) $('anestesia').value = DEFAULTS.anestesia;
@@ -1467,6 +1509,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderPreview();
     toast('Firma quitada');
   });
+  $('btnFijarFirma').addEventListener('click', descargarAppConFirma);
   $('chkImagenes').addEventListener('change', (e) => {
     incluirImagenes = e.target.checked;
     guardarPrefs();

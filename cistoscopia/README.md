@@ -77,9 +77,18 @@ El archivo se descarga como `cistoscopia_[Apellidos]_[YYYYMMDD].docx`.
 ## Firma / timbre
 
 - Botón **"Cargar firma / timbre"**: seleccione una foto o escaneo de su firma (PNG/JPG). La app la reduce de tamaño y vuelve transparente el fondo blanco del papel para que se vea limpia.
-- La firma se guarda **solo en este computador** (`localStorage`), **no se sube al repositorio ni a internet**. Por eso no está incrustada en el archivo compartido: así nadie puede extraerla del código público y falsificar documentos.
-- Aparece automáticamente al pie de cada informe, tanto en el Word como en la impresión/PDF. Si no hay firma cargada, se muestra el nombre y "Urólogo" en texto.
-- Para cambiarla o quitarla: botones **"Cambiar firma"** / **"Quitar firma"**.
+- La firma se guarda en este computador (`localStorage`) y aparece al pie de cada informe (Word e impresión/PDF), **debajo** del espacio de imágenes.
+- Si no hay firma cargada, el pie muestra en texto: **Dr. Juan Carlos Riera Medina · RUT: 25.279.729-7 · Urólogo**.
+
+### Firma estable y portátil — "Guardar app con mi firma incluida"
+
+Una vez cargada la firma aparece el botón **"Guardar app con mi firma incluida"**. Genera un archivo `cistoscopia_con_firma.html` **con su firma ya incrustada de forma permanente**:
+
+- Úselo en **cualquier computador** (consulta, casa, pabellón) y la firma ya estará puesta, sin volver a cargarla.
+- No contiene datos de pacientes (se generan en blanco).
+- Es su archivo personal: guárdelo donde quiera. Este es el archivo que conviene usar en el día a día.
+
+> Nota: el `index.html` del repositorio se mantiene **sin** la firma incrustada; la firma solo queda en el archivo que usted genera con ese botón.
 
 ## Imágenes del estudio
 
