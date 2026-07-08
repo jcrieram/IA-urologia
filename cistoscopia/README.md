@@ -20,7 +20,7 @@ Aplicación web de una sola página para dictar informes de uretrocistoscopía *
 1. Presione el **botón del micrófono** (o `Ctrl + Espacio`).
 2. Dicte cada campo con el formato **«[campo] [contenido]»**:
    - «nombre Juan Pérez González»
-   - «rut 15678234 k» → se formatea solo: `15.678.234-K`
+   - «cédula 15678234 k» → se formatea solo: `15678234-K`
    - «edad 67» → `67 años`
    - «vejiga mucosa de aspecto normal coma sin lesiones punto»
 3. El campo se rellena, destella en verde, suena una confirmación y la **vista previa del informe se actualiza en vivo**.
@@ -42,7 +42,9 @@ Aplicación web de una sola página para dictar informes de uretrocistoscopía *
 
 ## Campos reconocidos
 
-nombre/paciente · rut (y alias «ruth», «root», «ruta»…) · edad · fecha · indicación/motivo · anestesia · equipo · uretra (anterior) · próstata / uretra posterior · cuello (vesical) · vejiga · diagnóstico/conclusión · conducta/sugerencia/plan.
+nombre/paciente · cédula (también «rut», «carnet» y alias «ruth», «root», «ruta»…) · edad · fecha · indicación/motivo · anestesia · equipo · uretra (anterior) · próstata / uretra posterior · cuello (vesical) · vejiga · diagnóstico/conclusión · conducta/sugerencia/plan.
+
+La cédula se ordena automáticamente al formato `12345678-9` (sin puntos, con guión antes del dígito verificador), descartando cualquier palabra o separador que el reconocedor haya intercalado.
 
 También entiende artículos: «en la vejiga…», «la uretra…».
 

@@ -419,8 +419,8 @@ details.help code{
           <input id="nombre" type="text" autocomplete="off" placeholder="Nombre completo del paciente">
         </div>
         <div class="field" data-field="rut">
-          <label for="rut">RUT <span class="kw">🎤 «rut …»</span></label>
-          <input id="rut" type="text" autocomplete="off" placeholder="12.345.678-9">
+          <label for="rut">Cédula <span class="kw">🎤 «cédula …»</span></label>
+          <input id="rut" type="text" autocomplete="off" placeholder="12345678-9">
         </div>
         <div class="field" data-field="edad">
           <label for="edad">Edad <span class="kw">🎤 «edad …»</span></label>
@@ -490,7 +490,8 @@ details.help code{
           <tr><td><code>limpiar todo</code></td><td>Comienza un informe nuevo (borra todos los campos).</td></tr>
           <tr><td>Puntuación</td><td>Diga «punto», «coma», «punto y coma», «dos puntos», «nueva línea» o «punto aparte» dentro del dictado.</td></tr>
         </table>
-        <p style="margin:.7rem 0 0">Campos reconocidos: <b>nombre/paciente · rut · edad · fecha · indicación/motivo · anestesia · equipo · uretra · próstata/uretra posterior · cuello (vesical) · vejiga · diagnóstico/conclusión · conducta/sugerencia/plan</b>.</p>
+        <p style="margin:.7rem 0 0">Campos reconocidos: <b>nombre/paciente · cédula (o rut) · edad · fecha · indicación/motivo · anestesia · equipo · uretra · próstata/uretra posterior · cuello (vesical) · vejiga · diagnóstico/conclusión · conducta/sugerencia/plan</b>.</p>
+        <p style="margin:.5rem 0 0">La cédula se ordena sola al formato <code>12345678-9</code>. Dicte los dígitos y el verificador; ej.: «cédula 12345678 9».</p>
         <p style="margin:.5rem 0 0;color:var(--ink-soft)">El borrador se guarda automáticamente en este computador: si cierra la página por accidente, al reabrirla recuperará lo dictado.</p>
       </div>
     </details>
@@ -529,7 +530,7 @@ details.help code{
 
         <table class="pt">
           <tr><td class="lbl">Nombre</td><td id="pv-nombre" class="empty">—</td></tr>
-          <tr><td class="lbl">RUT</td><td id="pv-rut" class="empty">—</td></tr>
+          <tr><td class="lbl">Cédula</td><td id="pv-rut" class="empty">—</td></tr>
           <tr><td class="lbl">Edad</td><td id="pv-edad" class="empty">—</td></tr>
         </table>
 
@@ -572,7 +573,7 @@ details.help code{
    ============================================================ */
 const FIELDS = [
   { id:'nombre',      label:'Nombre',                    keys:['nombre','paciente','nombre del paciente'] },
-  { id:'rut',         label:'RUT',                       keys:['rut','run','ruth','root','runt','ruta','rud'] },
+  { id:'rut',         label:'Cédula',                    keys:['cedula','cedula de identidad','carnet','rut','run','ruth','root','runt','ruta','rud'] },
   { id:'edad',        label:'Edad',                      keys:['edad'] },
   { id:'fecha',       label:'Fecha',                     keys:['fecha'] },
   { id:'indicacion',  label:'Indicación',                keys:['indicacion','motivo','diagnostico de ingreso','indicacion diagnostico'] },
@@ -633,17 +634,13 @@ function aplicarPuntuacion(t){
   return s.replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').trim();
 }
 
-// Da formato chileno a un RUT dictado como dígitos: 12345678k -> 12.345.678-K
-function formatearRut(s){
-  const limpio = s.replace(/[.\-\s]/g,'').toUpperCase();
-  if(!/^\d{6,8}[\dK]$/.test(limpio)) return s; // no parece RUT, dejar tal cual
-  const cuerpo = limpio.slice(0,-1), dv = limpio.slice(-1);
-  let fmt = '', c = 0;
-  for(let i = cuerpo.length-1; i >= 0; i--){
-    fmt = cuerpo[i] + fmt;
-    if(++c % 3 === 0 && i > 0) fmt = '.' + fmt;
-  }
-  return fmt + '-' + dv;
+// Formatea una cédula/RUT dictado a: 12345678-9 (sin puntos, guión antes del dígito verificador).
+// Descarta cualquier palabra o separador que el reconocedor haya intercalado
+// (p. ej. "guión", "raya", espacios o puntos), quedándose solo con dígitos y la K.
+function formatearCedula(s){
+  const limpio = (s||'').toUpperCase().replace(/[^0-9K]/g,'');
+  if(!/^\d{6,8}[\dK]$/.test(limpio)) return s; // no parece cédula, dejar tal cual
+  return limpio.slice(0,-1) + '-' + limpio.slice(-1);
 }
 
 function fechaHoy(){
@@ -744,28 +741,39 @@ function actualizar(){
    ============================================================ */
 function detectarCampo(fraseNorm){
   // quitar artículos/preposiciones iniciales: "en la vejiga..." -> "vejiga..."
-  const frase = fraseNorm.replace(/^((en|el|la|los|las|del|de|un|una)\s+)+/,'');
+  const artMatch = fraseNorm.match(/^((?:(?:en|el|la|los|las|del|de|un|una)\s+)+)/);
+  const artPrefix = artMatch ? artMatch[1] : '';
+  const artWords = artPrefix.trim() ? artPrefix.trim().split(/\s+/).length : 0;
+  const frase = fraseNorm.slice(artPrefix.length);
   const candidatos = [];
   for(const campo of FIELDS){
     for(const key of campo.keys){
       const k = normalizar(key);
       if(frase === k || frase.startsWith(k + ' ')){
-        candidatos.push({ campo, klen: k.length });
+        candidatos.push({ campo, k });
       }
     }
   }
   if(!candidatos.length) return null;
-  candidatos.sort((a,b) => b.klen - a.klen);
+  candidatos.sort((a,b) => b.k.length - a.k.length);
   const best = candidatos[0];
-  return { id: best.campo.id, contenido: frase.slice(best.klen).trim() };
+  const keyWords = best.k.split(' ').length;
+  return {
+    id: best.campo.id,
+    // nº de palabras iniciales (artículos + palabra clave) que NO son contenido.
+    // Contamos solo estas palabras — que son fijas y conocidas — en lugar del
+    // contenido, cuya cantidad de "palabras" cambia al normalizar números
+    // (p. ej. "12.345.678-9" pasa a 4 tokens) y perdía dígitos.
+    leadWords: artWords + keyWords,
+    contenido: frase.slice(best.k.length).trim(),
+  };
 }
 
-// Recupera el contenido con mayúsculas/tildes originales del texto dictado
-function extraerContenidoOriginal(original, contenidoNorm){
-  if(!contenidoNorm) return '';
-  const palabras = contenidoNorm.split(' ').length;
-  const origPalabras = original.trim().split(/\s+/);
-  return origPalabras.slice(origPalabras.length - palabras).join(' ');
+// Devuelve el texto original (con mayúsculas y tildes) tras quitar las
+// primeras `leadWords` palabras (artículos + palabra clave del campo).
+function contenidoOriginal(original, leadWords){
+  const w = original.trim().split(/\s+/);
+  return w.slice(leadWords).join(' ');
 }
 
 function procesarFrase(original){
@@ -819,11 +827,14 @@ function procesarFrase(original){
   /* ---- [campo] [contenido] ---- */
   const det = detectarCampo(fraseCampo);
   if(det && det.contenido){
-    let contenido = extraerContenidoOriginal(originalCampo, det.contenido);
-    contenido = aplicarPuntuacion(contenido);
-    if(det.id === 'rut') contenido = formatearRut(contenido);
-    if(det.id === 'edad' && /^\d+$/.test(contenido)) contenido += ' años';
-    contenido = capitalizar(contenido);
+    let contenido = contenidoOriginal(originalCampo, det.leadWords);
+    if(det.id === 'rut'){
+      contenido = formatearCedula(contenido);
+    }else{
+      contenido = aplicarPuntuacion(contenido);
+      if(det.id === 'edad' && /^\d+$/.test(contenido)) contenido += ' años';
+      contenido = capitalizar(contenido);
+    }
     setCampo(det.id, contenido, {append});
     beep();
     setLastAction((append ? '➕ Agregado a' : '✔') + ' «' + FIELD_BY_ID[det.id].label + '»: ' + contenido);
@@ -1059,7 +1070,7 @@ function buildDocumentXml(d){
     `<w:tblBorders><w:top w:val="single" w:sz="6" w:color="9CA3AF"/><w:left w:val="single" w:sz="6" w:color="9CA3AF"/>` +
     `<w:bottom w:val="single" w:sz="6" w:color="9CA3AF"/><w:right w:val="single" w:sz="6" w:color="9CA3AF"/>` +
     `<w:insideH w:val="single" w:sz="6" w:color="9CA3AF"/><w:insideV w:val="single" w:sz="6" w:color="9CA3AF"/></w:tblBorders></w:tblPr>` +
-    wRowPT('Nombre', d.nombre) + wRowPT('RUT', d.rut) + wRowPT('Edad', d.edad) +
+    wRowPT('Nombre', d.nombre) + wRowPT('Cédula', d.rut) + wRowPT('Edad', d.edad) +
     `</w:tbl><w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>`
   );
 
@@ -1170,7 +1181,7 @@ function informeTexto(){
     'INFORME DE URETROCISTOSCOPÍA',
     '',
     'Nombre: ' + v(d.nombre),
-    'RUT: ' + v(d.rut),
+    'Cédula: ' + v(d.rut),
     'Edad: ' + v(d.edad),
     '',
     'INDICACIÓN',
@@ -1207,7 +1218,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Edición manual
   FIELDS.forEach(f => $(f.id).addEventListener('input', actualizar));
   $('rut').addEventListener('blur', () => {
-    const fmt = formatearRut($('rut').value.trim());
+    const fmt = formatearCedula($('rut').value.trim());
     if(fmt !== $('rut').value){ $('rut').value = fmt; actualizar(); }
   });
 
