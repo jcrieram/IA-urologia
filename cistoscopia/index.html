@@ -341,7 +341,7 @@ details.help code{
   display:flex;align-items:center;justify-content:center;
   color:#9ca3af;font-family:var(--font);font-size:.78rem;text-align:center;
 }
-.sheet .sig-img{max-width:300px;max-height:150px;display:block;margin:0 auto .1rem}
+.sheet .sig-img{max-width:360px;max-height:180px;display:block;margin:0 auto .1rem}
 .sheet .sig-inner .sig-id{font-size:.8rem;color:#374151}
 
 /* ---------- Impresión: solo el informe ---------- */
@@ -368,8 +368,8 @@ details.help code{
   .bottom-block{margin-top:.4cm;page-break-inside:avoid}
   .study-images{margin-bottom:.45cm}
   .sheet .sig{page-break-inside:avoid}
-  .img-slot{min-height:4cm}
-  .sheet .sig-img{max-height:2.5cm}
+  .img-slot{min-height:3.5cm}
+  .sheet .sig-img{max-width:8.5cm;max-height:3.3cm}
   @page{size:letter;margin:1.2cm 2.2cm}
 }
 </style>
@@ -858,14 +858,15 @@ function cargarPrefs(){
   }catch(e){}
 }
 
-// Procesa la imagen elegida: la reduce de tamaño y vuelve el fondo blanco
-// transparente, para que la firma se vea limpia sobre el informe.
+// Procesa la imagen elegida: reduce el tamaño, vuelve transparente el fondo
+// claro (papel del escaneo) y RECORTA el espacio en blanco alrededor para que
+// la firma llene el espacio y no se vea pequeña.
 function procesarImagenFirma(file){
   const reader = new FileReader();
   reader.onload = () => {
     const img = new Image();
     img.onload = () => {
-      const maxW = 700;
+      const maxW = 1000;
       const escala = Math.min(1, maxW / img.naturalWidth);
       const w = Math.round(img.naturalWidth * escala);
       const h = Math.round(img.naturalHeight * escala);
@@ -873,16 +874,38 @@ function procesarImagenFirma(file){
       cv.width = w; cv.height = h;
       const ctx = cv.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
-      // Volver transparente el fondo claro (papel blanco/crema del escaneo)
+      let out = cv;
       try{
         const imgData = ctx.getImageData(0, 0, w, h);
         const p = imgData.data;
-        for(let i = 0; i < p.length; i += 4){
-          if(p[i] > 228 && p[i+1] > 228 && p[i+2] > 228){ p[i+3] = 0; }
+        // Volver transparente el fondo claro y calcular el recuadro de la tinta
+        let minX = w, minY = h, maxX = 0, maxY = 0, hayTinta = false;
+        for(let y = 0; y < h; y++){
+          for(let x = 0; x < w; x++){
+            const i = (y*w + x) * 4;
+            if(p[i] > 232 && p[i+1] > 232 && p[i+2] > 232){
+              p[i+3] = 0; // fondo claro -> transparente
+            }else{
+              hayTinta = true;
+              if(x < minX) minX = x; if(x > maxX) maxX = x;
+              if(y < minY) minY = y; if(y > maxY) maxY = y;
+            }
+          }
         }
         ctx.putImageData(imgData, 0, 0);
+        // Recortar al contenido con un pequeño margen
+        if(hayTinta && (maxX > minX) && (maxY > minY)){
+          const pad = Math.round(Math.min(w, h) * 0.02);
+          minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+          maxX = Math.min(w - 1, maxX + pad); maxY = Math.min(h - 1, maxY + pad);
+          const cw = maxX - minX + 1, ch = maxY - minY + 1;
+          const cr = document.createElement('canvas');
+          cr.width = cw; cr.height = ch;
+          cr.getContext('2d').drawImage(cv, minX, minY, cw, ch, 0, 0, cw, ch);
+          out = cr;
+        }
       }catch(e){ /* si el navegador bloquea getImageData, se deja con fondo */ }
-      firma = { dataUrl: cv.toDataURL('image/png'), w, h };
+      firma = { dataUrl: out.toDataURL('image/png'), w: out.width, h: out.height };
       guardarFirma();
       renderFirmaUI();
       actualizar();
@@ -1362,10 +1385,10 @@ function dataUrlToBytes(dataUrl){
   for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
   return u8;
 }
-// Tamaño de la firma en cm respetando la proporción (ancho ~6 cm, alto máx 3.6 cm)
+// Tamaño de la firma en cm respetando la proporción (ancho ~7.5 cm, alto máx 4 cm)
 function firmaTamanoCm(w, h){
-  let cmW = 6.0, cmH = cmW * (h / w);
-  const maxH = 3.6;
+  let cmW = 7.5, cmH = cmW * (h / w);
+  const maxH = 4.0;
   if(cmH > maxH){ cmH = maxH; cmW = cmH * (w / h); }
   return { w: cmW, h: cmH };
 }
