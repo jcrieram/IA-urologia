@@ -318,6 +318,32 @@ details.help code{
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
+/* ---------- Firma (panel izquierdo) ---------- */
+.hint-sm{font-size:.78rem;color:var(--ink-soft);margin:0 0 .7rem}
+.sig-controls{display:flex;gap:.5rem;flex-wrap:wrap}
+.firma-thumb{
+  max-width:100%;max-height:120px;margin-top:.8rem;
+  border:1px solid var(--line);border-radius:8px;padding:.45rem;background:#fff;display:block;
+}
+.check-row{
+  display:flex;align-items:center;gap:.55rem;margin-top:.9rem;
+  font-size:.85rem;font-weight:600;color:var(--navy);cursor:pointer;
+}
+.check-row input{width:17px;height:17px;accent-color:var(--teal);cursor:pointer}
+
+/* ---------- Hoja: empujar firma al pie + imágenes del estudio ---------- */
+.sheet{display:flex;flex-direction:column;min-height:1040px}
+.bottom-block{margin-top:auto;padding-top:1.2rem}
+.study-images{margin-bottom:1.6rem;page-break-inside:avoid}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-top:.5rem}
+.img-slot{
+  border:1px dashed #9ca3af;border-radius:5px;min-height:135px;
+  display:flex;align-items:center;justify-content:center;
+  color:#9ca3af;font-family:var(--font);font-size:.78rem;text-align:center;
+}
+.sheet .sig-img{max-width:290px;max-height:150px;display:block;margin:0 auto .1rem}
+.sheet .sig-inner .sig-id{font-size:.8rem;color:#374151}
+
 /* ---------- Impresión: solo el informe ---------- */
 @media print{
   body{background:#fff}
@@ -326,11 +352,25 @@ details.help code{
   .sheet-wrap{overflow:visible}
   .sheet{
     box-shadow:none;border-radius:0;max-width:none;
-    padding:0;font-size:12.5pt;
+    padding:0;font-size:11pt;line-height:1.3;min-height:0;display:block;
   }
   .sheet .empty{color:#6b7280}
-  .sheet .sig{margin-top:1.8rem;page-break-inside:avoid}
-  @page{size:letter;margin:1.6cm 2.2cm}
+  /* Compactar para que un informe típico + imágenes + firma quepa en 1 hoja.
+     Si el contenido es muy largo, el bloque inferior pasa entero a la 2ª página. */
+  .sheet .r-title{margin:0 0 .6rem}
+  .sheet table.pt{margin-bottom:.6rem}
+  .sheet table.pt td{padding:.2rem .6rem}
+  .sheet .sec-title{margin:.55rem 0 .25rem}
+  .sheet .sub-lbl{margin-top:.3rem}
+  .sheet .tech-line{margin-top:.3rem}
+  /* En impresión el bloque fluye tras la conclusión con un espacio fijo,
+     evitando que se empuje a una segunda página innecesariamente */
+  .bottom-block{margin-top:.5cm;page-break-inside:avoid}
+  .study-images{margin-bottom:.5cm}
+  .sheet .sig{page-break-inside:avoid}
+  .img-slot{min-height:2.5cm}
+  .sheet .sig-img{max-height:2.5cm}
+  @page{size:letter;margin:1.3cm 2.2cm}
 }
 </style>
 </head>
@@ -409,6 +449,21 @@ details.help code{
           Nuevo informe
         </button>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Firma y pie del informe</h2>
+      <p class="hint-sm">La firma/timbre se guarda <b>solo en este computador</b> (no se sube a internet) y aparece al pie del informe en Word y PDF.</p>
+      <div class="sig-controls">
+        <input type="file" id="firmaInput" accept="image/png,image/jpeg,image/webp" hidden>
+        <button class="btn primary" id="btnCargarFirma">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          Cargar firma / timbre
+        </button>
+        <button class="btn ghost-danger" id="btnQuitarFirma" style="display:none">Quitar firma</button>
+      </div>
+      <img id="firmaThumb" class="firma-thumb" style="display:none" alt="Firma cargada">
+      <label class="check-row"><input type="checkbox" id="chkImagenes" checked> Incluir espacio para 3 imágenes del estudio</label>
     </div>
 
     <div class="card">
@@ -552,11 +607,26 @@ details.help code{
         <div class="dx-line"><b>DIAGNÓSTICO ENDOSCÓPICO:</b> <span id="pv-diagnostico" class="empty">—</span></div>
         <div class="dx-line"><b>SUGERENCIA:</b> <span id="pv-conducta" class="empty">—</span></div>
 
-        <div class="sig">
-          <div class="sig-inner">
-            <div class="sig-line"></div>
-            <div class="sig-name">Dr. Juan Carlos Riera Medina</div>
-            <div class="sig-role">Urólogo</div>
+        <!-- Bloque inferior: se empuja al pie de la página (margen inferior) -->
+        <div class="bottom-block">
+          <div id="pv-imagenes" class="study-images">
+            <div class="sec-title">Imágenes del estudio</div>
+            <div class="img-grid">
+              <div class="img-slot">Imagen 1<br>(agregar en Word)</div>
+              <div class="img-slot">Imagen 2<br>(agregar en Word)</div>
+              <div class="img-slot">Imagen 3<br>(agregar en Word)</div>
+            </div>
+          </div>
+
+          <div class="sig">
+            <div class="sig-inner">
+              <img id="pv-firma" class="sig-img" alt="Firma" style="display:none">
+              <div id="pv-sig-text">
+                <div class="sig-line"></div>
+                <div class="sig-name">Dr. Juan Carlos Riera Medina</div>
+                <div class="sig-role">Urólogo</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -601,6 +671,12 @@ const NORMAL_TEMPLATE = {
 const DEFAULTS = { anestesia:'Lidocaína intrauretral', equipo:'Cistoscopio flexible' };
 
 const STORAGE_KEY = 'cistoscopia_borrador_v7';
+const FIRMA_KEY   = 'cistoscopia_firma_v1';   // firma/timbre — separada del informe, persiste entre pacientes
+const PREF_KEY    = 'cistoscopia_pref_v1';    // preferencias (incluir imágenes)
+
+// Estado de la firma cargada por el usuario (queda solo en este navegador)
+let firma = { dataUrl:null, w:0, h:0 };
+let incluirImagenes = true;
 
 /* ============================================================
    2. UTILIDADES
@@ -726,6 +802,19 @@ function renderPreview(){
     el.textContent = v || '—';
     el.classList.toggle('empty', !v);
   });
+  // Área de imágenes del estudio
+  $('pv-imagenes').style.display = incluirImagenes ? '' : 'none';
+  // Firma: si hay imagen cargada, se muestra en vez del texto
+  const pvFirma = $('pv-firma'), pvSigText = $('pv-sig-text');
+  if(firma.dataUrl){
+    pvFirma.src = firma.dataUrl;
+    pvFirma.style.display = '';
+    pvSigText.style.display = 'none';
+  }else{
+    pvFirma.removeAttribute('src');
+    pvFirma.style.display = 'none';
+    pvSigText.style.display = '';
+  }
   // Completitud
   const llenos = CORE_FIELDS.filter(id => d[id]).length;
   $('completeness').innerHTML = `Campos completados: <b>${llenos} / ${CORE_FIELDS.length}</b>`;
@@ -734,6 +823,77 @@ function renderPreview(){
 function actualizar(){
   renderPreview();
   guardarBorrador();
+}
+
+/* ============================================================
+   3b. FIRMA / TIMBRE (se guarda solo en este navegador)
+   ============================================================ */
+function guardarFirma(){
+  try{ localStorage.setItem(FIRMA_KEY, JSON.stringify(firma)); }catch(e){ toast('La firma es muy grande para guardarla localmente.'); }
+}
+function cargarFirmaGuardada(){
+  try{
+    const raw = localStorage.getItem(FIRMA_KEY);
+    if(raw){ const f = JSON.parse(raw); if(f && f.dataUrl){ firma = f; } }
+  }catch(e){}
+}
+function guardarPrefs(){
+  try{ localStorage.setItem(PREF_KEY, JSON.stringify({ incluirImagenes })); }catch(e){}
+}
+function cargarPrefs(){
+  try{
+    const raw = localStorage.getItem(PREF_KEY);
+    if(raw){ const p = JSON.parse(raw); if(typeof p.incluirImagenes === 'boolean') incluirImagenes = p.incluirImagenes; }
+  }catch(e){}
+}
+
+// Procesa la imagen elegida: la reduce de tamaño y vuelve el fondo blanco
+// transparente, para que la firma se vea limpia sobre el informe.
+function procesarImagenFirma(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 700;
+      const escala = Math.min(1, maxW / img.naturalWidth);
+      const w = Math.round(img.naturalWidth * escala);
+      const h = Math.round(img.naturalHeight * escala);
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      const ctx = cv.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // Volver transparente el fondo claro (papel blanco/crema del escaneo)
+      try{
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const p = imgData.data;
+        for(let i = 0; i < p.length; i += 4){
+          if(p[i] > 228 && p[i+1] > 228 && p[i+2] > 228){ p[i+3] = 0; }
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }catch(e){ /* si el navegador bloquea getImageData, se deja con fondo */ }
+      firma = { dataUrl: cv.toDataURL('image/png'), w, h };
+      guardarFirma();
+      renderFirmaUI();
+      actualizar();
+      toast('Firma cargada y guardada en este computador');
+    };
+    img.onerror = () => toast('No se pudo leer la imagen.');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderFirmaUI(){
+  const thumb = $('firmaThumb'), quitar = $('btnQuitarFirma'), cargar = $('btnCargarFirma');
+  if(firma.dataUrl){
+    thumb.src = firma.dataUrl;
+    thumb.style.display = 'block';
+    quitar.style.display = '';
+    cargar.innerHTML = cargar.innerHTML.replace('Cargar firma / timbre','Cambiar firma / timbre');
+  }else{
+    thumb.style.display = 'none';
+    quitar.style.display = 'none';
+  }
 }
 
 /* ============================================================
@@ -1051,7 +1211,7 @@ function wRowPT(label, value){
     `</w:tr>`;
 }
 
-function buildDocumentXml(d){
+function buildDocumentXml(d, opts = {}){
   const body = [];
 
   // Encabezado
@@ -1102,40 +1262,114 @@ function buildDocumentXml(d){
   body.push(wP(wRun('DIAGNÓSTICO ENDOSCÓPICO: ', {b:true}) + wRun(d.diagnostico || '—'), {after:80}));
   body.push(wP(wRun('SUGERENCIA: ', {b:true}) + wRun(d.conducta || '—'), {after:80}));
 
-  // Firma
-  body.push('<w:p><w:pPr><w:spacing w:before="900" w:after="0"/></w:pPr></w:p>');
-  body.push(wP(wRun('Dr. Juan Carlos Riera Medina', {b:true, sz:21}), {align:'right', before:200, after:20}));
-  body.push(wP(wRun('Urólogo', {sz:19, color:'374151'}), {align:'right', after:0}));
+  // ----- Imágenes del estudio (celdas vacías para insertar manualmente en Word) -----
+  if(opts.incluirImagenes){
+    body.push(secTitle('Imágenes del estudio'));
+    const celda = (n) =>
+      `<w:tc><w:tcPr><w:tcW w:w="3150" w:type="dxa"/>` +
+      `<w:tcMar><w:top w:w="60" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:left w:w="60" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tcMar>` +
+      `<w:vAlign w:val="center"/></w:tcPr>` +
+      `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="700" w:after="700"/></w:pPr>` +
+      wRun('Imagen ' + n, {sz:18, color:'9CA3AF', i:true}) + `</w:p></w:tc>`;
+    const dash = 'dashSmallGap';
+    body.push(
+      `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:jc w:val="center"/>` +
+      `<w:tblBorders><w:top w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:left w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
+      `<w:bottom w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:right w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
+      `<w:insideH w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:insideV w:val="${dash}" w:sz="6" w:color="9CA3AF"/></w:tblBorders></w:tblPr>` +
+      `<w:tr><w:trPr><w:trHeight w:val="2100" w:hRule="atLeast"/></w:trPr>` +
+      celda(1) + celda(2) + celda(3) + `</w:tr></w:tbl>`
+    );
+    body.push('<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>');
+  }
+
+  // ----- Firma -----
+  body.push('<w:p><w:pPr><w:spacing w:before="400" w:after="0"/></w:pPr></w:p>');
+  if(opts.firma && opts.firmaRelId && opts.firmaCm){
+    const cx = Math.round(opts.firmaCm.w * 360000); // EMU (360000 por cm)
+    const cy = Math.round(opts.firmaCm.h * 360000);
+    const drawing =
+      `<w:r><w:drawing>` +
+      `<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">` +
+      `<wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
+      `<wp:docPr id="1" name="Firma"/>` +
+      `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+      `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+      `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+      `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+      `<pic:nvPicPr><pic:cNvPr id="1" name="Firma"/><pic:cNvPicPr/></pic:nvPicPr>` +
+      `<pic:blipFill><a:blip r:embed="${opts.firmaRelId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+      `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+      `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
+      `</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+    body.push(`<w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="0"/></w:pPr>${drawing}</w:p>`);
+  }else{
+    body.push(wP(wRun('Dr. Juan Carlos Riera Medina', {b:true, sz:21}), {align:'right', before:200, after:20}));
+    body.push(wP(wRun('Urólogo', {sz:19, color:'374151'}), {align:'right', after:0}));
+  }
 
   // Página carta, márgenes 2cm laterales / 1.5cm sup / 1.8cm inf
   const sectPr = `<w:sectPr><w:pgSz w:w="12240" w:h="15840"/>` +
     `<w:pgMar w:top="850" w:right="1134" w:bottom="1020" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr>`;
 
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-    `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">` +
+    `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ` +
+    `xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">` +
     `<w:body>${body.join('')}${sectPr}</w:body></w:document>`;
 }
 
-function buildDocx(d){
+// Decodifica un data URL (base64) a bytes
+function dataUrlToBytes(dataUrl){
+  const bin = atob(dataUrl.split(',')[1]);
+  const u8 = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
+}
+// Tamaño de la firma en cm respetando la proporción (ancho ~6 cm, alto máx 3.6 cm)
+function firmaTamanoCm(w, h){
+  let cmW = 6.0, cmH = cmW * (h / w);
+  const maxH = 3.6;
+  if(cmH > maxH){ cmH = maxH; cmW = cmH * (w / h); }
+  return { w: cmW, h: cmH };
+}
+
+function buildDocx(d, opts = {}){
   const enc = new TextEncoder();
+  const usarFirma = !!(opts.firma && opts.firma.dataUrl);
+
   const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
     `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
     `<Default Extension="xml" ContentType="application/xml"/>` +
+    (usarFirma ? `<Default Extension="png" ContentType="image/png"/>` : '') +
     `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>` +
     `</Types>`;
   const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
     `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>` +
     `</Relationships>`;
+
+  const firmaRelId = usarFirma ? 'rId100' : null;
   const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
-    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"/>`;
-  return makeZip([
+    `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+    (usarFirma ? `<Relationship Id="${firmaRelId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/firma.png"/>` : '') +
+    `</Relationships>`;
+
+  const docOpts = {
+    incluirImagenes: opts.incluirImagenes !== false,
+    firma: usarFirma,
+    firmaRelId,
+    firmaCm: usarFirma ? firmaTamanoCm(opts.firma.w || 1, opts.firma.h || 1) : null,
+  };
+
+  const files = [
     { name:'[Content_Types].xml', data: enc.encode(contentTypes) },
     { name:'_rels/.rels',         data: enc.encode(rels) },
     { name:'word/_rels/document.xml.rels', data: enc.encode(docRels) },
-    { name:'word/document.xml',   data: enc.encode(buildDocumentXml(d)) },
-  ]);
+    { name:'word/document.xml',   data: enc.encode(buildDocumentXml(d, docOpts)) },
+  ];
+  if(usarFirma) files.push({ name:'word/media/firma.png', data: dataUrlToBytes(opts.firma.dataUrl) });
+  return makeZip(files);
 }
 
 function nombreArchivo(d){
@@ -1151,7 +1385,7 @@ function nombreArchivo(d){
 
 function descargarDocx(){
   const d = getDatos();
-  const bytes = buildDocx(d);
+  const bytes = buildDocx(d, { firma, incluirImagenes });
   const blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1207,13 +1441,37 @@ function informeTexto(){
    8. EVENTOS E INICIALIZACIÓN
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Restaurar borrador o inicializar valores por defecto
+  // Restaurar borrador, firma y preferencias
   const habia = cargarBorrador();
+  cargarFirmaGuardada();
+  cargarPrefs();
   if(!$('fecha').value) $('fecha').value = fechaHoy();
   if(!$('anestesia').value) $('anestesia').value = DEFAULTS.anestesia;
   if(!$('equipo').value) $('equipo').value = DEFAULTS.equipo;
+  $('chkImagenes').checked = incluirImagenes;
+  renderFirmaUI();
   renderPreview();
   if(habia) toast('Borrador anterior recuperado');
+
+  // Firma / timbre
+  $('btnCargarFirma').addEventListener('click', () => $('firmaInput').click());
+  $('firmaInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) procesarImagenFirma(file);
+    e.target.value = ''; // permite volver a elegir el mismo archivo
+  });
+  $('btnQuitarFirma').addEventListener('click', () => {
+    firma = { dataUrl:null, w:0, h:0 };
+    try{ localStorage.removeItem(FIRMA_KEY); }catch(e){}
+    renderFirmaUI();
+    renderPreview();
+    toast('Firma quitada');
+  });
+  $('chkImagenes').addEventListener('change', (e) => {
+    incluirImagenes = e.target.checked;
+    guardarPrefs();
+    renderPreview();
+  });
 
   // Edición manual
   FIELDS.forEach(f => $(f.id).addEventListener('input', actualizar));

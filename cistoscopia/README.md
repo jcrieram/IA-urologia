@@ -70,6 +70,19 @@ También entiende artículos: «en la vejiga…», «la uretra…».
 
 ## Estructura del informe generado
 
-Encabezado (Dr. Riera — Urología) → Fecha → Título → Tabla del paciente (Nombre/RUT/Edad) → Indicación + Anestesia/Equipo → Hallazgos (Uretra anterior, Uretra posterior/Próstata, Cuello vesical, Vejiga) → Diagnóstico endoscópico + Sugerencia → Firma.
+Encabezado (Dr. Riera — Urología) → Fecha → Título → Tabla del paciente (Nombre/Cédula/Edad) → Indicación + Anestesia/Equipo → Hallazgos (Uretra anterior, Uretra posterior/Próstata, Cuello vesical, Vejiga) → Diagnóstico endoscópico + Sugerencia → **Imágenes del estudio (3 espacios)** → **Firma / timbre**.
 
 El archivo se descarga como `cistoscopia_[Apellidos]_[YYYYMMDD].docx`.
+
+## Firma / timbre
+
+- Botón **"Cargar firma / timbre"**: seleccione una foto o escaneo de su firma (PNG/JPG). La app la reduce de tamaño y vuelve transparente el fondo blanco del papel para que se vea limpia.
+- La firma se guarda **solo en este computador** (`localStorage`), **no se sube al repositorio ni a internet**. Por eso no está incrustada en el archivo compartido: así nadie puede extraerla del código público y falsificar documentos.
+- Aparece automáticamente al pie de cada informe, tanto en el Word como en la impresión/PDF. Si no hay firma cargada, se muestra el nombre y "Urólogo" en texto.
+- Para cambiarla o quitarla: botones **"Cambiar firma"** / **"Quitar firma"**.
+
+## Imágenes del estudio
+
+- Casilla **"Incluir espacio para 3 imágenes del estudio"** (activada por defecto): reserva, entre la conducta y la firma, una fila de 3 recuadros.
+- En el **Word**, cada recuadro es una celda de tabla: haga clic dentro y use *Insertar → Imagen* para pegar cada foto de la cistoscopía.
+- Si desactiva la casilla, el informe va sin ese espacio y la firma sube.
