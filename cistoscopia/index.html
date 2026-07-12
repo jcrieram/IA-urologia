@@ -469,6 +469,10 @@ details.help code{
       </button>
       <p class="hint-sm" id="fijarHint" style="display:none;margin-top:.5rem">Genera un archivo <code>.html</code> con su firma ya incrustada, para usarlo en cualquier computador sin volver a cargarla.</p>
       <label class="check-row"><input type="checkbox" id="chkImagenes" checked> Incluir espacio para 3 imágenes del estudio</label>
+      <div class="field" style="margin-top:.9rem;margin-bottom:0">
+        <label for="mailDestino">Correo para enviar el informe <span class="kw">opcional</span></label>
+        <input id="mailDestino" type="email" autocomplete="off" inputmode="email" placeholder="tucorreo@ejemplo.com">
+      </div>
     </div>
 
     <div class="card">
@@ -546,7 +550,9 @@ details.help code{
           <tr><td><code>examen normal</code></td><td>Rellena todos los hallazgos con la plantilla de examen normal.</td></tr>
           <tr><td><code>fecha hoy</code></td><td>Coloca la fecha de hoy automáticamente.</td></tr>
           <tr><td><code>descargar informe</code></td><td>Descarga el archivo Word (.docx).</td></tr>
+          <tr><td><code>enviar por correo</code></td><td>Abre el envío del informe por correo (adjunta el Word en el celular).</td></tr>
           <tr><td><code>imprimir informe</code></td><td>Abre el diálogo de impresión (para papel o PDF).</td></tr>
+          <tr><td><code>terminar</code> / <code>finalizar dictado</code></td><td><b>Termina el dictado y apaga el micrófono.</b> También sirven «listo», «detener», «apagar micrófono».</td></tr>
           <tr><td><code>limpiar todo</code></td><td>Comienza un informe nuevo (borra todos los campos).</td></tr>
           <tr><td>Puntuación</td><td>Diga «punto», «coma», «punto y coma», «dos puntos», «nueva línea» o «punto aparte» dentro del dictado.</td></tr>
         </table>
@@ -567,6 +573,10 @@ details.help code{
       <button class="btn" id="btnPrint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Imprimir / PDF
+      </button>
+      <button class="btn" id="btnMail">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Enviar por correo
       </button>
       <button class="btn" id="btnCopy">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -679,6 +689,7 @@ const DEFAULTS = { anestesia:'Lidocaína intrauretral', equipo:'Cistoscopio flex
 const STORAGE_KEY = 'cistoscopia_borrador_v7';
 const FIRMA_KEY   = 'cistoscopia_firma_v1';   // firma/timbre — separada del informe, persiste entre pacientes
 const PREF_KEY    = 'cistoscopia_pref_v1';    // preferencias (incluir imágenes)
+const MAIL_KEY    = 'cistoscopia_mail_v1';    // correo de destino para enviar el informe
 
 // Firma incrustada de forma permanente en este archivo (se rellena al usar
 // "Guardar app con mi firma"). Si está presente, la firma viaja con el archivo
@@ -1000,6 +1011,17 @@ function procesarFrase(original){
   if(!norm) return;
 
   /* ---- Comandos globales ---- */
+  // Terminar el dictado y apagar el micrófono
+  if(/^(terminar|finalizar|termina|finaliza|termino|detener|deten|parar|para|apagar|cerrar|listo|terminado|fin)( el)?( dictado| microfono| micro| grabacion| grabando)?$/.test(norm)){
+    setLastAction('🎤 Dictado finalizado. Micrófono apagado.');
+    beep();
+    detenerMic();
+    return;
+  }
+  // Enviar el informe por correo
+  if(/^(enviar|envia|mandar|manda|enviame|mandame)( el)?( informe| reporte| correo| mail)?( por)?( correo| mail| email| e mail)?$/.test(norm)){
+    enviarInforme(); return;
+  }
   if(/^(descargar|descarga|generar|bajar)( el)?( informe| reporte| word| documento)?$/.test(norm)){
     descargarDocx(); return;
   }
@@ -1460,6 +1482,39 @@ function descargarDocx(){
   toast('Informe Word descargado');
 }
 
+// Envía el informe por correo. En celular usa la hoja de "Compartir" para
+// adjuntar el Word (elige Mail, WhatsApp, etc.). En computador abre el correo
+// con el texto del informe ya escrito y descarga el Word para adjuntarlo.
+async function enviarInforme(){
+  const d = getDatos();
+  const correo = (localStorage.getItem(MAIL_KEY) || '').trim();
+  // 1) Intentar compartir el archivo Word directamente (ideal en celular)
+  try{
+    const bytes = buildDocx(d, { firma, incluirImagenes });
+    const file = new File([bytes], nombreArchivo(d),
+      { type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({
+        files:[file],
+        title:'Informe de uretrocistoscopía',
+        text:'Informe de uretrocistoscopía' + (d.nombre ? ' — ' + d.nombre : ''),
+      });
+      beep();
+      setLastAction('📧 Informe compartido.');
+      return;
+    }
+  }catch(e){
+    if(e && e.name === 'AbortError'){ return; } // el usuario canceló la hoja de compartir
+    // si falla el compartir, seguimos al correo por texto
+  }
+  // 2) Alternativa (computador): abrir el correo con el texto + descargar el Word
+  const asunto = encodeURIComponent('Informe uretrocistoscopía' + (d.nombre ? ' — ' + d.nombre : ''));
+  const cuerpo = encodeURIComponent(informeTexto() + '\n\n(El documento Word se descargó en este equipo; adjúntelo a este correo.)');
+  descargarDocx(); // descarga el .docx para que lo adjunte
+  window.location.href = `mailto:${correo}?subject=${asunto}&body=${cuerpo}`;
+  setLastAction('📧 Correo abierto. Adjunte el Word que se descargó.');
+}
+
 /* ============================================================
    7. TEXTO PLANO (copiar)
    ============================================================ */
@@ -1514,6 +1569,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if(!$('anestesia').value) $('anestesia').value = DEFAULTS.anestesia;
   if(!$('equipo').value) $('equipo').value = DEFAULTS.equipo;
   $('chkImagenes').checked = incluirImagenes;
+  try{ $('mailDestino').value = localStorage.getItem(MAIL_KEY) || ''; }catch(e){}
   renderFirmaUI();
   renderPreview();
   if(habia) toast('Borrador anterior recuperado');
@@ -1538,6 +1594,9 @@ document.addEventListener('DOMContentLoaded', () => {
     guardarPrefs();
     renderPreview();
   });
+  $('mailDestino').addEventListener('input', (e) => {
+    try{ localStorage.setItem(MAIL_KEY, e.target.value.trim()); }catch(err){}
+  });
 
   // Edición manual
   FIELDS.forEach(f => $(f.id).addEventListener('input', actualizar));
@@ -1549,6 +1608,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Botones
   $('btnDocx').addEventListener('click', descargarDocx);
   $('btnPrint').addEventListener('click', () => window.print());
+  $('btnMail').addEventListener('click', enviarInforme);
   $('btnCopy').addEventListener('click', async () => {
     try{
       await navigator.clipboard.writeText(informeTexto());

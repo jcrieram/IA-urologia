@@ -36,7 +36,9 @@ Aplicación web de una sola página para dictar informes de uretrocistoscopía *
 | `examen normal` | Rellena todos los hallazgos con la plantilla de examen normal |
 | `fecha hoy` | Coloca la fecha de hoy |
 | `descargar informe` | Descarga el .docx |
+| `enviar por correo` | Envía el informe por correo (adjunta el Word en el celular) |
 | `imprimir informe` | Abre el diálogo de impresión (papel o PDF) |
+| `terminar` / `finalizar dictado` | **Termina el dictado y apaga el micrófono** (también «listo», «detener», «apagar micrófono») |
 | `limpiar todo` | Comienza un informe nuevo |
 | `punto`, `coma`, `punto y coma`, `dos puntos`, `nueva línea`, `punto aparte` | Puntuación dictada |
 
@@ -89,6 +91,13 @@ Una vez cargada la firma aparece el botón **"Guardar app con mi firma incluida"
 - Es su archivo personal: guárdelo donde quiera. Este es el archivo que conviene usar en el día a día.
 
 > Nota: el `index.html` del repositorio se mantiene **sin** la firma incrustada; la firma solo queda en el archivo que usted genera con ese botón.
+
+## Enviar por correo
+
+Botón **"Enviar por correo"** (o di «enviar por correo»):
+
+- **En el celular:** abre la hoja de **Compartir** de iPhone/Android con el **Word adjunto** — eliges Mail (o WhatsApp) y lo mandas a donde lo puedas imprimir.
+- **En el computador:** abre tu programa de correo con el **texto del informe ya escrito** y **descarga el Word** para que lo adjuntes. Puedes guardar un **correo de destino** en el recuadro "Correo para enviar el informe" y queda recordado.
 
 ## Imágenes del estudio
 
