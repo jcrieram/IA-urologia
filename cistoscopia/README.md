@@ -102,5 +102,5 @@ Botón **"Enviar por correo"** (o di «enviar por correo»):
 ## Imágenes del estudio
 
 - Casilla **"Incluir espacio para 3 imágenes del estudio"** (activada por defecto): reserva, entre la conducta y la firma, una fila de 3 recuadros.
-- En el **Word**, cada recuadro es una celda de tabla: haga clic dentro y use *Insertar → Imagen* para pegar cada foto de la cistoscopía.
+- En el **Word**, cada recuadro es un **control de contenido de imagen**: basta **hacer clic dentro del recuadro** y se abre el diálogo para elegir la foto; la imagen queda **ajustada al recuadro automáticamente**, sin tener que redimensionarla a mano.
 - Si desactiva la casilla, el informe va sin ese espacio y la firma sube.

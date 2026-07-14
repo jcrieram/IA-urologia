@@ -627,9 +627,9 @@ details.help code{
           <div id="pv-imagenes" class="study-images">
             <div class="sec-title">Imágenes del estudio</div>
             <div class="img-grid">
-              <div class="img-slot">Imagen 1<br>(agregar en Word)</div>
-              <div class="img-slot">Imagen 2<br>(agregar en Word)</div>
-              <div class="img-slot">Imagen 3<br>(agregar en Word)</div>
+              <div class="img-slot">Imagen 1<br>(clic para insertar en Word)</div>
+              <div class="img-slot">Imagen 2<br>(clic para insertar en Word)</div>
+              <div class="img-slot">Imagen 3<br>(clic para insertar en Word)</div>
             </div>
           </div>
 
@@ -690,6 +690,8 @@ const STORAGE_KEY = 'cistoscopia_borrador_v7';
 const FIRMA_KEY   = 'cistoscopia_firma_v1';   // firma/timbre — separada del informe, persiste entre pacientes
 const PREF_KEY    = 'cistoscopia_pref_v1';    // preferencias (incluir imágenes)
 const MAIL_KEY    = 'cistoscopia_mail_v1';    // correo de destino para enviar el informe
+// Imagen de marcador para los recuadros de imagen en el Word (control de contenido de imagen)
+const PLACEHOLDER_IMG_B64 = "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";
 
 // Firma incrustada de forma permanente en este archivo (se rellena al usar
 // "Guardar app con mi firma"). Si está presente, la firma viaja con el archivo
@@ -1343,22 +1345,43 @@ function buildDocumentXml(d, opts = {}){
   body.push(wP(wRun('DIAGNÓSTICO ENDOSCÓPICO: ', {b:true}) + wRun(d.diagnostico || '—'), {after:80}));
   body.push(wP(wRun('SUGERENCIA: ', {b:true}) + wRun(d.conducta || '—'), {after:80}));
 
-  // ----- Imágenes del estudio (celdas vacías para insertar manualmente en Word) -----
-  if(opts.incluirImagenes){
+  // ----- Imágenes del estudio: control de contenido de imagen en cada celda -----
+  // Al hacer clic en el recuadro dentro de Word, se abre el diálogo para elegir
+  // la foto y queda ajustada al tamaño del recuadro automáticamente.
+  if(opts.incluirImagenes && opts.phRelId){
     body.push(secTitle('Imágenes del estudio'));
+    const cx = Math.round(5.0 * 360000);  // ancho del recuadro (~5,0 cm)
+    const cy = Math.round(3.9 * 360000);  // alto  del recuadro (~3,9 cm)
+    const pictureCC = (n) =>
+      `<w:sdt><w:sdtPr><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/></w:rPr>` +
+      `<w:id w:val="${5000 + n}"/><w:picture/></w:sdtPr>` +
+      `<w:sdtContent>` +
+      `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="40" w:after="40"/></w:pPr>` +
+      `<w:r><w:rPr><w:noProof/></w:rPr><w:drawing>` +
+      `<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">` +
+      `<wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
+      `<wp:docPr id="${10 + n}" name="Imagen ${n}"/>` +
+      `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+      `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+      `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+      `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+      `<pic:nvPicPr><pic:cNvPr id="${10 + n}" name="Imagen ${n}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+      `<pic:blipFill><a:blip r:embed="${opts.phRelId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+      `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+      `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
+      `</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p>` +
+      `</w:sdtContent></w:sdt>`;
     const celda = (n) =>
       `<w:tc><w:tcPr><w:tcW w:w="3150" w:type="dxa"/>` +
-      `<w:tcMar><w:top w:w="60" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:left w:w="60" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tcMar>` +
-      `<w:vAlign w:val="center"/></w:tcPr>` +
-      `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="700" w:after="700"/></w:pPr>` +
-      wRun('Imagen ' + n, {sz:18, color:'9CA3AF', i:true}) + `</w:p></w:tc>`;
+      `<w:tcMar><w:top w:w="40" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:left w:w="40" w:type="dxa"/><w:right w:w="40" w:type="dxa"/></w:tcMar>` +
+      `<w:vAlign w:val="center"/></w:tcPr>${pictureCC(n)}</w:tc>`;
     const dash = 'dashSmallGap';
     body.push(
       `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/><w:jc w:val="center"/>` +
       `<w:tblBorders><w:top w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:left w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
       `<w:bottom w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:right w:val="${dash}" w:sz="6" w:color="9CA3AF"/>` +
       `<w:insideH w:val="${dash}" w:sz="6" w:color="9CA3AF"/><w:insideV w:val="${dash}" w:sz="6" w:color="9CA3AF"/></w:tblBorders></w:tblPr>` +
-      `<w:tr><w:trPr><w:trHeight w:val="2650" w:hRule="atLeast"/></w:trPr>` +
+      `<w:tr><w:trPr><w:trHeight w:val="2350" w:hRule="atLeast"/></w:trPr>` +
       celda(1) + celda(2) + celda(3) + `</w:tr></w:tbl>`
     );
     body.push('<w:p><w:pPr><w:spacing w:after="80"/></w:pPr></w:p>');
@@ -1418,12 +1441,14 @@ function firmaTamanoCm(w, h){
 function buildDocx(d, opts = {}){
   const enc = new TextEncoder();
   const usarFirma = !!(opts.firma && opts.firma.dataUrl);
+  const usarImagenes = opts.incluirImagenes !== false;
+  const usarPng = usarFirma || usarImagenes;
 
   const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
     `<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>` +
     `<Default Extension="xml" ContentType="application/xml"/>` +
-    (usarFirma ? `<Default Extension="png" ContentType="image/png"/>` : '') +
+    (usarPng ? `<Default Extension="png" ContentType="image/png"/>` : '') +
     `<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>` +
     `</Types>`;
   const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
@@ -1432,13 +1457,17 @@ function buildDocx(d, opts = {}){
     `</Relationships>`;
 
   const firmaRelId = usarFirma ? 'rId100' : null;
+  const phRelId = usarImagenes ? 'rId101' : null;
+  const imgType = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image';
   const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
-    (usarFirma ? `<Relationship Id="${firmaRelId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/firma.png"/>` : '') +
+    (usarFirma ? `<Relationship Id="${firmaRelId}" Type="${imgType}" Target="media/firma.png"/>` : '') +
+    (usarImagenes ? `<Relationship Id="${phRelId}" Type="${imgType}" Target="media/placeholder.png"/>` : '') +
     `</Relationships>`;
 
   const docOpts = {
-    incluirImagenes: opts.incluirImagenes !== false,
+    incluirImagenes: usarImagenes,
+    phRelId,
     firma: usarFirma,
     firmaRelId,
     firmaCm: usarFirma ? firmaTamanoCm(opts.firma.w || 1, opts.firma.h || 1) : null,
@@ -1451,7 +1480,16 @@ function buildDocx(d, opts = {}){
     { name:'word/document.xml',   data: enc.encode(buildDocumentXml(d, docOpts)) },
   ];
   if(usarFirma) files.push({ name:'word/media/firma.png', data: dataUrlToBytes(opts.firma.dataUrl) });
+  if(usarImagenes) files.push({ name:'word/media/placeholder.png', data: b64ToBytes(PLACEHOLDER_IMG_B64) });
   return makeZip(files);
+}
+
+// Decodifica base64 puro (sin encabezado data:) a bytes
+function b64ToBytes(b64){
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return u8;
 }
 
 function nombreArchivo(d){
