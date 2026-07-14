@@ -82,9 +82,13 @@ El archivo se descarga como `cistoscopia_[Apellidos]_[YYYYMMDD].docx`.
 - La firma se guarda en este computador (`localStorage`) y aparece al pie de cada informe (Word e impresión/PDF), **debajo** del espacio de imágenes.
 - Si no hay firma cargada, el pie muestra en texto: **Dr. Juan Carlos Riera Medina · RUT: 25.279.729-7 · Urólogo**.
 
-### Firma estable y portátil — "Guardar app con mi firma incluida"
+## Logo del encabezado
 
-Una vez cargada la firma aparece el botón **"Guardar app con mi firma incluida"**. Genera un archivo `cistoscopia_con_firma.html` **con su firma ya incrustada de forma permanente**:
+Botón **"Cargar logo del encabezado"**: seleccione la imagen de su logo/membrete. Aparece **arriba a la izquierda** del informe (pantalla, PDF y Word), con su nombre y especialidad a la derecha, en formato de membrete. Está ajustado para **no aumentar la altura**, de modo que el informe sigue cabiendo en una sola hoja carta. Se guarda solo en este computador (como la firma). Para quitarlo: **"Quitar logo"**.
+
+### Firma y logo estables y portátiles — "Guardar app con mi firma y logo"
+
+Una vez cargada la firma y/o el logo aparece el botón **"Guardar app con mi firma y logo"**. Genera un archivo `cistoscopia_con_firma.html` **con su firma y logo ya incrustados de forma permanente**:
 
 - Úselo en **cualquier computador** (consulta, casa, pabellón) y la firma ya estará puesta, sin volver a cargarla.
 - No contiene datos de pacientes (se generan en blanco).

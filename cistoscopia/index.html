@@ -264,6 +264,14 @@ details.help code{
 .sheet .hosp-header .h-name{font-size:1.15rem;font-weight:700;letter-spacing:.05em;color:var(--navy)}
 .sheet .hosp-header .h-unit{font-size:.85rem;font-weight:600;letter-spacing:.09em;color:#374151;margin-top:.15rem}
 .sheet .hosp-header .h-doc{font-size:.8rem;color:#4b5563;margin-top:.35rem;font-style:italic}
+.sheet .hdr-logo{display:none}
+/* Membrete con logo: logo a la izquierda, datos del médico a la derecha */
+.sheet .hosp-header.with-logo{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;
+  text-align:right;padding-bottom:.55rem;margin-bottom:.85rem;
+}
+.sheet .hosp-header.with-logo .hdr-logo{display:block;max-height:58px;max-width:46%;width:auto;object-fit:contain}
+.sheet .hosp-header.with-logo .hdr-text{text-align:right}
 .sheet .r-date{text-align:right;font-size:.85rem;margin-bottom:.9rem}
 .sheet .r-title{
   text-align:center;font-weight:700;font-size:1.05rem;
@@ -370,6 +378,7 @@ details.help code{
   .sheet .sig{page-break-inside:avoid}
   .img-slot{min-height:3.5cm}
   .sheet .sig-img{max-width:8.5cm;max-height:3.3cm}
+  .sheet .hosp-header.with-logo .hdr-logo{max-height:1.5cm}
   @page{size:letter;margin:1.2cm 2.2cm}
 }
 </style>
@@ -465,10 +474,23 @@ details.help code{
       <img id="firmaThumb" class="firma-thumb" style="display:none" alt="Firma cargada">
       <button class="btn" id="btnFijarFirma" style="display:none;margin-top:.6rem">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Guardar app con mi firma incluida
+        Guardar app con mi firma y logo
       </button>
-      <p class="hint-sm" id="fijarHint" style="display:none;margin-top:.5rem">Genera un archivo <code>.html</code> con su firma ya incrustada, para usarlo en cualquier computador sin volver a cargarla.</p>
-      <label class="check-row"><input type="checkbox" id="chkImagenes" checked> Incluir espacio para 3 imágenes del estudio</label>
+      <p class="hint-sm" id="fijarHint" style="display:none;margin-top:.5rem">Genera un archivo <code>.html</code> con su firma y logo ya incrustados, para usarlo en cualquier computador sin volver a cargarlos.</p>
+
+      <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line)">
+        <div class="sig-controls">
+          <input type="file" id="logoInput" accept="image/png,image/jpeg,image/webp" hidden>
+          <button class="btn" id="btnCargarLogo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Cargar logo del encabezado
+          </button>
+          <button class="btn ghost-danger" id="btnQuitarLogo" style="display:none">Quitar logo</button>
+        </div>
+        <img id="logoThumb" class="firma-thumb" style="display:none" alt="Logo cargado">
+      </div>
+
+      <label class="check-row" style="margin-top:1rem"><input type="checkbox" id="chkImagenes" checked> Incluir espacio para 3 imágenes del estudio</label>
       <div class="field" style="margin-top:.9rem;margin-bottom:0">
         <label for="mailDestino">Correo para enviar el informe <span class="kw">opcional</span></label>
         <input id="mailDestino" type="email" autocomplete="off" inputmode="email" placeholder="tucorreo@ejemplo.com">
@@ -589,9 +611,12 @@ details.help code{
     <div class="sheet-wrap">
       <!-- Vista previa del informe: es exactamente lo que se imprime -->
       <div class="sheet" id="reportSheet">
-        <div class="hosp-header">
-          <div class="h-name">DR. JUAN CARLOS RIERA MEDINA</div>
-          <div class="h-unit">UROLOGÍA</div>
+        <div class="hosp-header" id="pvHeader">
+          <img id="pv-logo" class="hdr-logo" alt="Logo" style="display:none">
+          <div class="hdr-text">
+            <div class="h-name">DR. JUAN CARLOS RIERA MEDINA</div>
+            <div class="h-unit">UROLOGÍA</div>
+          </div>
         </div>
 
         <div class="r-date">Fecha: <span id="pv-fecha" class="empty">—</span></div>
@@ -690,6 +715,7 @@ const STORAGE_KEY = 'cistoscopia_borrador_v7';
 const FIRMA_KEY   = 'cistoscopia_firma_v1';   // firma/timbre — separada del informe, persiste entre pacientes
 const PREF_KEY    = 'cistoscopia_pref_v1';    // preferencias (incluir imágenes)
 const MAIL_KEY    = 'cistoscopia_mail_v1';    // correo de destino para enviar el informe
+const LOGO_KEY    = 'cistoscopia_logo_v1';    // logo del encabezado — guardado en este equipo
 // Imagen de marcador para los recuadros de imagen en el Word (control de contenido de imagen)
 const PLACEHOLDER_IMG_B64 = "iVBORw0KGgoAAAANSUhEUgAAAggAAAGQCAIAAABEQw+HAAANYElEQVR4nO3d/5NV9X3H8XN3FxBtYhhFEMQIRARZvyEKGquCSbASRG2rYdomMvbHTn7s9E/Ib53JT81MM0nbtM6kY7U6wUBiIERE0YLfoUJAwS80mtq0MbAsd29/uHXltXfdwu79cu7yePy03HP2nA/3zryfe85dLpVjA4MFAHysp9MLAKBchAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGA0NfpBTCpfPeHT3V6CWevh+6/o9NLYJKoHBsY7PQamAwkoSTkgYlzK4kmUIXy8FowccLARJlEZeMVYYKEgQkxg8rJ68JEeI+B8Rt1+rjH3RFeC5rIFQPNZBJ1imeeJhIGxqnxR1SzqbMan383lBgfYaA5VKEMvAo0hTAAEIQBgCAMAARhACAIAwBBGAAIwgBAEAYAgv+oh1Lz76uh/YSBMhrjsxyGNykEtIhbSZTOaX7Cjw8CghYRBsrljMa9NkArCAMlMo5Brw3QdMJAWYx7xGsDNJcwUAoTHO7aAE0kDAAEYQAgCAOd15QbQe4mQbMIAwBBGAAIwgBAEAYAgjAAEISBzmvK56T6sFVoFmEAIAgDAEEYKIUJ3ghyHwmaSBgoi3EPd1WA5hIGSmQcI14VoOmEgXI5o0GvCtAKwkDpnOa4VwVokb5OLwBGMTz0Gz8zVQ+g1YSBUpMBaD+3kgAIwgBAEAYAgjAAEIQBgCAMTEKNv+QKnD5hYLKpV0EbYNyEgUlFD2DihIHJY0QVRALGRxiYJEbNgDbAOAgDk4EAQBMJA11v7CqUoRmbd7zc6SXAGRAGutvpzP3OtqFeBW2giwgDZ4VOteHUHmgD3UIY6GJluE00BiWgSwkD3epMq9DmioxaBamgKwgDXWl8U75tbRgjANpA+QkD3afb7yBpAyUnDHSZCVah1VEx9JkEhIFu0pSx3ro2nH4V9IMyEwa6RrffQZrg/tA2wkB3aG4Vmt6Y8U15baCchIEu0IprhSYe03xnkhEGyq51d5CacuQJVkFUKCFhoNQm2fsKrTsINJEwUF5tqMJETtHEga4NlIowUFJtu1YY34mMciYxYYAz1ooqKA3lIQyUUZvfWjij07VugmsDJSEMlE5H3nA+zZO2enZrA2XQ1+kFQCjtryEZ2Zw9XDFQIp2twhhnb2cVFIiOEwbKogzXCqOuof2TWhvoLGGgFMpQhboRK+nUjNYGOkgY6LzyVGEE05mzkzDQYSWsQn1JHa9CxxfAWUsY6KQSVqGuJEO5JMvgbCMMdExpq3DJ3JmdXsIntIH2EwY6QxWgtISBDlCFM+KigTYTBtpNFcZBG2gnYYCiKHcV6rSBthEG2qqclwvlrwK0kzDQPqowQS4aaA9hoE1UoSm0gTYQBtpBFZpIG2g1YaA5xhj9qtA25Xyq6TrCwDg9dP8dIx4ZdSqVc1R1exVGvWhofKobXyM4HcJAM42YTarQOiPaUM6nmi5VOTYw2Ok10MXMo9JyucC4uWJgQkyfcvK6MBHCwESZQWXjFWGChIEmMInKw2vBxHmPgWbylkMHSQLNIgwABLeSAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBlpr98t7v/N3j3z/4cf/6ZEn//t/flt/8Fvf/l5RFO9/8OELL77eulM38fhPP/dim88IHdTX6QUwmR188+1X9h546E/W9/X1HTh05LFN277+wFeHt868cMbMC2e07uxNPP7Tz+25ZcW17TwjdJAw0ELPPP/SHb9/Y19fX1EUX5g/b+8bh4aGhnp6PrlO/da3v/dX39z4u2PHn9i8/djx4729vfetXX3eudOHt15/9ZK33/uPoqjce9eqwcGTT2zZfnxgYNlVi1cuv7q+w5LL58+edeGCS+eO2HTq8etf3Hjd0sNvHz0+cOL2L16/+PL5u3a/uueVfUVR+dJtK+bOnrnpqR2//eh31erQV25fOffii049+LFjx0+cGPyHf/7Rnatu/rQFrFjW33jGJYvmv3XkvZtvuObwO0ePvHN0xbL+lcuvfv+DD089yEcfHXt888+PDwx87rOf2X/oyF/+xTeOHx8YdTEj1t+WF5CzlFtJtNCvPvjw4lkXDv9x3ZpbT63CsC1bdy69YsGDX7v7qsVf2LbjheHHq9XqnNkzN25Yf/01SzZvfWbXnle/dOuNGzes37HrpeEd+hcvXLGsv3HTCNXq0LnTz3lww90P3POVJ596piiKn+/8t40b1v/hujtefn3/lm3PrljW//X7v3rf2tVPbNk+4uC3f3H51KlT/uyP146xgMYznjxZXX7Nld94YN2PfvKLFcv6H/zauvp3jTjIlm07+xcv3Lhh/ZJFC06cGCyK4lMWM3L90DquGGihWq12OrsdfOuddWtuK4rimv5FSxad+rNwpf6j8dIrFmzZtvObf77h1X0H3vjl4YETJ/5vc6Wy4LJLiqL48m0rR2xqXMm1Vy0uimLG5z47MHCiKIrLF1z66Kaf3XDt0nvvWvXXf/OD//yv39T3HBw8WavVKpXK8MGHNZ6lcZ9Pll6pzJk9s1Kp9Pb21r8YPHmy8SBvHnn37jtvK4pi0cJLe3oqRVH88s0jjYtpXD+0jjDQQhfMOP/or35dvxlSFMVjm7bec9eqxt1qtVpR1IqiqFQq06ZNHX68Uinqs7Ioir7e3h8+/pMrF82/cVn/8y++Vn+wp6enUqkURdG4aYTe3p5zho9cKYqiuOcPVr319nvPvvDKK3sPDA3V/vSP1vb19dZqtcPvHK0fc/jgw8ZYwKhnrG/q6+s9dZ8RB6lWhz5+Eop6RkddTOP6oXXcSqKFbrhu6c9+satarRZF8ereAyer1VF3m3vxRfsOvFkUxe6X9z21/bnhx4eGavsPHi6K4rV/P3jZpXPePfr+0isWnjx5stpwnDE21Y0Y3wMDJ77/8OPz5sy6b+3q/QcPz5s7e9/+Q0VRHDh05Oln9zR+e61Wq9Vq/+9ZTseIg8ybO6v+d9+3/1C9jqMu5tPyA63gioEWWrp44a8//M13/v6R86ZPP+/c6Xd9+Zb64xfMOP/pZ/fcsvK6+h/XrLrpX3+87fndr02bNvXetauHv72vr/f1Nw7u2PXSOdOmrr/z9vM/83vf/cfHZl10wTnTplWr1d7e3uE9b7j2yk/bNKpp06YuWvj5v/3Bo7Va7dabli2+/LInNm9/4cXXe3p61q25tXH/z19y8cP/8uMzPcuoRhxkzaqbH920ddfu1+bNmTVlypSiKO5cfdPYi4FWqxwbGOz0GmB0w7/hM4k99uTWm5ZfPWvmBe8efX/z1p0bN9zd6RWBKwboqBXL+jf9dMeUvt5qdWjtx1dU0FmuGAAI3nwGIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGAIAwABGEAIAgDAEEYAAjCAEAQBgCCMAAQhAGA8L/8KhfQZ8UjwwAAAABJRU5ErkJggg==";
 
@@ -697,9 +723,13 @@ const PLACEHOLDER_IMG_B64 = "iVBORw0KGgoAAAANSUhEUgAAAggAAAGQCAIAAABEQw+HAAANYEl
 // "Guardar app con mi firma"). Si está presente, la firma viaja con el archivo
 // y funciona en cualquier computador sin volver a cargarla.
 const FIRMA_EMBEBIDA = ""; /*__FIRMA_SLOT__*/
+// Logo del encabezado incrustado de forma permanente (se rellena al usar
+// "Guardar app con mi firma y logo").
+const LOGO_EMBEBIDA = ""; /*__LOGO_SLOT__*/
 
-// Estado de la firma en uso
+// Estado de la firma y del logo en uso
 let firma = { dataUrl:null, w:0, h:0 };
+let logo  = { dataUrl:null, w:0, h:0 };
 let incluirImagenes = true;
 
 /* ============================================================
@@ -826,6 +856,17 @@ function renderPreview(){
     el.textContent = v || '—';
     el.classList.toggle('empty', !v);
   });
+  // Logo del encabezado
+  const pvLogo = $('pv-logo'), pvHeader = $('pvHeader');
+  if(logo.dataUrl){
+    pvLogo.src = logo.dataUrl;
+    pvLogo.style.display = '';
+    pvHeader.classList.add('with-logo');
+  }else{
+    pvLogo.removeAttribute('src');
+    pvLogo.style.display = 'none';
+    pvHeader.classList.remove('with-logo');
+  }
   // Área de imágenes del estudio
   $('pv-imagenes').style.display = incluirImagenes ? '' : 'none';
   // Firma: si hay imagen cargada, se muestra en vez del texto
@@ -936,28 +977,72 @@ function renderFirmaUI(){
   thumb.style.display = hay ? 'block' : 'none';
   if(hay) thumb.src = firma.dataUrl;
   quitar.style.display = hay ? '' : 'none';
-  if(fijar) fijar.style.display = hay ? '' : 'none';
-  if(hint) hint.style.display = hay ? '' : 'none';
+  const hayAlgo = hay || !!logo.dataUrl;
+  if(fijar) fijar.style.display = hayAlgo ? '' : 'none';
+  if(hint) hint.style.display = hayAlgo ? '' : 'none';
 }
 
-// Genera una copia de esta misma app con la firma actual incrustada de forma
-// permanente, para llevarla a cualquier computador. No incluye datos de pacientes.
+/* ============================================================
+   3c. LOGO DEL ENCABEZADO (se guarda solo en este navegador)
+   ============================================================ */
+function guardarLogo(){
+  try{ localStorage.setItem(LOGO_KEY, JSON.stringify(logo)); }catch(e){ toast('El logo es muy grande para guardarlo localmente.'); }
+}
+function cargarLogoGuardado(){
+  try{
+    const raw = localStorage.getItem(LOGO_KEY);
+    if(raw){ const l = JSON.parse(raw); if(l && l.dataUrl){ logo = l; } }
+  }catch(e){}
+}
+// Procesa el logo: solo lo reduce de tamaño (mantiene sus colores y fondo).
+function procesarImagenLogo(file){
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = 900;
+      const escala = Math.min(1, maxW / img.naturalWidth);
+      const w = Math.round(img.naturalWidth * escala);
+      const h = Math.round(img.naturalHeight * escala);
+      const cv = document.createElement('canvas');
+      cv.width = w; cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      logo = { dataUrl: cv.toDataURL('image/png'), w, h };
+      guardarLogo();
+      renderLogoUI();
+      renderFirmaUI();
+      actualizar();
+      toast('Logo cargado y guardado en este computador');
+    };
+    img.onerror = () => toast('No se pudo leer la imagen del logo.');
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+function renderLogoUI(){
+  const thumb = $('logoThumb'), quitar = $('btnQuitarLogo');
+  const hay = !!logo.dataUrl;
+  if(thumb){ thumb.style.display = hay ? 'block' : 'none'; if(hay) thumb.src = logo.dataUrl; }
+  if(quitar) quitar.style.display = hay ? '' : 'none';
+}
+
+// Genera una copia de esta misma app con la firma y el logo incrustados de
+// forma permanente, para llevarla a cualquier computador. Sin datos de pacientes.
 function descargarAppConFirma(){
-  if(!firma.dataUrl){ toast('Primero cargue una firma'); return; }
-  // Clonar el documento y limpiar cualquier dato variable (paciente, vista previa)
+  if(!firma.dataUrl && !logo.dataUrl){ toast('Primero cargue una firma o un logo'); return; }
   const clone = document.documentElement.cloneNode(true);
   clone.querySelectorAll('input, textarea').forEach(el => { el.removeAttribute('value'); el.textContent = ''; });
   clone.querySelectorAll('[id^="pv-"]').forEach(el => {
-    if(el.id === 'pv-firma'){ el.removeAttribute('src'); el.setAttribute('style','display:none'); }
+    if(el.id === 'pv-firma' || el.id === 'pv-logo'){ el.removeAttribute('src'); el.setAttribute('style','display:none'); }
     else if(el.id === 'pv-imagenes'){ /* mantener */ }
     else { el.textContent = '—'; }
   });
   const sigText = clone.querySelector('#pv-sig-text'); if(sigText) sigText.removeAttribute('style');
   let html = '<!DOCTYPE html>\n' + clone.outerHTML;
-  // Inyectar la firma en la constante FIRMA_EMBEBIDA
-  const payload = JSON.stringify({ dataUrl: firma.dataUrl, w: firma.w, h: firma.h });
   html = html.replace('const FIRMA_EMBEBIDA = ""; /*__FIRMA_SLOT__*/',
-                      'const FIRMA_EMBEBIDA = ' + payload + '; /*__FIRMA_SLOT__*/');
+                      'const FIRMA_EMBEBIDA = ' + JSON.stringify({ dataUrl: firma.dataUrl, w: firma.w, h: firma.h }) + '; /*__FIRMA_SLOT__*/');
+  html = html.replace('const LOGO_EMBEBIDA = ""; /*__LOGO_SLOT__*/',
+                      'const LOGO_EMBEBIDA = ' + JSON.stringify({ dataUrl: logo.dataUrl, w: logo.w, h: logo.h }) + '; /*__LOGO_SLOT__*/');
   const blob = new Blob([html], {type:'text/html;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -965,7 +1050,7 @@ function descargarAppConFirma(){
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
   beep();
-  toast('App con su firma guardada: úsela en cualquier computador');
+  toast('App guardada con su firma y logo: úsela en cualquier computador');
 }
 
 /* ============================================================
@@ -1297,9 +1382,27 @@ function wRowPT(label, value){
 function buildDocumentXml(d, opts = {}){
   const body = [];
 
-  // Encabezado
-  body.push(wP(wRun('DR. JUAN CARLOS RIERA MEDINA', {b:true, sz:28, color:'0F2A43'}), {align:'center', after:40}));
-  body.push(wP(wRun('UROLOGÍA', {b:true, sz:22, color:'374151'}), {align:'center', after:120, borderBottom:'double'}));
+  // Encabezado: con logo = membrete (logo izquierda, médico derecha); sin logo = centrado
+  if(opts.logo && opts.logoRelId && opts.logoCm){
+    const lcx = Math.round(opts.logoCm.w * 360000), lcy = Math.round(opts.logoCm.h * 360000);
+    const logoRun = drawingRun(opts.logoRelId, lcx, lcy, 5, 'Logo');
+    body.push(
+      `<w:tbl><w:tblPr><w:tblW w:w="5000" w:type="pct"/>` +
+      `<w:tblBorders><w:bottom w:val="double" w:sz="12" w:color="0F2A43"/></w:tblBorders>` +
+      `<w:tblCellMar><w:bottom w:w="120" w:type="dxa"/></w:tblCellMar></w:tblPr>` +
+      `<w:tr>` +
+      `<w:tc><w:tcPr><w:tcW w:w="2400" w:type="pct"/><w:vAlign w:val="center"/></w:tcPr>` +
+      `<w:p><w:pPr><w:jc w:val="left"/><w:spacing w:after="0"/></w:pPr>${logoRun}</w:p></w:tc>` +
+      `<w:tc><w:tcPr><w:tcW w:w="2600" w:type="pct"/><w:vAlign w:val="center"/></w:tcPr>` +
+      wP(wRun('DR. JUAN CARLOS RIERA MEDINA', {b:true, sz:26, color:'0F2A43'}), {align:'right', after:20}) +
+      wP(wRun('UROLOGÍA', {b:true, sz:20, color:'374151'}), {align:'right', after:0}) +
+      `</w:tc></w:tr></w:tbl>` +
+      `<w:p><w:pPr><w:spacing w:after="120"/></w:pPr></w:p>`
+    );
+  }else{
+    body.push(wP(wRun('DR. JUAN CARLOS RIERA MEDINA', {b:true, sz:28, color:'0F2A43'}), {align:'center', after:40}));
+    body.push(wP(wRun('UROLOGÍA', {b:true, sz:22, color:'374151'}), {align:'center', after:120, borderBottom:'double'}));
+  }
 
   // Fecha
   body.push(wP(wRun('Fecha: ', {b:true, sz:20}) + wRun(d.fecha || '—', {sz:20}), {align:'right', after:160}));
@@ -1437,12 +1540,36 @@ function firmaTamanoCm(w, h){
   if(cmH > maxH){ cmH = maxH; cmW = cmH * (w / h); }
   return { w: cmW, h: cmH };
 }
+// Tamaño del logo en cm (alto ~1.5 cm; se limita el ancho a 7 cm)
+function logoTamanoCm(w, h){
+  let cmH = 1.5, cmW = cmH * (w / h);
+  const maxW = 7.0;
+  if(cmW > maxW){ cmW = maxW; cmH = cmW * (h / w); }
+  return { w: cmW, h: cmH };
+}
+// Run con una imagen en línea (drawing) para el relId dado, con tamaño en EMU
+function drawingRun(relId, cx, cy, id, name){
+  return `<w:r><w:rPr><w:noProof/></w:rPr><w:drawing>` +
+    `<wp:inline distT="0" distB="0" distL="0" distR="0" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing">` +
+    `<wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
+    `<wp:docPr id="${id}" name="${name}"/>` +
+    `<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
+    `<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">` +
+    `<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">` +
+    `<pic:nvPicPr><pic:cNvPr id="${id}" name="${name}"/><pic:cNvPicPr/></pic:nvPicPr>` +
+    `<pic:blipFill><a:blip r:embed="${relId}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>` +
+    `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+    `<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
+    `</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
+}
 
 function buildDocx(d, opts = {}){
   const enc = new TextEncoder();
   const usarFirma = !!(opts.firma && opts.firma.dataUrl);
+  const usarLogo = !!(opts.logo && opts.logo.dataUrl);
   const usarImagenes = opts.incluirImagenes !== false;
-  const usarPng = usarFirma || usarImagenes;
+  const usarPng = usarFirma || usarImagenes || usarLogo;
 
   const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">` +
@@ -1458,11 +1585,13 @@ function buildDocx(d, opts = {}){
 
   const firmaRelId = usarFirma ? 'rId100' : null;
   const phRelId = usarImagenes ? 'rId101' : null;
+  const logoRelId = usarLogo ? 'rId102' : null;
   const imgType = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image';
   const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>` +
     `<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
     (usarFirma ? `<Relationship Id="${firmaRelId}" Type="${imgType}" Target="media/firma.png"/>` : '') +
     (usarImagenes ? `<Relationship Id="${phRelId}" Type="${imgType}" Target="media/placeholder.png"/>` : '') +
+    (usarLogo ? `<Relationship Id="${logoRelId}" Type="${imgType}" Target="media/logo.png"/>` : '') +
     `</Relationships>`;
 
   const docOpts = {
@@ -1471,6 +1600,9 @@ function buildDocx(d, opts = {}){
     firma: usarFirma,
     firmaRelId,
     firmaCm: usarFirma ? firmaTamanoCm(opts.firma.w || 1, opts.firma.h || 1) : null,
+    logo: usarLogo,
+    logoRelId,
+    logoCm: usarLogo ? logoTamanoCm(opts.logo.w || 2, opts.logo.h || 1) : null,
   };
 
   const files = [
@@ -1481,6 +1613,7 @@ function buildDocx(d, opts = {}){
   ];
   if(usarFirma) files.push({ name:'word/media/firma.png', data: dataUrlToBytes(opts.firma.dataUrl) });
   if(usarImagenes) files.push({ name:'word/media/placeholder.png', data: b64ToBytes(PLACEHOLDER_IMG_B64) });
+  if(usarLogo) files.push({ name:'word/media/logo.png', data: dataUrlToBytes(opts.logo.dataUrl) });
   return makeZip(files);
 }
 
@@ -1505,7 +1638,7 @@ function nombreArchivo(d){
 
 function descargarDocx(){
   const d = getDatos();
-  const bytes = buildDocx(d, { firma, incluirImagenes });
+  const bytes = buildDocx(d, { firma, logo, incluirImagenes });
   const blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1528,7 +1661,7 @@ async function enviarInforme(){
   const correo = (localStorage.getItem(MAIL_KEY) || '').trim();
   // 1) Intentar compartir el archivo Word directamente (ideal en celular)
   try{
-    const bytes = buildDocx(d, { firma, incluirImagenes });
+    const bytes = buildDocx(d, { firma, logo, incluirImagenes });
     const file = new File([bytes], nombreArchivo(d),
       { type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
     if(navigator.canShare && navigator.canShare({ files:[file] })){
@@ -1598,9 +1731,13 @@ document.addEventListener('DOMContentLoaded', () => {
   // Restaurar borrador, firma y preferencias
   const habia = cargarBorrador();
   cargarFirmaGuardada();
-  // Si el archivo trae una firma incrustada y no hay ninguna guardada localmente, usarla
+  cargarLogoGuardado();
+  // Si el archivo trae firma/logo incrustados y no hay guardados localmente, usarlos
   if(!firma.dataUrl && FIRMA_EMBEBIDA && FIRMA_EMBEBIDA.dataUrl){
     firma = { dataUrl: FIRMA_EMBEBIDA.dataUrl, w: FIRMA_EMBEBIDA.w||1, h: FIRMA_EMBEBIDA.h||1 };
+  }
+  if(!logo.dataUrl && LOGO_EMBEBIDA && LOGO_EMBEBIDA.dataUrl){
+    logo = { dataUrl: LOGO_EMBEBIDA.dataUrl, w: LOGO_EMBEBIDA.w||1, h: LOGO_EMBEBIDA.h||1 };
   }
   cargarPrefs();
   if(!$('fecha').value) $('fecha').value = fechaHoy();
@@ -1609,6 +1746,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('chkImagenes').checked = incluirImagenes;
   try{ $('mailDestino').value = localStorage.getItem(MAIL_KEY) || ''; }catch(e){}
   renderFirmaUI();
+  renderLogoUI();
   renderPreview();
   if(habia) toast('Borrador anterior recuperado');
 
@@ -1627,6 +1765,21 @@ document.addEventListener('DOMContentLoaded', () => {
     toast('Firma quitada');
   });
   $('btnFijarFirma').addEventListener('click', descargarAppConFirma);
+  // Logo del encabezado
+  $('btnCargarLogo').addEventListener('click', () => $('logoInput').click());
+  $('logoInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(file) procesarImagenLogo(file);
+    e.target.value = '';
+  });
+  $('btnQuitarLogo').addEventListener('click', () => {
+    logo = { dataUrl:null, w:0, h:0 };
+    try{ localStorage.removeItem(LOGO_KEY); }catch(e){}
+    renderLogoUI();
+    renderFirmaUI();
+    renderPreview();
+    toast('Logo quitado');
+  });
   $('chkImagenes').addEventListener('change', (e) => {
     incluirImagenes = e.target.checked;
     guardarPrefs();
