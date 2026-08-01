@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Council Verdict — Herramienta/Dispositivo para HoLEP</title>
+<style>
+  :root{
+    --bg:#f7fafc; --card:#ffffff; --ink:#1e293b; --muted:#64748b;
+    --line:#e2e8f0; --accent:#0369a1; --accent-soft:#e0f2fe;
+    --contrarian:#dc2626; --firstp:#7c3aed; --expand:#059669; --outsider:#d97706; --exec:#0891b2;
+    --agree:#059669; --clash:#dc2626; --blind:#d97706;
+  }
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--ink); margin:0; line-height:1.6;}
+  .wrap{max-width:860px; margin:0 auto; padding:40px 22px 80px;}
+  header.top{border-bottom:3px solid var(--accent); padding-bottom:20px; margin-bottom:30px;}
+  .kicker{font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--accent); font-weight:700;}
+  h1{font-size:26px; margin:8px 0 6px; line-height:1.25;}
+  .q{background:var(--accent-soft); border-left:4px solid var(--accent); padding:16px 18px; border-radius:8px; font-size:15px; color:#0c4a6e; margin-top:14px;}
+  h2{font-size:13px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin:38px 0 14px; font-weight:700;}
+  .verdict-card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:22px 24px; margin-bottom:16px; box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .verdict-card h3{margin:0 0 10px; font-size:17px; display:flex; align-items:center; gap:9px;}
+  .dot{width:11px; height:11px; border-radius:50%; display:inline-block; flex:none;}
+  .verdict-card p{margin:0 0 10px; font-size:15px;}
+  .verdict-card ul{margin:6px 0 0; padding-left:20px; font-size:15px;}
+  .verdict-card li{margin-bottom:7px;}
+  .reco{background:linear-gradient(135deg,#0369a1,#0891b2); color:#fff; border:none;}
+  .reco h3, .reco p, .reco li{color:#fff;}
+  .first-step{background:#0c4a6e; color:#fff; border-radius:12px; padding:22px 24px; margin-top:16px;}
+  .first-step .label{font-size:11px; letter-spacing:.14em; text-transform:uppercase; opacity:.75; font-weight:700;}
+  .first-step p{font-size:16px; margin:8px 0 0; font-weight:600;}
+  /* alignment map */
+  .map{display:grid; grid-template-columns:1fr; gap:10px; margin-top:6px;}
+  .adv-row{display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px;}
+  .adv-name{font-weight:700; font-size:14px; min-width:150px; display:flex; align-items:center; gap:8px;}
+  .adv-pos{font-size:13.5px; color:var(--muted);}
+  .spectrum{margin:18px 0 6px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .spectrum .bar{position:relative; height:8px; background:linear-gradient(90deg,#dc2626,#d97706,#059669); border-radius:6px; margin:30px 6px 34px;}
+  .pin{position:absolute; top:-26px; transform:translateX(-50%); font-size:11px; font-weight:700; text-align:center; white-space:nowrap;}
+  .pin::after{content:""; position:absolute; left:50%; top:22px; transform:translateX(-50%); width:2px; height:12px; background:#334155;}
+  .pin .tag{background:#334155; color:#fff; padding:2px 7px; border-radius:5px; display:inline-block;}
+  .ends{display:flex; justify-content:space-between; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin-top:-24px;}
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px; margin-bottom:10px; overflow:hidden;}
+  summary{cursor:pointer; padding:14px 18px; font-weight:600; font-size:15px; list-style:none; display:flex; align-items:center; gap:10px;}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"▶"; font-size:10px; color:var(--muted); transition:transform .2s;}
+  details[open] summary::before{transform:rotate(90deg);}
+  details .body{padding:2px 18px 18px; font-size:14.5px; color:#334155;}
+  .tag-role{font-size:11px; font-weight:700; padding:2px 8px; border-radius:5px; color:#fff; margin-left:auto;}
+  footer{margin-top:44px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted);}
+  .review-q{font-weight:700; color:var(--ink); margin-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="kicker">🏛️ LLM Council — Veredicto</div>
+    <h1>¿Crear una herramienta o dispositivo para mejorar la enucleación láser prostática (HoLEP)?</h1>
+    <div class="q"><strong>La pregunta:</strong> Un urólogo con marca en IA/tecnología en urología (proyecto "IA & Big Data en Urología" + subproyecto de cistoscopia) valora crear una herramienta/dispositivo para mejorar alguna fase de HoLEP (enucleación, hemostasia, morcelación). ¿Debe construirlo, en qué fase y de qué tipo — dispositivo físico, software con IA o simulador — buscando el mejor equilibrio entre necesidad clínica real, factibilidad para un clínico-inventor y viabilidad?</div>
+  </header>
+
+  <!-- VERDICT -->
+  <h2>El Veredicto del Consejo</h2>
+
+  <div class="verdict-card">
+    <h3><span class="dot" style="background:var(--agree)"></span>Donde el consejo coincide</h3>
+    <ul>
+      <li><strong>Nada de hardware.</strong> Un clínico en solitario no compite con Lumenis/Boston Scientific ni sobrevive a MDR/510(k) de un dispositivo Clase IIb. Descartado unánimemente.</li>
+      <li><strong>El verdadero cuello de botella de HoLEP no es una fase concreta: es la curva de aprendizaje.</strong> Es un problema de adopción y de <em>percepción</em> (el novato no "ve" el plano), no de instrumental.</li>
+      <li><strong>Tu ventaja injusta es el vídeo quirúrgico propio + tu autoridad de marca.</strong> Puedes generar vídeo endoscópico etiquetado por un experto — la materia prima de IA que ningún ingeniero tiene.</li>
+      <li><strong>El camino es software/IA sobre vídeo, empezando retrospectivo y educativo</strong> (fuera de zona regulada), no un aparato dentro del paciente.</li>
+    </ul>
+  </div>
+
+  <div class="verdict-card">
+    <h3><span class="dot" style="background:var(--clash)"></span>Donde el consejo choca</h3>
+    <p><strong>1. ¿Cuánto ambicionar?</strong> El Expansionista pinta una "plataforma-sistema operativo de la cirugía guiada por IA". El Contrarian y el Outsider lo desmontan: sin acceso al vídeo del fabricante, sin validación prospectiva y sin código de reembolso, la plataforma intraoperatoria no existe. <em>4 de 5 revisores marcaron esa visión como el mayor punto ciego.</em></p>
+    <p><strong>2. ¿Simulador o herramienta de percepción?</strong> El Outsider/Contrarian empujan al <em>simulador de entrenamiento</em> (ataca la curva, monetizable ya, mercado pequeño). El First Principles empuja a la <em>percepción intraoperatoria</em> (ataca la raíz, pero abismo regulatorio). El Executor los reconcilia: mismo dataset sirve a ambos.</p>
+    <p><strong>3. ¿Qué fase primero?</strong> First Principles dice <em>apical</em> (daño irreversible = máximo valor). Executor dice <em>reconocimiento de fase → plano de enucleación</em> (lo más anotable y falsable). Ganó el orden del Executor por accionabilidad.</p>
+  </div>
+
+  <div class="verdict-card">
+    <h3><span class="dot" style="background:var(--blind)"></span>Puntos ciegos que el consejo detectó (en la revisión por pares)</h3>
+    <ul>
+      <li><strong>El "plano correcto" no es verdad objetiva.</strong> Etiquetas de un solo cirujano = un estilo, no ground truth. Sin acuerdo inter-observador ni correlación con outcomes (continencia, perforación), el modelo aprende una opinión.</li>
+      <li><strong>Base legal del dato.</strong> Nadie mencionó consentimiento del paciente, RGPD ni propiedad intelectual del vídeo. Sin eso, el "activo" es inutilizable comercialmente.</li>
+      <li><strong>Sesgo de un solo cirujano/centro.</strong> El modelo no generalizará entre ópticas, luz y anatomías — riesgo ML mayor que el propio entrenamiento.</li>
+      <li><strong>Responsabilidad médico-legal.</strong> Si la IA marca "plano seguro" y falla, ¿quién responde? Mata la adopción intraoperatoria.</li>
+      <li><strong>Mercado en disputa.</strong> HoLEP tiene baja penetración; Aquablation, láseres y prostatectomía simple robótica podrían reducir su relevancia. TAM pequeño.</li>
+      <li><strong>Aliarse &gt; competir.</strong> Nadie propuso licenciar/vender a los incumbentes que ya poseen el quirófano.</li>
+    </ul>
+  </div>
+
+  <div class="verdict-card reco">
+    <h3><span class="dot" style="background:#fff"></span>La recomendación</h3>
+    <p><strong>Sí, construye — pero software, no dispositivo; y empieza como proyecto de investigación/educación sobre TU vídeo, no como producto.</strong></p>
+    <p>Construye un <strong>sistema de análisis y feedback de vídeo de HoLEP con visión por computador</strong>, en este orden: (1) reconocimiento de fase, (2) detección del plano de enucleación / proximidad capsular, (3) marcado de zona apical de riesgo. Mantenlo <strong>retrospectivo y educativo el primer año</strong> — esto esquiva la regulación, ataca directamente la curva de aprendizaje (el dolor real) y construye silenciosamente el dataset anotado que es el verdadero activo.</p>
+    <p>El simulador/herramienta formativa es el primer producto monetizable y encaja con tu marca. La guía intraoperatoria es el horizonte — pero solo se aborda <em>después</em> de resolver ground-truth multi-experto, consentimiento/RGPD y, muy probablemente, una alianza con un fabricante o un socio de ingeniería/regulatorio. No vayas solo a por el "sistema operativo de la cirugía": es una visión, no un plan.</p>
+  </div>
+
+  <div class="first-step">
+    <div class="label">⚡ Lo único que debes hacer primero</div>
+    <p>Este lunes: coge 10–15 de tus vídeos de HoLEP, instala CVAT o Label Studio (open source), define 3–4 etiquetas de fase + una binaria "plano correcto / cápsula demasiado cerca", anota 2 vídeos tú mismo y <strong>cronométralo</strong>. Ese cronómetro te dice si el proyecto escala. Antes de anotar, resuelve el consentimiento/RGPD del vídeo.</p>
+  </div>
+
+  <!-- ALIGNMENT MAP -->
+  <h2>Mapa de posiciones de los asesores</h2>
+  <div class="spectrum">
+    <div class="bar">
+      <div class="pin" style="left:8%"><span class="tag">Contrarian</span></div>
+      <div class="pin" style="left:30%"><span class="tag">Outsider</span></div>
+      <div class="pin" style="left:55%"><span class="tag">First Principles</span></div>
+      <div class="pin" style="left:74%"><span class="tag">Executor</span></div>
+      <div class="pin" style="left:93%"><span class="tag">Expansionist</span></div>
+    </div>
+    <div class="ends"><span>◀ Escéptico / no lo hagas como device</span><span>Constrúyelo en grande ▶</span></div>
+  </div>
+
+  <div class="map">
+    <div class="adv-row"><div class="adv-name"><span class="dot" style="background:var(--contrarian)"></span>Contrarian</div><div class="adv-pos">Hardware imposible en solitario; problema de adopción, no de herramientas. Lo honesto es un simulador — pero es formativo, no "device". ¿Por qué tú y no los incumbentes?</div></div>
+    <div class="adv-row"><div class="adv-name"><span class="dot" style="background:var(--outsider)"></span>Outsider</div><div class="adv-pos">Un gold-standard que nadie quiere aprender es un cuello de botella. Define el dolor en continencia/€/throughput antes de elegir forma. El activo es la curva.</div></div>
+    <div class="adv-row"><div class="adv-name"><span class="dot" style="background:var(--firstp)"></span>First Principles</div><div class="adv-pos">Reencuadre: HoLEP no necesita otra herramienta. Es un déficit perceptual. Construye "el ojo que le falta al novato" — software de percepción. Empieza por lo apical.</div></div>
+    <div class="adv-row"><div class="adv-name"><span class="dot" style="background:var(--exec)"></span>Executor</div><div class="adv-pos">MVP en 30–90 días: phase-recognition sobre tu vídeo con CVAT + fine-tune (Cholec80/TeCNO). Retrospectivo/educativo. El dataset anotado es el activo. Empieza el lunes.</div></div>
+    <div class="adv-row"><div class="adv-name"><span class="dot" style="background:var(--expand)"></span>Expansionist</div><div class="adv-pos">HoLEP es el punto de entrada, no el producto. El dato es el moat. Simulador → software intraoperatorio → plataforma de guía quirúrgica que generaliza a otros órganos.</div></div>
+  </div>
+
+  <!-- FULL RESPONSES -->
+  <h2>Respuestas completas de los asesores</h2>
+
+  <details>
+    <summary><span class="dot" style="background:var(--contrarian)"></span>El Contrarian<span class="tag-role" style="background:var(--contrarian)">DUDA</span></summary>
+    <div class="body">
+      <p>HoLEP no tiene un problema de herramientas: tiene un problema de adopción. Y eso debería frenarte antes de encender el láser mental. Si el gold-standard lleva 25 años sin penetrar el mercado, no es porque falte un gadget; es porque la curva de aprendizaje mata la voluntad del cirujano medio. Cualquier dispositivo que inventes hereda ese muro. Vendes un accesorio para una técnica que la mayoría no quiere hacer.</p>
+      <p>El hardware está descartado para ti. Lumenis y Boston Scientific controlan el láser, el morcelador y el endoscopio como ecosistema cerrado. Un clínico en solitario no fabrica un morcelador Clase IIb, no pasa MDR/510(k) con costes de cientos de miles y años, ni consigue que un hospital compre fuera del contrato del proveedor dominante. Fracaso casi garantizado.</p>
+      <p>El software con IA suena feasible, pero pregúntate lo incómodo: ¿navegación en tiempo real que detecta el plano capsular o el ápex? Eso es SaMD Clase IIa/IIb, necesita datasets quirúrgicos anotados que no tienes, validación clínica prospectiva y, sobre todo, integración en el vídeo de la torre de otra empresa que no te dará la señal. Y si es "solo asistencia", ¿quién paga por ella? No hay código de reembolso.</p>
+      <p>Lo único honesto que puede enviar un urólogo solo es un simulador/plataforma de entrenamiento: ataca el dolor real (la curva), no es dispositivo regulado, y encaja con tu proyecto educativo previo. Pero sé brutal contigo mismo: eso es un producto formativo, no un "device". Mercado pequeño, difícil de monetizar, y CAE, GreenLight y otros compiten por el mismo residente.</p>
+      <p>La pregunta que evitas: ¿por qué tú, y no las dos empresas que ya tienen el quirófano? Si no tienes una respuesta defendible, esto es coste de oportunidad disfrazado de innovación.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="dot" style="background:var(--firstp)"></span>El First Principles Thinker<span class="tag-role" style="background:var(--firstp)">RAÍZ</span></summary>
+    <div class="body">
+      <p>El error está en la pregunta. "¿Qué herramienta construyo para HoLEP?" asume que HoLEP necesita otra herramienta. No la necesita. El láser funciona, el morcelador funciona. El cuello de botella no es el hardware: es la transferencia de una habilidad perceptual-motora escasa.</p>
+      <p>Desmontemos la curva de aprendizaje. ¿Por qué es empinada? No porque enuclear sea físicamente difícil, sino porque el cirujano no <em>ve</em> bien el plano. La disección del plano capsular es un problema de <strong>percepción</strong>: reconocer, en tiempo real y con imagen endoscópica pobre, dónde está la cápsula, dónde el esfínter apical, cuándo has perforado. El experto lo "ve"; el novato no. Todo lo demás (perforación capsular, lesión esfinteriana, daño mucoso en morcelación) son consecuencias de ese mismo déficit perceptual, no problemas independientes.</p>
+      <p>Entonces "mejorar HoLEP" no significa mejorar el corte. Significa <strong>hacer visible el plano correcto al ojo que aún no sabe verlo</strong>. Ese es el problema real.</p>
+      <p>Esto reencuadra radicalmente la decisión. Un dispositivo físico compite con fabricantes de láser, exige regulatorio pesado y no ataca la raíz. Un simulador entrena, pero solo antes del quirófano. Lo que ataca la causa raíz es <strong>software de percepción intraoperatoria</strong>: visión por computador que segmenta el plano capsular / marca la zona apical de riesgo esfinteriano en el vídeo endoscópico en vivo.</p>
+      <p>Y aquí está tu ventaja injusta, que ningún ingeniero tiene: eres urólogo con proyecto de cistoscopia. Ya trabajas con vídeo endoscópico y datos. La materia prima de la IA de percepción —vídeo etiquetado por un experto que sabe dónde está el plano— es exactamente lo que tú puedes generar y nadie más.</p>
+      <p>No construyas un instrumento mejor. Construye el ojo que le falta al novato. Empieza por lo apical: máximo daño irreversible, máximo valor si lo previenes.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="dot" style="background:var(--expand)"></span>El Expansionist<span class="tag-role" style="background:var(--expand)">UPSIDE</span></summary>
+    <div class="body">
+      <p>La versión pequeña de esto es "un gadget para HoLEP". Olvídala. La versión grande es que HoLEP es tu punto de entrada, no tu producto.</p>
+      <p>Lo verdaderamente infravalorado aquí es el dato, no el dispositivo. Si construyes visión por computador sobre vídeo endoscópico de HoLEP, estás creando un dataset anotado de planos de disección, cápsula quirúrgica, ápex y esfínter. Ese corpus es el activo: alimenta detección de plano en tiempo real, alertas de perforación capsular, "no-fly zones" apicales para proteger la continencia y guía de morcelación segura sobre la mucosa vesical. Eso no es una herramienta; es una plataforma de guía quirúrgica intraoperatoria.</p>
+      <p>Y la técnica de enucleación generaliza. El principio "encontrar el plano avascular y disecar la cápsula" se traslada a enucleación endoscópica bipolar, ThuLEP, tumores, incluso disección en otras cavidades. Un motor de reconocimiento de planos es agnóstico al láser y al órgano.</p>
+      <p>Piensa en capas de ingresos: simulador/plataforma de entrenamiento con analítica de curva de aprendizaje (el mercado formativo paga hoy, sin regulación de clase III, y ataca directamente ese "notorio learning curve"); luego software de asistencia intraoperatoria; luego el moat de datos que hace tu modelo imbatible cuanto más se usa.</p>
+      <p>Lo más potente: esto encaja perfecto con tu marca "AI & Big Data in Urology" y tu subproyecto de cistoscopia. Ya tienes distribución, autoridad y un pipeline de contenido. El simulador con IA se convierte en el producto insignia de esa marca, no en un proyecto aparte.</p>
+      <p>Empieza por el simulador de entrenamiento con visión por computador (rápido, sin regulación pesada, monetizable ya, y genera datos anotados). Ese dato construye silenciosamente el modelo intraoperatorio que vale 100 veces más. Empiezas enseñando HoLEP y acabas siendo el sistema operativo de la cirugía endoscópica guiada por IA.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="dot" style="background:var(--outsider)"></span>El Outsider<span class="tag-role" style="background:var(--outsider)">OJOS FRESCOS</span></summary>
+    <div class="body">
+      <p>Empecemos por lo que nadie dice en voz alta: una cirugía "gold-standard" que casi ningún cirujano quiere aprender no es un gold-standard, es un cuello de botella. Si la curva de aprendizaje es tan brutal que la técnica no se difunde, el problema real no es ninguna de las tres fases: estás construyendo herramientas para una operación que el mercado quirúrgico ya está rechazando con los pies.</p>
+      <p>Como paciente, no me importa tu enucleación ni tu morcelación. Me importan dos cosas: ¿voy a quedar incontinente? y ¿en cuántas semanas vuelvo a orinar normal? Como administrador de hospital me importa una sola: ¿cuánto dura el procedimiento y cuántos puedo hacer por quirófano? Nada en tu lista de "pain points" está expresado en esos términos. Estás enamorado de la elegancia técnica; ellos compran resultados y throughput.</p>
+      <p>La pregunta obvia que no te haces: ¿por qué invertir en hacer más fácil una técnica difícil, en lugar de preguntarte si la técnica difícil debería existir? Los mejores inventos no pulen el proceso viejo, lo vuelven innecesario.</p>
+      <p>Y algo huele raro: quieres decidir la fase antes de saber si construyes hardware, software o simulador. Eso es al revés. Primero decide QUÉ dolor eliminas medido en euros o en continencia, y la forma del producto se cae sola.</p>
+      <p>Mi apuesta de forastero: el activo más valioso aquí no es un aparato dentro del paciente. Es el problema que tú mismo describes primero — la curva de aprendizaje. Si pocos la dominan, quien enseñe a dominarla rápido captura toda la técnica. Eso es un simulador o un sistema de guía/feedback, no otro instrumento metálico compitiendo contra las manos de un experto que ya no te necesita.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="dot" style="background:var(--exec)"></span>El Executor<span class="tag-role" style="background:var(--exec)">ACCIÓN</span></summary>
+    <div class="body">
+      <p><strong>El plano lo cazas antes que cualquier hardware.</strong> Olvídate del dispositivo físico: eso es FDA/CE, años y capital. Tu ventaja injusta es que ya tienes vídeo quirúrgico propio. Úsalo.</p>
+      <p><strong>Qué construir en 30-90 días:</strong> un detector de proximidad capsular / reconocimiento del plano de enucleación como software de investigación (no diagnóstico, no clearance necesario mientras sea educativo/retrospectivo). Fase objetivo: la enucleación, porque ahí está la curva de aprendizaje y el riesgo de perforación, y es lo más anotable en vídeo.</p>
+      <p><strong>MVP realista:</strong> phase-recognition primero (enucleación vs hemostasia vs morcelación). Es un clasificador de vídeo estándar, terreno resuelto, y te da un dataset etiquetado reutilizable para todo lo demás. Es tu victoria de la semana 2.</p>
+      <p><strong>Primer paso lunes por la mañana:</strong></p>
+      <ul>
+        <li>Coge 10-15 de tus vídeos de HoLEP y expórtalos a clips.</li>
+        <li>Descarga <strong>CVAT</strong> o <strong>Label Studio</strong> (open source, gratis) e instálalo local.</li>
+        <li>Define 3-4 etiquetas de fase + una etiqueta binaria "plano correcto / cápsula demasiado cerca" en frames clave.</li>
+        <li>Anota tú mismo 2 vídeos completos. Cronometra cuánto tardas: eso te dice si el proyecto escala o necesitas residentes anotando.</li>
+      </ul>
+      <p><strong>Semana 2-4:</strong> fine-tune de un modelo ya existente (busca en Hugging Face modelos de surgical phase recognition tipo Cholec80/TeCNO como base) sobre tus etiquetas. No entrenes desde cero.</p>
+      <p><strong>Regla de oro:</strong> todo retrospectivo y educativo. En el momento en que toques el quirófano en tiempo real o el láser, entras en zona regulada. Mantenlo como herramienta de entrenamiento y análisis post-op el primer año. Publicas, validas el dataset, y <em>entonces</em> decides si merece hardware. El dataset anotado es el activo. Empieza a anotar el lunes.</p>
+    </div>
+  </details>
+
+  <!-- PEER REVIEW -->
+  <h2>Destacados de la revisión por pares</h2>
+  <details>
+    <summary>🔍 Qué dijeron los revisores (anónimo, 5 revisores)</summary>
+    <div class="body">
+      <p class="review-q">Respuesta más fuerte</p>
+      <p>El <strong>Executor</strong> ganó (3 de 5 votos): la única accionable y falsable esta semana, respetando el muro regulatorio. Un revisor votó al <strong>Outsider</strong> (reencuadra en las variables que deciden la adopción: continencia, throughput) y otro al <strong>First Principles</strong> (ataca la causa raíz; "da el porqué, el Executor da el cómo").</p>
+      <p class="review-q">Mayor punto ciego</p>
+      <p>El <strong>Expansionist</strong> (4 de 5 votos): vende "el sistema operativo de la cirugía guiada por IA" sin resolver de dónde salen los datos, validación prospectiva, reembolso, ni por qué el dueño del vídeo le daría la señal. "Confunde una visión con un producto." Un revisor señaló al Executor por construir la solución antes de validar el problema.</p>
+      <p class="review-q">Lo que TODOS omitieron</p>
+      <ul>
+        <li>El "plano correcto" no es verdad objetiva — etiquetas de un solo cirujano = un estilo, no ground truth; falta acuerdo inter-observador y correlación con outcomes.</li>
+        <li>Base legal del dato: consentimiento del paciente, RGPD, propiedad intelectual del vídeo.</li>
+        <li>Sesgo de un solo cirujano/centro: el modelo no generaliza entre ópticas, luz y anatomías.</li>
+        <li>Responsabilidad médico-legal de una alerta que falla.</li>
+        <li>Tamaño real del mercado (baja penetración) frente a Aquablation, láseres y prostatectomía simple robótica.</li>
+        <li>Aliarse con Lumenis/Boston Scientific en lugar de competir con ellos.</li>
+      </ul>
+    </div>
+  </details>
+
+  <footer>
+    <p><strong>Counciled:</strong> "Crear una herramienta o dispositivo para mejorar en cualquiera de sus fases la enucleación láser prostática (HoLEP)"</p>
+    <p>5 asesores independientes · revisión por pares anónima · síntesis del chairman · Metodología LLM Council (Andrej Karpathy) · Generado el 2026-08-01</p>
+  </footer>
+</div>
+</body>
+</html>
