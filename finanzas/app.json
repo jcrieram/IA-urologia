@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Mis Finanzas",
+    "slug": "finanzas-personal",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "scheme": "misfinanzas",
+    "splash": {
+      "backgroundColor": "#0B1220"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.personal.misfinanzas",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "Se usa Face ID para proteger el acceso a tus finanzas."
+      }
+    },
+    "android": {
+      "package": "com.personal.misfinanzas"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-local-authentication"
+    ]
+  }
+}
