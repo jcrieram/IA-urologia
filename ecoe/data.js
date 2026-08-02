@@ -16,10 +16,21 @@
  * NOTA CLÍNICA: herramienta educativa; no reemplaza el juicio clínico ni las
  * guías vigentes (MINSAL/GES/UC/EUNACOM).
  *
- * ESTADO DE VALIDACIÓN: las estaciones con el campo `validado:'AAAA-MM-DD'`
- * fueron revisadas y aprobadas por el Dr. Juan Carlos Riera. Las que no lo
- * tienen siguen en estado BORRADOR pendiente de validación médica.
- *   Validadas: Medicina Interna (dolor torácico, ACV) — 2026-08-02.
+ * ESTADO DE VALIDACIÓN — dos niveles distintos, no confundir:
+ *
+ *   `revisionEstructura:'AAAA-MM-DD'`
+ *      El formato de la estación (etapas SEGURA, pauta, ítems críticos,
+ *      instrucción de puerta, tiempos) fue revisado y aprobado.
+ *      NO implica que el contenido clínico haya sido verificado.
+ *
+ *   `validacionClinica:{ por:'...', fecha:'AAAA-MM-DD', fuente:'...' }`
+ *      El contenido clínico fue verificado por un profesional con
+ *      experiencia vigente en el área, contra una fuente citable.
+ *
+ * ESTADO ACTUAL: ninguna estación tiene `validacionClinica`. Medicina
+ * Interna tiene revisión de estructura (2026-08-02). El resto es borrador.
+ * El contenido debe contrastarse con las guías vigentes antes de darlo por
+ * bueno (MINSAL/GES, manuales UC, Perfil de Conocimientos EUNACOM).
  *
  * Modelo de una opción: { id, texto, tipo, puntos, critico?, resp, fb }
  *   tipo: 'clave' | 'util' | 'neutro' | 'peligroso'   (los 'peligroso' restan)
@@ -98,7 +109,7 @@ const ESTACIONES = [
   /* ========== 1 · MEDICINA INTERNA — Dolor torácico ========== */
   {
     id:'mi-dolor-toracico', area:'medint', titulo:'Dolor torácico agudo', nivel:'Médico general', minutos:8,
-    validado:'2026-08-02',
+    revisionEstructura:'2026-08-02',
     motivo:'Hombre de 58 años con dolor torácico de 40 minutos.',
     puerta:'Hombre de 58 años con dolor torácico de 40 minutos. Realice anamnesis dirigida, explique su hipótesis y la conducta inicial.',
     criterios:['Caracterizar el dolor e irradiación','Buscar disnea, diaforesis, náuseas y síncope','Factores de riesgo cardiovascular','ECG, monitorización y evaluación urgente','No dar de alta sin estudio'],
@@ -154,7 +165,7 @@ const ESTACIONES = [
   /* ========== 2 · MEDICINA INTERNA — Déficit neurológico focal (ACV) ========== */
   {
     id:'mi-acv', area:'medint', titulo:'Déficit neurológico focal agudo', nivel:'Médico general', minutos:8,
-    validado:'2026-08-02',
+    revisionEstructura:'2026-08-02',
     motivo:'Mujer de 70 años con afasia y hemiparesia derecha de inicio súbito.',
     puerta:'Mujer de 70 años con afasia y hemiparesia derecha de inicio súbito. Evalúe y entregue la conducta.',
     criterios:['Hora de inicio o última vez vista normal','ABCDE y glicemia capilar','Evaluación neurológica focalizada','Anticoagulantes y contraindicaciones','Activar protocolo ACV y neuroimagen urgente'],

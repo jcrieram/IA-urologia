@@ -9,21 +9,25 @@ Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritm
 **SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
 con sus criterios mínimos.
 
-> **Estado de validación.** Casos y pautas son material **original** de práctica.
-> Las estaciones marcadas **✓ Validado** en la app fueron revisadas y aprobadas por
-> el Dr. Juan Carlos Riera; el resto sigue en **borrador** pendiente de validación
-> médica. No son casos oficiales ni bancos filtrados de la UC. Herramienta
-> educativa; no reemplaza el juicio clínico ni las guías vigentes
-> (MINSAL/GES/UC/EUNACOM).
->
-> | Área | Estado |
-> |---|---|
-> | Medicina Interna | ✓ Validada (2026-08-02) |
-> | Pediatría | En revisión |
-> | Obstetricia y Ginecología | Borrador |
-> | Cirugía / Transversal | Borrador |
->
-> En el código, una estación validada lleva el campo `validado:'AAAA-MM-DD'`.
+> ⚠️ **Ninguna estación tiene validación clínica todavía.** Casos y pautas son
+> material **original** de práctica. No son casos oficiales ni bancos filtrados de
+> la UC. Herramienta educativa; no reemplaza el juicio clínico ni las guías
+> vigentes (MINSAL/GES/UC/EUNACOM).
+
+## Dos niveles de revisión (no confundir)
+
+| Campo en `data.js` | Sello en la app | Qué garantiza |
+|---|---|---|
+| `revisionEstructura:'AAAA-MM-DD'` | Estructura revisada (azul) | El **formato**: etapas SEGURA, pauta, ítems críticos, instrucción de puerta y tiempos. **No** verifica el contenido médico. |
+| `validacionClinica:{por,fecha,fuente}` | ✓ Validado clínicamente (verde) | El **contenido clínico**, verificado por un profesional con experiencia vigente en el área, contra una fuente citable. |
+| — (sin campo) | Borrador (ámbar) | Pendiente de revisión. |
+
+| Área | Estructura | Contenido clínico |
+|---|---|---|
+| Medicina Interna | ✓ 2026-08-02 | ⏳ Pendiente |
+| Pediatría | ⏳ | ⏳ Pendiente |
+| Obstetricia y Ginecología | ⏳ | ⏳ Pendiente |
+| Cirugía / Transversal | ⏳ | ⏳ Pendiente |
 
 ## Qué hace (v2)
 

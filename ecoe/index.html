@@ -49,9 +49,12 @@
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
   const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const badge = area => { const a=AREAS[area]; return `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full" style="background:${a.color}1a;color:${a.color}">${a.icono} ${a.nombre}</span>`; };
-  const sello = e => e.validado
-    ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">✓ Validado</span>`
-    : `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Borrador</span>`;
+  // Dos niveles distintos: revisión de estructura ≠ validación clínica
+  const sello = e => e.validacionClinica
+    ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700" title="Contenido clínico verificado por ${esc(e.validacionClinica.por)}">✓ Validado clínicamente</span>`
+    : e.revisionEstructura
+      ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700" title="Formato y pauta revisados; contenido clínico aún sin verificar">Estructura revisada</span>`
+      : `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700" title="Pendiente de revisión">Borrador</span>`;
   // Fase sugerida según la gestión de tiempo del informe UC
   function faseSugerida(tot,rest){
     const el=tot-rest;
@@ -113,7 +116,7 @@
         <h1 class="text-3xl font-extrabold text-sky-900">Entrenador ECOE</h1>
         <p class="text-slate-600 mt-1">Sección práctica del EUNACOM · perfil de <b>médico/a general</b> · formato ECOE (UC)</p>
         <div class="mt-3 text-xs bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2">
-          Material original de práctica: no son casos oficiales ni bancos filtrados de la UC. Las estaciones marcadas <b>✓ Validado</b> fueron revisadas por el Dr. Riera; las marcadas <b>Borrador</b> siguen pendientes de validación médica.
+          ⚠️ <b>Ninguna estación cuenta todavía con validación clínica</b> por un profesional con experiencia vigente en el área. "Estructura revisada" significa que el <i>formato</i> de la estación fue aprobado, no su contenido médico. Úsalas para entrenar el <b>método</b> (SEGURA, gestión del tiempo, comunicación) y contrasta siempre el contenido con tus guías de estudio. Material original de práctica: no son casos oficiales ni bancos filtrados de la UC.
         </div>
       </header>
 
