@@ -149,6 +149,9 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Explicar a la madre por qué la edad obliga a derivar, sin alarmar innecesariamente', tipo:'clave', puntos:2, resp:'La madre comprende y acepta el traslado.', fb:'La adherencia a la derivación depende de la calidad de la explicación.' },
         { id:'z6', texto:'Indicar signos de alarma durante el traslado: decaimiento progresivo, rechazo total, piel moteada o manchas que no desaparecen a la presión', tipo:'clave', puntos:2, resp:'Se enseñan los signos de alarma.', fb:'Protege al paciente durante la ventana de traslado.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
     ],
     oral:[
@@ -216,6 +219,9 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Explicar el pronóstico: es frecuente, benigna y la mayoría no desarrolla epilepsia', tipo:'clave', puntos:2, resp:'Los padres se tranquilizan.', fb:'Contener la angustia familiar es parte del manejo.' },
         { id:'z6', texto:'Entregar signos de alarma: nueva crisis, crisis de más de 5 minutos, somnolencia que no cede, vómitos persistentes o manchas en la piel', tipo:'clave', puntos:2, resp:'Se entregan por escrito y verbalmente.', fb:'Red de seguridad concreta para el domicilio.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
     ],
     oral:[
@@ -277,13 +283,17 @@ ESTACIONES.push(
         { id:'m2', texto:'Enumerar los criterios de hospitalización: hipoxemia, dificultad respiratoria marcada, mala tolerancia oral, deshidratación, aspecto tóxico, lactante pequeño, comorbilidad, complicación o red de apoyo insuficiente', tipo:'clave', puntos:3, critico:true, resp:'Se enumeran y se contrastan con el caso.', fb:'La decisión de hospitalizar es el eje de esta estación.' },
         { id:'m3', texto:'Indicar antipiréticos, hidratación abundante y reposo relativo', tipo:'clave', puntos:2, resp:'Medidas de soporte indicadas.', fb:'Acompañan al tratamiento específico.' },
         { id:'m4', texto:'Control clínico en 24-48 horas para evaluar respuesta', tipo:'clave', puntos:2, resp:'Se agenda control.', fb:'La reevaluación precoz es la red de seguridad del manejo ambulatorio.' },
-        { id:'m5', texto:'Recomendar kinesioterapia respiratoria', tipo:'neutro', puntos:0, resp:'No indicada en la fase aguda de la neumonía.', fb:'No aporta beneficio en neumonía no complicada.' },
+        { id:'m5', texto:'Revisar el estado de vacunación (neumococo e influenza) y recomendar completarlo, y aconsejar evitar la exposición al humo de tabaco', tipo:'util', puntos:2, resp:'Se revisa el carné y se educa a la familia.', fb:'Prevención secundaria de nuevos episodios.' },
+        { id:'m7', texto:'Recomendar kinesioterapia respiratoria', tipo:'neutro', puntos:0, resp:'No indicada en la fase aguda de la neumonía.', fb:'No aporta beneficio en neumonía no complicada.' },
         { id:'m6', texto:'Indicar corticoides sistémicos y broncodilatadores a todos los niños con neumonía', tipo:'peligroso', puntos:-2, resp:'Sin indicación salvo obstrucción bronquial asociada.', fb:'Tratamiento innecesario con efectos adversos.' },
         destino('Manejo ambulatorio con antibiótico y control en 24-48 horas; hospitalizar si aparece hipoxemia, mala tolerancia oral, dificultad respiratoria progresiva o complicación','Definir explícitamente ambulatorio versus hospitalización y sus criterios.'),
       ]},
       cierre([
         { id:'z5', texto:'Explicar la importancia de completar el tratamiento antibiótico aunque el niño mejore', tipo:'clave', puntos:2, resp:'El padre comprende.', fb:'La adherencia previene recaídas y resistencia.' },
         { id:'z6', texto:'Entregar signos de alarma: respiración rápida o difícil, quejido, labios morados, rechazo de líquidos, decaimiento o fiebre que persiste más de 48 horas de tratamiento', tipo:'clave', puntos:2, resp:'Se entregan y se verifica comprensión.', fb:'Permite detectar el fracaso del manejo ambulatorio a tiempo.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
     ],
     oral:[
@@ -360,6 +370,9 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Entregar plan escrito de qué hacer si vuelve a obstruirse en casa', tipo:'clave', puntos:2, resp:'Se entrega plan por escrito.', fb:'El plan de acción reduce consultas de urgencia.' },
         { id:'z6', texto:'Signos de alarma: no mejora tras el inhalador, no puede hablar ni comer, labios morados, se hunden las costillas o queda somnoliento', tipo:'clave', puntos:2, resp:'La madre los repite correctamente.', fb:'Criterio de reconsulta inmediata.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
     ],
     oral:[
@@ -428,6 +441,9 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Informar a los padres con claridad y honestidad sobre la gravedad y la necesidad del traslado', tipo:'clave', puntos:2, resp:'Los padres comprenden y aceptan.', fb:'La comunicación de gravedad es una competencia evaluada.' },
         { id:'z6', texto:'Explicar a la familia que los contactos cercanos requerirán evaluación y quimioprofilaxis', tipo:'clave', puntos:2, resp:'Se explica el seguimiento de contactos.', fb:'Cierra el manejo de salud pública del caso.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
     ],
     oral:[
@@ -498,7 +514,17 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Explicar a la madre en qué consiste la fototerapia y que la lactancia se mantiene', tipo:'clave', puntos:2, resp:'La madre comprende y se tranquiliza.', fb:'Reduce el temor y protege la lactancia.' },
         { id:'z6', texto:'Signos de alarma: recién nacido cada vez más amarillo, palmas y plantas amarillas, succión débil, muy dormido, llanto agudo o arqueamiento del cuerpo', tipo:'clave', puntos:2, resp:'La madre los repite.', fb:'Detección precoz de encefalopatía bilirrubínica.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
+    ],
+    oral:[
+      { q:'¿Cómo distingue una ictericia fisiológica de una patológica?', modelo:'Es patológica si aparece en las primeras 24 horas de vida, si la bilirrubina se ubica en zona de riesgo según las horas de vida, si asciende rápido, si predomina la bilirrubina directa, si compromete palmas y plantas, si el recién nacido está sintomático o si se prolonga más allá de lo esperado.' },
+      { q:'¿Por qué es tan importante interpretar la bilirrubina según las horas de vida?', modelo:'Porque el valor aislado no significa lo mismo a las 24 que a las 72 horas. El nomograma según horas de vida define la zona de riesgo, la necesidad de fototerapia y la frecuencia del control.' },
+      { q:'¿Qué exámenes solicita y qué busca con ellos?', modelo:'Bilirrubina total y fraccionada, grupo sanguíneo y Rh del recién nacido y de la madre, test de Coombs directo y hematocrito o hemograma con reticulocitos. Buscan diferenciar hiperbilirrubinemia no conjugada de colestasia e identificar hemólisis por incompatibilidad.' },
+      { q:'¿Manejo ambulatorio, hospitalización o derivación?', modelo:'Derivación a neonatología u hospitalización para fototerapia y control seriado de bilirrubina, por tratarse de una hiperbilirrubinemia patológica en zona de riesgo con ingesta insuficiente.' },
+      { q:'¿Qué complicación teme y cómo la reconoce?', modelo:'La encefalopatía bilirrubínica. Se sospecha por succión débil, letargia, hipotonía seguida de hipertonía, llanto agudo, fiebre y arqueamiento del cuerpo (opistótonos): constituye una emergencia y el daño puede ser irreversible.' },
     ],
     aprobacion:{ minPct:60, requiereDx:true },
   },
@@ -560,7 +586,17 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Responder la preocupación concreta de la madre sobre el apetito, mostrándole la curva de crecimiento de su hijo', tipo:'clave', puntos:2, resp:'La madre queda tranquila y comprende.', fb:'Abordar la agenda del cuidador es parte de la consejería.' },
         { id:'z6', texto:'Indicar cuándo consultar antes del próximo control: pérdida de habilidades ya adquiridas, no camina ni dice palabras a los 18 meses, baja de peso o rechazo alimentario persistente', tipo:'clave', puntos:2, resp:'Se entregan criterios claros de reconsulta.', fb:'Red de seguridad del control sano.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
+    ],
+    oral:[
+      { q:'¿Cómo interpreta el crecimiento de este niño y qué le responde a la madre?', modelo:'Se grafican peso, talla y perímetro craneano en las curvas vigentes y se evalúa la tendencia en el tiempo, no un punto aislado. Si la curva es ascendente y estable, el niño crece bien; alrededor del año el apetito disminuye de forma fisiológica porque la velocidad de crecimiento se enlentece.' },
+      { q:'¿Qué evalúa del desarrollo psicomotor a esta edad y cuándo deriva?', modelo:'Motor grueso, motor fino, lenguaje y área social, con el instrumento estandarizado que indica la norma. Derivo ante rezago pesquisado, ausencia de hitos esperables, o cualquier pérdida de habilidades ya adquiridas, que es siempre una señal de alarma.' },
+      { q:'¿Qué haría si el niño llega con un resfrío leve el día de la vacuna?', modelo:'Vacunarlo igual. Una infección respiratoria leve sin fiebre alta no contraindica la vacunación; postergarla sin causa real genera oportunidades perdidas y deja al niño desprotegido.' },
+      { q:'¿Qué consejería prioriza en un control de 12 meses?', modelo:'Alimentación variada sin azúcar añadida ni sal y sin líquidos azucarados en mamadera, prevención de accidentes (quemaduras, caídas, asfixia por alimentos y objetos pequeños, ahogamiento, uso de sistema de retención infantil), estimulación del lenguaje con juego y lectura, limitación de pantallas, salud bucal y sueño.' },
+      { q:'¿Cómo define la continuidad del cuidado?', modelo:'Próximo control de salud agendado según el calendario del programa, con registro completo en la ficha y en el carné, y derivación a evaluación especializada solo si aparece rezago del desarrollo, alteración de la curva de crecimiento o riesgo psicosocial.' },
     ],
     aprobacion:{ minPct:60, requiereDx:false },
   },
@@ -626,7 +662,17 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Explicar a la niña, en lenguaje sencillo y acorde a su edad, qué va a pasar y que no ha hecho nada malo', tipo:'clave', puntos:2, resp:'La niña se tranquiliza.', fb:'Evita la culpabilización de la víctima, frecuente a esta edad.' },
         { id:'z6', texto:'Mantener una actitud profesional y no confrontacional con el cuidador durante todo el proceso, resguardando la confidencialidad del caso', tipo:'clave', puntos:2, resp:'Se mantiene el trato profesional.', fb:'Protege a la niña, al equipo y la validez del proceso.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
+    ],
+    oral:[
+      { q:'¿Qué elementos fundamentan su sospecha de maltrato?', modelo:'La incongruencia entre el mecanismo relatado, la edad y el desarrollo de la niña y el patrón de las lesiones; equimosis de distintos tiempos en zonas protegidas; una lesión con forma sugerente de objeto; la consulta tardía; los antecedentes de consultas previas por lesiones y controles incompletos; y la conducta retraída de la niña.' },
+      { q:'¿Qué diferenciales médicos considera y por qué no detienen su conducta?', modelo:'Trastornos de la coagulación, enfermedades óseas y algunas lesiones cutáneas o prácticas culturales. Se estudian, pero la sospecha de maltrato es clínica: ningún examen normal la descarta y el estudio nunca debe retrasar la protección de la niña.' },
+      { q:'¿Cómo debe realizar la entrevista y el registro?', modelo:'Entrevista breve, en lenguaje adecuado a la edad, con preguntas abiertas y no sugestivas, sin repetir el interrogatorio y sin confrontar ni acusar al cuidador. El registro es objetivo y descriptivo: relato textual entre comillas, tipo, forma, tamaño, ubicación y color de cada lesión en un esquema corporal, sin conclusiones sobre autoría.' },
+      { q:'¿Cuál es su obligación legal y a quién notifica?', modelo:'El profesional de salud tiene el deber legal de denunciar las lesiones en un menor ante la autoridad competente dentro del plazo que establece la ley, dejando constancia en la ficha, y de activar el protocolo local y la red de protección junto a trabajo social. No es una decisión personal ni opcional.' },
+      { q:'¿Manejo ambulatorio, hospitalización o derivación?', modelo:'Hospitalización de la niña para protección, estudio y evaluación por el equipo, con notificación a la autoridad competente. Devolverla al domicilio donde se sospecha el maltrato es el error más grave posible.' },
     ],
     aprobacion:{ minPct:60, requiereDx:true },
   },
@@ -634,6 +680,15 @@ ESTACIONES.push(
   /* ========== 13 · PEDIATRÍA — Deshidratación grave / shock ========== */
   {
     id:'ped-shock-deshidratacion', area:'pediatria', titulo:'Deshidratación grave y shock en el niño', nivel:'Médico general', minutos:8,
+    monitor:{
+      vitales:{ PA:'78/40', FC:170, FR:38, SatO2:94, T:'36,8' },
+      deterioro:[
+        { seg:90,  vitales:{ FC:180, PA:'70/36' }, aviso:'Perfusión en deterioro: el shock progresa.' },
+        { seg:200, vitales:{ FC:186, PA:'62/32', SatO2:91 }, aviso:'Shock descompensado: compromiso de conciencia.' },
+      ],
+      estabiliza:['p1','m1'],
+      estable:{ vitales:{ FC:142, PA:'92/52', SatO2:97 }, aviso:'Mejora tras el acceso vascular y los bolos de cristaloide.' },
+    },
     fuentes:['minsal_guias','aiepi','acls','eunacom_perfil'],
     motivo:'Lactante de 10 meses con diarrea profusa, muy decaído.',
     puerta:'Lactante de diez meses con diarrea profusa, muy decaído y frío. Reconozca la gravedad y realice el manejo inicial.',
@@ -700,7 +755,17 @@ ESTACIONES.push(
       cierre([
         { id:'z5', texto:'Informar a los padres con claridad sobre la gravedad y la necesidad del traslado, en lenguaje comprensible', tipo:'clave', puntos:2, resp:'Los padres comprenden y aceptan.', fb:'La comunicación de gravedad es parte del manejo.' },
         { id:'z6', texto:'Educar en prevención para el futuro: uso correcto de sales de rehidratación oral desde el inicio de la diarrea y signos de alarma para consultar antes (no orina, muy dormido, no bebe, ojos hundidos)', tipo:'clave', puntos:2, resp:'Se educa a los padres.', fb:'Previene la recurrencia de una descompensación grave.' },
+        { id:'z7', texto:'Entregar las indicaciones por escrito y registrar la atención en la ficha', tipo:'util', puntos:1, resp:'Se entrega y se registra.', fb:'Refuerza la comprensión y deja trazabilidad del cierre.' },
+        { id:'z8', texto:'Cerrar sin dar espacio a preguntas, hablando en lenguaje técnico', tipo:'neutro', puntos:0, resp:'El acompañante asiente sin comprender.', fb:'Asentir no equivale a comprender: siempre verificar.' },
+        { id:'z9', texto:'Terminar la consulta apurando la salida, sin explicar el plan ni cuándo reconsultar', tipo:'peligroso', puntos:-2, resp:'La familia se va sin plan ni criterios de reconsulta.', fb:'Un cierre incompleto anula el trabajo clínico previo y deja al paciente sin red de seguridad.' },
       ]),
+    ],
+    oral:[
+      { q:'¿Cómo reconoce el shock en un niño?', modelo:'Por la perfusión, no por la presión arterial: llene capilar prolongado, extremidades frías y moteadas o piel muy caliente y vasodilatada, pulsos periféricos débiles, taquicardia marcada, taquipnea, oliguria o anuria y compromiso de conciencia. La hipotensión es un signo tardío que anuncia el paro.' },
+      { q:'¿Cuáles son sus primeras tres acciones?', modelo:'Aplicar el ABCDE con oxígeno y monitorización, obtener acceso vascular de inmediato (intraóseo si no se logra el periférico en pocos minutos) e iniciar la reposición con bolos de cristaloide isotónico, reevaluando después de cada bolo. En paralelo, glicemia capilar.' },
+      { q:'¿Por qué mide glicemia y por qué no usa suero glucosado ni soluciones hipotónicas para reanimar?', modelo:'La hipoglicemia es frecuente en el lactante en shock, es mortal y se corrige fácilmente. Para expandir volumen se usan cristaloides isotónicos: las soluciones hipotónicas o glucosadas no expanden el intravascular y pueden causar hiponatremia y edema cerebral.' },
+      { q:'¿Por qué no indica sales de rehidratación oral en este niño?', modelo:'Porque está letárgico y no bebe: con compromiso de conciencia la vía oral está contraindicada por riesgo de aspiración y por insuficiencia para corregir un shock. Se retoma la vía oral o enteral una vez estabilizado, alerta y tolerando.' },
+      { q:'¿Cuál es el destino y qué anticipa si no responde al volumen?', modelo:'Hospitalización y traslado a una unidad de paciente crítico pediátrica, con vía permeable, monitorización y reposición en curso durante el transporte. Si no responde al volumen, busco sepsis asociada, alteraciones electrolíticas o ácido-base, hipoglicemia persistente u otra causa de shock, y anticipo la necesidad de soporte avanzado.' },
     ],
     aprobacion:{ minPct:60, requiereDx:true },
   },

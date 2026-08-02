@@ -362,6 +362,15 @@ ESTACIONES.push(
   /* ========== 7 · MEDICINA INTERNA — Sepsis de foco urinario (pielonefritis) ========== */
   {
     id:'mi-sepsis-pielonefritis', area:'medint', titulo:'Sepsis de foco urinario — pielonefritis aguda', nivel:'Médico general', minutos:8,
+    monitor:{
+      vitales:{ PA:'96/54', FC:118, FR:26, SatO2:94, T:'39,2' },
+      deterioro:[
+        { seg:120, vitales:{ PA:'88/48', FC:126 }, aviso:'Hipotensión sostenida pese a la fiebre alta.' },
+        { seg:240, vitales:{ PA:'80/44', FC:134, SatO2:92 }, aviso:'Progresa a shock séptico: cada hora sin antibiótico cuenta.' },
+      ],
+      estabiliza:['m1','m2'],
+      estable:{ vitales:{ PA:'108/64', FC:104 }, aviso:'Mejora tras volumen y antibiótico precoz.' },
+    },
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 55 años con fiebre alta, calofríos y dolor lumbar derecho.',
     puerta:'Mujer de 55 años consulta por fiebre con calofríos y dolor lumbar derecho de 2 días. Evalúe, reconozca la gravedad y defina la conducta.',
@@ -487,6 +496,15 @@ ESTACIONES.push(
   /* ========== 9 · MEDICINA INTERNA — Hemorragia digestiva alta ========== */
   {
     id:'mi-hda', area:'medint', titulo:'Hemorragia digestiva alta', nivel:'Médico general', minutos:8,
+    monitor:{
+      vitales:{ PA:'98/60', FC:112, FR:22, SatO2:96 },
+      deterioro:[
+        { seg:120, vitales:{ PA:'88/52', FC:122 }, aviso:'Sangrado activo: cae la presión y sube la frecuencia.' },
+        { seg:240, vitales:{ PA:'76/42', FC:132, SatO2:93 }, aviso:'Shock hipovolémico en curso.' },
+      ],
+      estabiliza:['m1'],
+      estable:{ vitales:{ PA:'110/66', FC:98 }, aviso:'Responde a la reposición de volumen.' },
+    },
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 63 años con vómito de sangre y deposiciones negras.',
     puerta:'Hombre de 63 años consulta por vómito con sangre y deposiciones negras desde ayer. Evalúe, estabilice y defina la conducta.',

@@ -51,6 +51,16 @@ ESTACIONES.push(
   /* ========== 8 · CIRUGÍA — Politrauma (ABCDE) ========== */
   {
     id:'cir-politrauma', area:'cirugia', titulo:'Politrauma (manejo ABCDE)', nivel:'Médico general', minutos:8,
+    monitor:{
+      vitales:{ PA:'92/58', FC:128, FR:28, SatO2:93, T:'36,1' },
+      deterioro:[
+        { seg:90,  vitales:{ PA:'86/50', FC:136 }, aviso:'Más taquicárdico e hipotenso: la hemorragia continúa.' },
+        { seg:180, vitales:{ PA:'78/44', FC:142, SatO2:91 }, aviso:'Shock progresivo. No hay control del sangrado.' },
+        { seg:270, vitales:{ PA:'70/40', FC:150, SatO2:89 }, aviso:'Deterioro crítico: riesgo vital inminente.' },
+      ],
+      estabiliza:['a1','b1','c1'],
+      estable:{ vitales:{ PA:'106/68', FC:110, SatO2:97 }, aviso:'Responde a la reanimación: vía aérea, ventilación y control del sangrado.' },
+    },
     fuentes:['atls','minsal_ges','eunacom_perfil'],
     motivo:'Paciente de 28 años confuso y taquicárdico tras colisión.',
     puerta:'Paciente de 28 años confuso, taquicárdico y con dolor torácico tras una colisión. Realice el manejo inicial.',

@@ -49,7 +49,36 @@ con sus criterios mínimos.
   respuesta modelo y autoevaluación (no afecta el puntaje de la estación).
 - **Cronómetro por fase:** guía la gestión del tiempo (apertura → núcleo →
   resolver → cierre) según el informe UC.
+- **🧠 Modo recuerdo abierto** (activable en el inicio): antes de ver la pauta,
+  escribes de memoria qué harías; recién después aparece la lista para
+  autocorregirte y se muestra tu texto al lado. Sin la lista delante no hay
+  pistas — entrena **evocar** en vez de reconocer, que es lo que se necesita
+  frente al paciente. Se aplica a anamnesis, examen físico, exámenes,
+  procedimiento y manejo.
+- **🖥️ Monitor de signos vitales dinámico** en estaciones de urgencia: los
+  vitales se **deterioran con el tiempo** si no se ejecutan las medidas
+  estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en
+  rojo. Declarado por estación en el campo `monitor`.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
+
+### Campo `monitor` (estaciones de urgencia)
+
+```js
+monitor:{
+  vitales:{ PA:'92/58', FC:128, FR:28, SatO2:93, T:'36,1' },  // estado inicial
+  deterioro:[                                  // se aplica si NO se estabiliza
+    { seg:90,  vitales:{ PA:'86/50', FC:136 }, aviso:'La hemorragia continúa.' },
+    { seg:180, vitales:{ PA:'78/44', FC:142 }, aviso:'Shock progresivo.' },
+  ],
+  estabiliza:['a1','b1','c1'],                 // ids de opciones que lo detienen
+  estable:{ vitales:{ PA:'106/68', FC:110 }, aviso:'Responde a la reanimación.' },
+}
+```
+
+`seg` son segundos transcurridos desde el inicio. El deterioro se detiene en
+cuanto se han confirmado **todas** las opciones de `estabiliza`. Lo llevan
+politrauma, sepsis de foco urinario, hemorragia digestiva alta y shock por
+deshidratación en el niño.
 
 ## Estaciones incluidas (borrador)
 

@@ -47,6 +47,15 @@
     reset(id){ const d=this.load(); delete d[id]; this.save(d); },
   };
 
+  // Configuración del entrenamiento
+  const LS_CFG = 'ecoe_config_v1';
+  const cfg = {
+    load(){ try { return Object.assign({recuerdoAbierto:true}, JSON.parse(localStorage.getItem(LS_CFG))||{}); } catch(e){ return {recuerdoAbierto:true}; } },
+    set(k,v){ const c=this.load(); c[k]=v; localStorage.setItem(LS_CFG, JSON.stringify(c)); },
+  };
+  // Competencias donde el recuerdo abierto aporta (evocar antes de reconocer)
+  const COMP_RECUERDO = ['Anamnesis','Examen físico','Exámenes e interpretación','Manejo y destino','Procedimiento'];
+
   // Reportes de contenido dudoso (para revisar y corregir después)
   const LS_DUDAS = 'ecoe_dudas_v1';
   const dudas = {
@@ -146,6 +155,15 @@
         </div>
       </header>
 
+      <div class="bg-white rounded-2xl border border-violet-200 p-4 mb-4 fade flex items-start gap-3">
+        <input type="checkbox" id="cfgRecuerdo" ${cfg.load().recuerdoAbierto?'checked':''}
+          onchange="cfg.set('recuerdoAbierto', this.checked)" class="mt-1 w-4 h-4 accent-violet-600">
+        <label for="cfgRecuerdo" class="text-sm cursor-pointer">
+          <b class="text-violet-700">🧠 Modo recuerdo abierto</b>
+          <span class="block text-xs text-slate-500 mt-0.5">Antes de ver la pauta, escribes de memoria qué harías. Sin la lista delante no hay pistas: entrena evocar, que es lo que necesitas frente al paciente.</span>
+        </label>
+      </div>
+
       <div class="bg-sky-600 text-white rounded-2xl p-5 fade">
         <div class="font-bold text-lg">🔁 Modo circuito</div>
         <p class="text-sky-100 text-sm mt-1">Encadena varias estaciones seguidas, como el examen real: cambios rápidos de especialidad y puntaje global.</p>
@@ -234,14 +252,84 @@
   // ============================ Motor de estación ============================
   function iniciar(id){
     const e = buildEstacion(id);
-    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null };
+    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{},
+               tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null,
+               mon: e.monitor? { paso:-1, estabilizado:false, vitales:Object.assign({},e.monitor.vitales), aviso:'' } : null };
     sesion.timer = setInterval(()=>{
       sesion.tRestante--;
       const t=document.getElementById('timer');
       if(t){ t.textContent=fmt(Math.max(0,sesion.tRestante)); if(sesion.tRestante<=60) document.getElementById('timerBox').classList.add('timer-warn','text-red-600'); }
       const fh=document.getElementById('faseHint'); if(fh) fh.textContent='⌛ Fase sugerida: '+faseSugerida(sesion.tInicial,sesion.tRestante);
+      actualizarMonitor();
       if(sesion.tRestante<=0) clearInterval(sesion.timer);
     },1000);
+    renderEtapa();
+  }
+
+  // ============================ Monitor de signos vitales ============================
+  // El paciente se deteriora con el tiempo salvo que se ejecuten las medidas
+  // estabilizadoras declaradas por la estación (monitor.estabiliza: [ids]).
+  function yaEstabilizo(){
+    const m=sesion.estacion.monitor; if(!m||!m.estabiliza) return false;
+    const hechas=new Set(); Object.keys(sesion.seleccion).forEach(i=>{
+      if(sesion.revelado[i]) (sesion.seleccion[i]||[]).forEach(id=>hechas.add(id));
+    });
+    return m.estabiliza.every(id=>hechas.has(id));
+  }
+  function actualizarMonitor(){
+    if(!sesion || !sesion.mon) return;
+    const m=sesion.estacion.monitor, s=sesion.mon;
+    const transcurrido = sesion.tInicial - sesion.tRestante;
+    if(!s.estabilizado && yaEstabilizo()){
+      s.estabilizado=true;
+      if(m.estable){ Object.assign(s.vitales, m.estable.vitales||{}); s.aviso=m.estable.aviso||''; }
+    }
+    if(!s.estabilizado && m.deterioro){
+      m.deterioro.forEach((d,i)=>{
+        if(transcurrido>=d.seg && i>s.paso){ s.paso=i; Object.assign(s.vitales, d.vitales||{}); s.aviso=d.aviso||''; }
+      });
+    }
+    pintarMonitor();
+  }
+  function pintarMonitor(){
+    const box=document.getElementById('monitorBox'); if(!box||!sesion.mon) return;
+    box.innerHTML=monitorHTML();
+  }
+  function monitorHTML(){
+    const s=sesion.mon; if(!s) return '';
+    const v=s.vitales;
+    const crit = (k,val)=>{
+      const n=parseFloat(String(val));
+      if(k==='SatO2') return n<92;
+      if(k==='FC') return n>120||n<50;
+      if(k==='FR') return n>24||n<10;
+      if(k==='PA'){ const sis=parseInt(String(val),10); return sis<90; }
+      return false;
+    };
+    const etiquetas={PA:'PA',FC:'FC',FR:'FR',SatO2:'SatO₂',T:'T°'};
+    const celdas=Object.keys(etiquetas).filter(k=>v[k]!==undefined).map(k=>{
+      const alerta=crit(k,v[k]);
+      return `<div class="text-center px-2">
+        <div class="text-[10px] uppercase tracking-wide ${alerta?'text-red-300':'text-emerald-300'}">${etiquetas[k]}</div>
+        <div class="font-mono font-bold text-lg ${alerta?'text-red-400 timer-warn':'text-emerald-400'}">${esc(String(v[k]))}</div>
+      </div>`;
+    }).join('');
+    return `<div class="bg-slate-900 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1">${celdas}</div>
+        <div class="text-[10px] ${s.estabilizado?'text-emerald-400':'text-amber-300'} max-w-[40%] text-right leading-tight">${s.estabilizado?'✓ ':''}${esc(s.aviso)}</div>
+      </div>`;
+  }
+
+  // ¿Esta etapa debe pedir recuerdo abierto antes de mostrar la pauta?
+  function pideRecuerdo(idx){
+    const etapa = sesion.estacion.etapas[idx];
+    return cfg.load().recuerdoAbierto && COMP_RECUERDO.includes(etapa.comp)
+           && etapa.tipo!=='unica' && !sesion.recuerdoHecho[idx];
+  }
+  function guardarRecuerdo(idx){
+    const ta=document.getElementById('recuerdoTxt');
+    sesion.recuerdo[idx] = ta? ta.value.trim() : '';
+    sesion.recuerdoHecho[idx]=true;
     renderEtapa();
   }
 
@@ -249,6 +337,28 @@
     const e=sesion.estacion, idx=sesion.etapaIdx, etapa=e.etapas[idx];
     const sel=sesion.seleccion[idx]||[], revelado=sesion.revelado[idx];
     const progreso=e.etapas.map((et,i)=>`<div class="flex-1 h-1.5 rounded-full ${i<idx?'bg-emerald-400':i===idx?'bg-sky-500':'bg-slate-200'}"></div>`).join('');
+
+    // --- Fase de recuerdo abierto: evocar sin ver la lista ---
+    if(pideRecuerdo(idx)){
+      app.innerHTML=`<div class="fade">
+        ${circuito?`<div class="text-xs text-sky-600 font-semibold mb-2">🔁 Circuito · estación ${circuito.idx+1}/${circuito.cola.length}</div>`:''}
+        <div class="flex items-center justify-between mb-3">${badge(e.area)}
+          <div id="timerBox" class="font-mono font-bold text-lg text-slate-700 flex items-center gap-1">⏱ <span id="timer">${fmt(Math.max(0,sesion.tRestante))}</span></div></div>
+        <div id="faseHint" class="text-[11px] text-slate-400 text-right mb-2">⌛ Fase sugerida: ${faseSugerida(sesion.tInicial,sesion.tRestante)}</div>
+        <div class="flex gap-1 mb-4">${progreso}</div>
+        <div class="bg-white rounded-2xl border-2 border-violet-200 p-5 shadow-sm">
+          <div class="text-xs font-bold uppercase tracking-wide text-violet-600">🧠 Recuerdo abierto · ${etapa.comp}</div>
+          <h2 class="text-lg font-bold mt-1 mb-1">${esc(etapa.instruccion)}</h2>
+          <p class="text-xs text-slate-500 mb-3">Escríbelo <b>de memoria</b>, como lo dirías en la estación. Recién después verás la pauta para autocorregirte. Sin lista no hay pistas: así se entrena de verdad.</p>
+          <textarea id="recuerdoTxt" rows="6" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-violet-400 outline-none" placeholder="Ej: preguntaría por... buscaría... solicitaría..."></textarea>
+          <button onclick="guardarRecuerdo(${idx})" class="mt-3 w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl">Ya lo escribí — ver la pauta ▶</button>
+          <button onclick="guardarRecuerdo(${idx})" class="mt-2 w-full text-slate-400 text-xs underline">Saltar este paso</button>
+        </div>
+        <button onclick="if(confirm('¿Abandonar? No se guardará.')){circuito=null;renderHome();}" class="mt-4 text-xs text-slate-400 hover:text-red-500 underline">Abandonar</button>
+      </div>`;
+      const ta=document.getElementById('recuerdoTxt'); if(ta) ta.focus();
+      return;
+    }
     const opciones=etapa.opciones.length? etapa.opciones.map(o=>{
       const checked=sel.includes(o.id), showResp=revelado&&checked;
       let ring=checked?'border-sky-500 bg-sky-50':'border-slate-200 bg-white', mark='';
@@ -273,10 +383,15 @@
         <div id="timerBox" class="font-mono font-bold text-lg text-slate-700 flex items-center gap-1">⏱ <span id="timer">${fmt(Math.max(0,sesion.tRestante))}</span></div></div>
       <div id="faseHint" class="text-[11px] text-slate-400 text-right mb-2">⌛ Fase sugerida: ${faseSugerida(sesion.tInicial,sesion.tRestante)}</div>
       <div class="flex gap-1 mb-4">${progreso}</div>
+      ${sesion.mon?`<div id="monitorBox" class="mb-3">${monitorHTML()}</div>`:''}
       <div class="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm">
         <div class="text-xs font-bold uppercase tracking-wide text-sky-600">${etapa.comp} · etapa ${idx+1}/${e.etapas.length}</div>
         <h2 class="text-lg font-bold mt-1 mb-1">${esc(etapa.instruccion)}</h2>
         <p class="text-xs text-slate-400 mb-4">${etapa.tipo==='unica'?'Elige una opción.':'Puedes elegir varias. Las acciones innecesarias o riesgosas restan.'}</p>
+        ${sesion.recuerdo[idx]?`<div class="mb-3 bg-violet-50 border border-violet-200 rounded-xl p-3">
+          <div class="text-[11px] font-bold uppercase text-violet-600 mb-1">🧠 Lo que escribiste de memoria</div>
+          <p class="text-sm text-slate-700 whitespace-pre-wrap">${esc(sesion.recuerdo[idx])}</p>
+          <p class="text-[11px] text-violet-500 mt-1">Contrástalo con la pauta: lo que no escribiste es tu brecha real.</p></div>`:''}
         <div class="space-y-2 scroll">${opciones}</div>
         <div class="mt-5">${btn}</div>
       </div>
@@ -293,7 +408,7 @@
   function confirmarEtapa(){
     const idx=sesion.etapaIdx, etapa=sesion.estacion.etapas[idx];
     if(etapa.tipo==='unica' && !(sesion.seleccion[idx]||[]).length){ alert('Selecciona una opción.'); return; }
-    sesion.revelado[idx]=true; renderEtapa();
+    sesion.revelado[idx]=true; actualizarMonitor(); renderEtapa();
   }
   function siguienteEtapa(){ sesion.etapaIdx++; renderEtapa(); }
 
