@@ -43,6 +43,15 @@ const COMPETENCIAS = [
   'Comunicación y cierre',
 ];
 
+// Interrogación oral por defecto (preguntas frecuentes del examinador, del informe UC)
+const ORAL_DEFAULT = [
+  { q:'¿Cuál es su diagnóstico principal y qué diferenciales considera?', modelo:'Estructura: "Paciente estable/inestable con un síndrome compatible con ___; mis diferenciales relevantes son ___ y ___".' },
+  { q:'¿Qué examen solicita primero y por qué? ¿Qué resultado cambiaría su conducta?', modelo:'Prioriza el examen que confirma o descarta la hipótesis más grave y explica el umbral que modifica la decisión.' },
+  { q:'¿Requiere manejo ambulatorio, hospitalización o derivación?', modelo:'Define el destino de forma explícita y justifícalo según la gravedad y el alcance del médico general.' },
+  { q:'¿Qué tratamiento inicial indicaría y qué complicaciones anticipa?', modelo:'Medidas iniciales proporcionales al cuadro + vigilancia de las complicaciones esperables.' },
+  { q:'¿Qué signos de alarma explicaría al cerrar la estación?', modelo:'Enumera signos de alarma concretos para reconsultar y verifica la comprensión del paciente.' },
+];
+
 // ---------- Helpers de etapas transversales (reutilizables) ----------
 function segInicial(urgente){
   const gravedad = urgente
@@ -127,6 +136,13 @@ const ESTACIONES = [
       ]},
       cierre(),
     ],
+    oral:[
+      { q:'¿Cuál es su diagnóstico principal y en qué se basa?', modelo:'IAM con SDST inferior: dolor opresivo prolongado en reposo, factores de riesgo cardiovascular y SDST en DII-DIII-aVF con troponina elevada.' },
+      { q:'¿Qué examen solicita primero y por qué?', modelo:'ECG de 12 derivaciones en < 10 min: define la reperfusión inmediata. En el SDST no se espera la troponina para actuar.' },
+      { q:'¿Hospitaliza o deriva? ¿Qué tratamiento inicia?', modelo:'Hospitalización/traslado urgente para reperfusión (angioplastía primaria o trombólisis según tiempos) + aspirina y segundo antiagregante, monitorización; oxígeno solo si SatO₂ < 90%.' },
+      { q:'¿Qué complicaciones anticipa?', modelo:'Arritmias (FV/TV), bradiarritmias/bloqueo AV (frecuentes en IAM inferior), falla de bomba/shock y complicaciones mecánicas.' },
+      { q:'¿Qué haría si el paciente rechaza el tratamiento?', modelo:'Informar el riesgo vital con empatía, verificar comprensión y capacidad, registrar; respetar la autonomía si la decisión es competente y ofrecer reevaluación.' },
+    ],
     aprobacion:{ minPct:60, requiereDx:true },
   },
 
@@ -172,6 +188,13 @@ const ESTACIONES = [
         destino('Hospitalización / derivación urgente a centro con neuroimagen y unidad de ACV','El médico general estabiliza y deriva sin demora.'),
       ]},
       cierre(),
+    ],
+    oral:[
+      { q:'¿Cuál es su diagnóstico y su principal preocupación?', modelo:'ACV probablemente isquémico (déficit focal súbito con TC sin sangrado). Preocupa la ventana terapéutica: "tiempo es cerebro".' },
+      { q:'¿Qué dato define su conducta?', modelo:'La hora de inicio / última vez visto normal y la TC sin hemorragia: definen la elegibilidad para trombólisis o trombectomía.' },
+      { q:'¿Por qué mide glicemia capilar?', modelo:'La hipoglucemia imita un ACV; es un diferencial obligado y reversible que se descarta de inmediato.' },
+      { q:'¿Hospitaliza o deriva? ¿Qué tratamiento?', modelo:'Activar código ACV y derivar urgente a un centro con neuroimagen/unidad de ACV; evaluar reperfusión según ventana; no antiagregar antes de descartar hemorragia; manejo cauteloso de la PA.' },
+      { q:'¿Qué signos de alarma explicaría?', modelo:'Empeoramiento del déficit, compromiso de conciencia, cefalea intensa o vómitos: aviso/reconsulta inmediata.' },
     ],
     aprobacion:{ minPct:60, requiereDx:true },
   },

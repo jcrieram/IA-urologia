@@ -30,6 +30,10 @@ con sus criterios mínimos.
   (etapas) y opciones** propias, que se integran al practicar (guardado local).
 - **Feedback inmediato** por etapa (hallazgo + nota) y **resultado detallado**
   con desempeño por competencia (gráfico) y revisión etapa por etapa.
+- **Interrogación oral al cierre:** preguntas frecuentes del examinador con
+  respuesta modelo y autoevaluación (no afecta el puntaje de la estación).
+- **Cronómetro por fase:** guía la gestión del tiempo (apertura → núcleo →
+  resolver → cierre) según el informe UC.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
 
 ## Estaciones incluidas (borrador)
