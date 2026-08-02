@@ -1,25 +1,54 @@
-# Entrenador ECOE — EUNACOM (MVP)
+# Entrenador ECOE — EUNACOM (perfil médico general)
 
-Simulador de estaciones clínicas tipo **ECOE** para preparar el EUNACOM práctico
-(formato UC-Chile), en las áreas de **Cirugía, Medicina Interna, Pediatría y
-Gineco-Obstetricia**.
+Simulador de estaciones clínicas tipo **ECOE** para preparar la **sección
+práctica del EUNACOM** (formato UC-Chile), enfocado en el perfil de **médico/a
+general** (diagnosticar / estabilizar / **derivar**), en las cuatro etapas:
+**Medicina Interna, Pediatría, Obstetricia y Ginecología y Cirugía**.
 
-> ⚠️ **Contenido borrador.** Los casos y pautas fueron generados como punto de
-> partida y **requieren validación médica** antes de uso formal. Es una herramienta
-> educativa; no reemplaza el juicio clínico ni las guías vigentes (MINSAL/GES/UC).
+Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritmo
+**SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
+con sus criterios mínimos.
 
-## Qué hace (v1)
+> ⚠️ **Contenido borrador.** Casos y pautas son material **original** de práctica,
+> generados como punto de partida y **pendientes de validación médica**. No son
+> casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no reemplaza
+> el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
 
-- **Modo Simulacro ECOE:** estaciones cronometradas que recorren competencias
-  (Anamnesis → Examen físico → Exámenes → Diagnóstico → Manejo → Comunicación).
-- **Pauta de cotejo:** cada acción tiene un valor; las acciones innecesarias o
-  **riesgosas restan**, y omitir un elemento **crítico** reprueba la estación.
-- **Feedback inmediato:** al confirmar cada etapa se revela el hallazgo/respuesta
-  y una nota educativa.
-- **Resultado detallado:** porcentaje, aprobado/no aprobado, alertas de seguridad,
-  desempeño por competencia (gráfico) y revisión etapa por etapa.
-- **Progreso local:** intentos y estadísticas guardados en el navegador
-  (`localStorage`), sin login ni backend.
+## Qué hace (v2)
+
+- **Simulacro ECOE** cronometrado, con etapas ordenadas según **SEGURA**:
+  Seguridad inicial → Anamnesis → Examen físico → Exámenes e interpretación →
+  Diagnóstico → Procedimiento → Manejo y destino → Comunicación y cierre.
+- **Pauta de cotejo:** cada acción tiene valor; las innecesarias o **riesgosas
+  restan**, y omitir un elemento **crítico** (o ejecutar uno peligroso crítico,
+  o errar el diagnóstico) **reprueba** la estación. Incluye ítems críticos
+  transversales: consentimiento, definir **destino del paciente**, signos de
+  alarma y verificar comprensión.
+- **Modo circuito:** encadena varias estaciones seguidas (completo: una por área,
+  o personalizado). Puntaje global y criterio ECOE de **aprobar todas**.
+- **Personalización por el alumno:** cada estación permite **agregar módulos
+  (etapas) y opciones** propias, que se integran al practicar (guardado local).
+- **Feedback inmediato** por etapa (hallazgo + nota) y **resultado detallado**
+  con desempeño por competencia (gráfico) y revisión etapa por etapa.
+- **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
+
+## Estaciones incluidas (borrador)
+
+| # | Área | Estación |
+|---|------|----------|
+| 1 | Medicina Interna | Dolor torácico agudo (IAMCEST) |
+| 2 | Medicina Interna | Déficit neurológico focal (ACV) |
+| 3 | Pediatría | Lactante con dificultad respiratoria |
+| 4 | Pediatría | Diarrea y deshidratación |
+| 5 | Obstetricia y Ginecología | Sangrado del primer trimestre |
+| 6 | Obstetricia y Ginecología | Preeclampsia |
+| 7 | Cirugía | Abdomen agudo |
+| 8 | Cirugía | Politrauma (ABCDE) |
+| 9 | Cirugía / Urología | Retención urinaria y sondaje (con procedimiento) |
+| 10 | Transversal | Comunicación de un diagnóstico grave (SPIKES) |
+
+Orden de estudio sugerido (plan de 4 semanas del informe): **Semana 1 Medicina
+Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
 
 ## Estructura
 
