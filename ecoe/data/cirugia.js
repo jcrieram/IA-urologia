@@ -669,6 +669,12 @@ ESTACIONES.push(
         { id:'e7', texto:'Examen abdominal y cardiopulmonar', tipo:'neutro', puntos:0, resp:'Sin hallazgos.', fb:'No aporta a este caso.' },
         { id:'e8', texto:'Explorar la herida a ciegas con una pinza para buscar el vidrio, sin anestesia ni campo estéril', tipo:'peligroso', puntos:-4, resp:'Provoca dolor, sangrado y contaminación adicional.', fb:'La exploración se hace con anestesia, buena iluminación y campo estéril.' },
       ]},
+      { comp:'Diagnóstico', tipo:'unica', instruccion:'Planteamiento.', opciones:[
+        { id:'d1', texto:'Herida cortante contaminada del antebrazo, sin compromiso de estructuras nobles, con riesgo tetanígeno', tipo:'clave', puntos:4, resp:'Correcto.', fb:'Mecanismo sucio, más de 6 horas de riesgo, examen neurovascular y tendinoso indemne.' },
+        { id:'d2', texto:'Herida cortante limpia de manejo simple', tipo:'util', puntos:0, resp:'Subestima la contaminación con tierra y vidrio.', fb:'Cambiaría erróneamente la decisión de cierre y de profilaxis.' },
+        { id:'d3', texto:'Herida con sección tendinosa', tipo:'neutro', puntos:0, resp:'No se demostró: la función está conservada.', fb:'Debe descartarse activamente en toda herida del antebrazo.' },
+        { id:'d4', texto:'Celulitis del antebrazo', tipo:'peligroso', puntos:-3, resp:'No hay signos inflamatorios ni infección establecida.', fb:'Llevaría a un manejo antibiótico innecesario y a omitir el aseo.' },
+      ]},
       { comp:'Procedimiento', tipo:'multi', instruccion:'Aseo, exploración y cierre de la herida: técnica segura.', opciones:[
         { id:'p1', texto:'Explicar el procedimiento, sus riesgos y alternativas, y obtener consentimiento', tipo:'clave', puntos:3, critico:true, resp:'El paciente consiente.', fb:'Consentimiento obligatorio antes de todo procedimiento.' },
         { id:'p2', texto:'Higiene de manos, guantes, campo estéril e instrumental adecuado', tipo:'clave', puntos:3, critico:true, resp:'Se prepara el campo estéril.', fb:'La asepsia previene la infección del sitio.' },
@@ -682,12 +688,6 @@ ESTACIONES.push(
         { id:'p10', texto:'Advertir las complicaciones posibles: infección, dehiscencia, cicatriz hipertrófica, cuerpo extraño residual y lesión tendinosa tardía', tipo:'util', puntos:2, resp:'Se informan.', fb:'Consentimiento informado y expectativas realistas.' },
         { id:'p11', texto:'Ofrecer acompañamiento y explicar cada paso durante el procedimiento', tipo:'neutro', puntos:1, resp:'Se acompaña al paciente.', fb:'Buena práctica comunicacional.' },
         { id:'p12', texto:'Suturar de forma hermética y ajustada la herida contaminada sin aseo previo suficiente', tipo:'peligroso', puntos:-5, critico:true, resp:'Se encierra la contaminación y se favorece la infección profunda.', fb:'Error grave: primero aseo, luego decidir el cierre.' },
-      ]},
-      { comp:'Diagnóstico', tipo:'unica', instruccion:'Planteamiento.', opciones:[
-        { id:'d1', texto:'Herida cortante contaminada del antebrazo, sin compromiso de estructuras nobles, con riesgo tetanígeno', tipo:'clave', puntos:4, resp:'Correcto.', fb:'Mecanismo sucio, más de 6 horas de riesgo, examen neurovascular y tendinoso indemne.' },
-        { id:'d2', texto:'Herida cortante limpia de manejo simple', tipo:'util', puntos:0, resp:'Subestima la contaminación con tierra y vidrio.', fb:'Cambiaría erróneamente la decisión de cierre y de profilaxis.' },
-        { id:'d3', texto:'Herida con sección tendinosa', tipo:'neutro', puntos:0, resp:'No se demostró: la función está conservada.', fb:'Debe descartarse activamente en toda herida del antebrazo.' },
-        { id:'d4', texto:'Celulitis del antebrazo', tipo:'peligroso', puntos:-3, resp:'No hay signos inflamatorios ni infección establecida.', fb:'Llevaría a un manejo antibiótico innecesario y a omitir el aseo.' },
       ]},
       { comp:'Manejo y destino', tipo:'multi', instruccion:'Indicaciones, profilaxis y destino.', opciones:[
         { id:'m1', texto:'Indicar profilaxis antitetánica según el antecedente vacunal y el tipo de herida: vacuna con toxoide tetánico-diftérico cuando el esquema es desconocido, incompleto o la última dosis es antigua', tipo:'clave', puntos:5, critico:true, resp:'Se indica la vacuna y se registra en el carné.', fb:'Omitir la profilaxis antitetánica en una herida sucia es un error crítico y prevenible.' },
