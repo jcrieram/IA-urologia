@@ -1,0 +1,580 @@
+/*
+ * ECOE Trainer — Banco de estaciones (BORRADOR para validación médica)
+ * ------------------------------------------------------------------
+ * Cada estación modela una estación ECOE del EUNACOM (formato UC-Chile).
+ *
+ * Modelo de datos de una estación:
+ * {
+ *   id, area, titulo, nivel, minutos,
+ *   motivo,               // motivo de consulta (una línea)
+ *   briefing,             // instrucciones al alumno antes de entrar
+ *   vineta,               // viñeta clínica / contexto que ve al iniciar
+ *   etapas: [ {
+ *      comp,              // competencia: Anamnesis | Examen físico | Exámenes | Diagnóstico | Manejo | Comunicación
+ *      tipo,              // 'multi' (selección múltiple) | 'unica' (una correcta)
+ *      instruccion,
+ *      opciones: [ {
+ *         id, texto,
+ *         tipo,           // 'clave' | 'util' | 'neutro' | 'peligroso'
+ *         puntos,         // aporte al puntaje (los 'peligroso' restan)
+ *         critico,        // (opcional) true => omitirla (si clave) o hacerla (si peligrosa) reprueba
+ *         resp,           // respuesta del paciente / hallazgo que se revela al seleccionarla
+ *         fb              // feedback educativo
+ *      } ]
+ *   } ],
+ *   aprobacion: { minPct, requiereDx }  // criterio de aprobación
+ * }
+ *
+ * NOTA CLÍNICA: contenido educativo generado como borrador. Debe ser
+ * revisado y validado por un médico antes de uso formal. No reemplaza
+ * el juicio clínico ni las guías vigentes (MINSAL/GES/UC).
+ */
+
+const AREAS = {
+  cirugia:   { nombre: 'Cirugía',                  color: '#ef4444', icono: '🔪' },
+  medint:    { nombre: 'Medicina Interna',         color: '#3b82f6', icono: '🫀' },
+  pediatria: { nombre: 'Pediatría',                color: '#22c55e', icono: '🧒' },
+  gineco:    { nombre: 'Gineco-Obstetricia',       color: '#ec4899', icono: '🤰' },
+};
+
+const COMPETENCIAS = ['Anamnesis', 'Examen físico', 'Exámenes', 'Diagnóstico', 'Manejo', 'Comunicación'];
+
+const ESTACIONES = [
+  /* ================= CIRUGÍA — Abdomen agudo ================= */
+  {
+    id: 'cir-apendicitis',
+    area: 'cirugia',
+    titulo: 'Dolor abdominal agudo en adulto joven',
+    nivel: 'Internado',
+    minutos: 8,
+    motivo: 'Hombre de 22 años con dolor abdominal de 18 horas.',
+    briefing:
+      'Usted atiende en un servicio de urgencia. Dispone de 8 minutos para realizar anamnesis dirigida, ' +
+      'examen físico, solicitar los exámenes pertinentes, plantear el diagnóstico y definir la conducta inicial. ' +
+      'El paciente está estable pero con dolor.',
+    vineta:
+      'Hombre de 22 años, sano, consulta por dolor abdominal de 18 horas de evolución. ' +
+      'Inicialmente periumbilical, ahora localizado en fosa ilíaca derecha. Se acompaña de náuseas y anorexia.',
+    etapas: [
+      {
+        comp: 'Anamnesis',
+        tipo: 'multi',
+        instruccion: 'Seleccione las preguntas dirigidas que realizaría.',
+        opciones: [
+          { id:'a1', texto:'Caracterizar migración del dolor (periumbilical → FID)', tipo:'clave', puntos:3, critico:true,
+            resp:'"Empezó como un dolor alrededor del ombligo y en las últimas horas se me corrió hacia abajo y a la derecha."',
+            fb:'La migración periumbilical→FID es el dato clásico de mayor valor para apendicitis.' },
+          { id:'a2', texto:'Anorexia, náuseas y vómitos', tipo:'clave', puntos:2,
+            resp:'"No tengo nada de hambre, con náuseas; vomité una vez."',
+            fb:'Anorexia y náuseas apoyan el cuadro apendicular.' },
+          { id:'a3', texto:'Fiebre / calofríos', tipo:'util', puntos:1,
+            resp:'"Me sentí afiebrado, no me he tomado la temperatura."',
+            fb:'La febrícula es frecuente; fiebre alta sugiere complicación.' },
+          { id:'a4', texto:'Síntomas urinarios (disuria, poliaquiuria)', tipo:'util', puntos:1,
+            resp:'"No, no me arde ni orino más seguido."',
+            fb:'Ayuda a descartar ITU/cólico como diagnóstico diferencial.' },
+          { id:'a5', texto:'Preguntar por último episodio de deposiciones y tránsito', tipo:'util', puntos:1,
+            resp:'"Ayer normal, hoy no he ido."',
+            fb:'Relevante para diferencial de dolor abdominal.' },
+          { id:'a6', texto:'Antecedentes quirúrgicos y alergias', tipo:'util', puntos:1,
+            resp:'"Nunca me han operado, no soy alérgico a nada."',
+            fb:'Necesario antes de plantear cirugía.' },
+          { id:'a7', texto:'Preguntar solo por antecedentes familiares de cáncer', tipo:'neutro', puntos:0,
+            resp:'"Mi abuelo tuvo cáncer de próstata."',
+            fb:'Poco relevante para el cuadro agudo actual.' },
+        ],
+      },
+      {
+        comp: 'Examen físico',
+        tipo: 'multi',
+        instruccion: 'Seleccione las maniobras/registros del examen físico.',
+        opciones: [
+          { id:'e1', texto:'Signos vitales completos (incluye temperatura)', tipo:'clave', puntos:2, critico:true,
+            resp:'PA 124/76, FC 96, T° 37,9 °C, FR 16, SatO₂ 98%.',
+            fb:'Los signos vitales orientan gravedad y respuesta inflamatoria.' },
+          { id:'e2', texto:'Palpación abdominal buscando dolor en punto de McBurney', tipo:'clave', puntos:3, critico:true,
+            resp:'Dolor máximo en FID, en punto de McBurney.',
+            fb:'Dolor localizado en McBurney es hallazgo cardinal.' },
+          { id:'e3', texto:'Signos de irritación peritoneal (Blumberg, defensa)', tipo:'clave', puntos:3,
+            resp:'Blumberg (+) en FID, resistencia muscular localizada.',
+            fb:'La irritación peritoneal localizada apoya apendicitis y evalúa complicación.' },
+          { id:'e4', texto:'Signos de Rovsing / psoas / obturador', tipo:'util', puntos:2,
+            resp:'Rovsing (+); psoas (+).',
+            fb:'Signos de apoyo, aumentan la probabilidad diagnóstica.' },
+          { id:'e5', texto:'Auscultación de ruidos hidroaéreos', tipo:'util', puntos:1,
+            resp:'RHA presentes, disminuidos.',
+            fb:'Complementa el examen abdominal.' },
+          { id:'e6', texto:'Realizar tacto rectal en este paciente', tipo:'neutro', puntos:0,
+            resp:'Sin hallazgos relevantes.',
+            fb:'De bajo rendimiento aquí; no es prioritario en la presentación típica.' },
+        ],
+      },
+      {
+        comp: 'Exámenes',
+        tipo: 'multi',
+        instruccion: 'Solicite los exámenes iniciales apropiados.',
+        opciones: [
+          { id:'x1', texto:'Hemograma (leucocitos + PCR)', tipo:'clave', puntos:2,
+            resp:'Leucocitos 14.500 con desviación izquierda; PCR 62.',
+            fb:'La leucocitosis con neutrofilia apoya el proceso inflamatorio.' },
+          { id:'x2', texto:'Sedimento de orina', tipo:'util', puntos:1,
+            resp:'Orina normal.',
+            fb:'Ayuda a descartar causa urológica.' },
+          { id:'x3', texto:'Ecografía abdominal / TC según disponibilidad', tipo:'clave', puntos:2,
+            resp:'Eco: apéndice engrosado (9 mm), no compresible, con líquido periapendicular.',
+            fb:'La imagen confirma en casos dudosos; TC de mayor rendimiento en adultos.' },
+          { id:'x4', texto:'Test de embarazo', tipo:'neutro', puntos:0,
+            resp:'No aplica (paciente hombre).',
+            fb:'Obligatorio en mujeres en edad fértil; aquí no corresponde.' },
+          { id:'x5', texto:'Solicitar colonoscopía de urgencia', tipo:'peligroso', puntos:-2,
+            resp:'No indicada; retrasa el manejo.',
+            fb:'No tiene rol en el abdomen agudo apendicular y retrasa la resolución.' },
+        ],
+      },
+      {
+        comp: 'Diagnóstico',
+        tipo: 'unica',
+        instruccion: 'Plantee el diagnóstico más probable.',
+        opciones: [
+          { id:'d1', texto:'Apendicitis aguda', tipo:'clave', puntos:4,
+            resp:'Correcto: cuadro clínico + laboratorio + imagen compatibles.',
+            fb:'Diagnóstico más probable dada la migración, McBurney (+) y hallazgos.' },
+          { id:'d2', texto:'Gastroenteritis aguda', tipo:'peligroso', puntos:-2,
+            resp:'Poco probable: no explica el dolor localizado con irritación peritoneal.',
+            fb:'Subestima un abdomen quirúrgico; riesgo de perforación.' },
+          { id:'d3', texto:'Cólico renal derecho', tipo:'neutro', puntos:0,
+            resp:'Menos probable con orina normal y McBurney (+).',
+            fb:'Diferencial razonable pero descartado por hallazgos.' },
+          { id:'d4', texto:'Adenitis mesentérica', tipo:'neutro', puntos:0,
+            resp:'Posible diferencial, más frecuente en niños.',
+            fb:'Diferencial válido pero menos probable en este contexto.' },
+        ],
+      },
+      {
+        comp: 'Manejo',
+        tipo: 'multi',
+        instruccion: 'Defina la conducta inicial.',
+        opciones: [
+          { id:'m1', texto:'Régimen cero + hidratación endovenosa', tipo:'clave', puntos:2,
+            resp:'Se indica ayuno e hidratación.', fb:'Preparación estándar prequirúrgica.' },
+          { id:'m2', texto:'Analgesia endovenosa', tipo:'clave', puntos:2,
+            resp:'Se administra analgesia.',
+            fb:'La analgesia NO enmascara el diagnóstico; debe indicarse.' },
+          { id:'m3', texto:'Interconsulta a cirugía para apendicectomía', tipo:'clave', puntos:3, critico:true,
+            resp:'Cirugía evalúa e indica apendicectomía.',
+            fb:'La resolución es quirúrgica; la derivación oportuna es esencial.' },
+          { id:'m4', texto:'Antibióticos endovenosos según protocolo', tipo:'util', puntos:2,
+            resp:'Se inician antibióticos.', fb:'Indicados perioperatoriamente.' },
+          { id:'m5', texto:'Alta con analgésicos orales y control en 48 h', tipo:'peligroso', puntos:-4, critico:true,
+            resp:'Conducta insegura: riesgo de perforación y peritonitis.',
+            fb:'Dar de alta un abdomen quirúrgico es un error grave.' },
+        ],
+      },
+      {
+        comp: 'Comunicación',
+        tipo: 'multi',
+        instruccion: 'Aspectos de comunicación con el paciente.',
+        opciones: [
+          { id:'c1', texto:'Explicar diagnóstico y necesidad de cirugía en lenguaje claro', tipo:'clave', puntos:2,
+            resp:'El paciente comprende.', fb:'Consentimiento informado y comprensión son clave.' },
+          { id:'c2', texto:'Explicar signos de alarma y responder dudas', tipo:'util', puntos:1,
+            resp:'Se aclaran dudas.', fb:'Buena práctica comunicacional.' },
+          { id:'c3', texto:'No informar hasta tener el resultado de cirugía', tipo:'peligroso', puntos:-2,
+            resp:'Genera desconfianza.', fb:'Ocultar información vulnera la autonomía del paciente.' },
+        ],
+      },
+    ],
+    aprobacion: { minPct: 60, requiereDx: true },
+  },
+
+  /* ============= MEDICINA INTERNA — Dolor torácico ============= */
+  {
+    id: 'mi-sca',
+    area: 'medint',
+    titulo: 'Dolor torácico agudo en urgencia',
+    nivel: 'Internado',
+    minutos: 8,
+    motivo: 'Hombre de 58 años con dolor torácico opresivo de 40 minutos.',
+    briefing:
+      'Paciente en box de urgencia. En 8 minutos realice anamnesis y examen dirigidos, solicite exámenes, ' +
+      'plantee el diagnóstico e inicie el manejo. El tiempo es crítico.',
+    vineta:
+      'Hombre de 58 años, hipertenso y fumador, con dolor torácico retroesternal opresivo de 40 minutos, ' +
+      'irradiado a brazo izquierdo, con sudoración. Llega caminando, ansioso.',
+    etapas: [
+      {
+        comp: 'Anamnesis',
+        tipo: 'multi',
+        instruccion: 'Seleccione las preguntas dirigidas prioritarias.',
+        opciones: [
+          { id:'a1', texto:'Caracterizar el dolor (tipo, irradiación, duración, gatillantes)', tipo:'clave', puntos:3, critico:true,
+            resp:'"Es un peso en el pecho, se va al brazo izquierdo, no cede en reposo, ya llevo 40 minutos."',
+            fb:'La caracterización define la probabilidad de origen coronario.' },
+          { id:'a2', texto:'Síntomas asociados (disnea, sudoración, náuseas)', tipo:'clave', puntos:2,
+            resp:'"Estoy sudando frío y con algo de falta de aire."',
+            fb:'Los síntomas neurovegetativos apoyan isquemia.' },
+          { id:'a3', texto:'Factores de riesgo cardiovascular', tipo:'clave', puntos:2,
+            resp:'"Soy hipertenso, fumo 1 cajetilla al día, mi papá tuvo infarto."',
+            fb:'Los FRCV aumentan la probabilidad pre-test.' },
+          { id:'a4', texto:'Antecedentes de sangrado / contraindicaciones a antiagregantes', tipo:'util', puntos:1,
+            resp:'"No, nunca he tenido sangrados."',
+            fb:'Relevante antes de antiagregar/anticoagular.' },
+          { id:'a5', texto:'Uso reciente de sildenafil / drogas', tipo:'util', puntos:1,
+            resp:'"No uso nada de eso."',
+            fb:'Importante antes de indicar nitratos.' },
+          { id:'a6', texto:'Preguntar en detalle por antecedentes de infancia', tipo:'neutro', puntos:0,
+            resp:'Sin relevancia aguda.', fb:'No prioritario en la ventana de tiempo.' },
+        ],
+      },
+      {
+        comp: 'Examen físico',
+        tipo: 'multi',
+        instruccion: 'Seleccione el examen físico dirigido.',
+        opciones: [
+          { id:'e1', texto:'Signos vitales + saturación en ambos brazos', tipo:'clave', puntos:2,
+            resp:'PA 158/94 (similar en ambos brazos), FC 92, SatO₂ 96%, FR 18.',
+            fb:'Diferencia de PA entre brazos orienta a disección aórtica.' },
+          { id:'e2', texto:'Auscultación cardíaca (soplos, R3, frotes)', tipo:'clave', puntos:2,
+            resp:'Ruidos rítmicos, sin soplos ni R3.', fb:'Detecta complicaciones mecánicas/insuficiencia.' },
+          { id:'e3', texto:'Auscultación pulmonar (crépitos)', tipo:'util', puntos:1,
+            resp:'Murmullo pulmonar conservado, sin crépitos.', fb:'Evalúa congestión (Killip).' },
+          { id:'e4', texto:'Signos de TVP / examen de extremidades', tipo:'util', puntos:1,
+            resp:'Sin edema ni signos de TVP.', fb:'Ayuda al diferencial con TEP.' },
+          { id:'e5', texto:'Buscar dolor reproducible a la palpación de la pared torácica', tipo:'util', puntos:1,
+            resp:'El dolor no se reproduce a la palpación.',
+            fb:'La reproducción a la palpación haría menos probable el origen coronario.' },
+        ],
+      },
+      {
+        comp: 'Exámenes',
+        tipo: 'multi',
+        instruccion: 'Solicite los exámenes iniciales.',
+        opciones: [
+          { id:'x1', texto:'ECG de 12 derivaciones en < 10 minutos', tipo:'clave', puntos:4, critico:true,
+            resp:'SDST de 2 mm en DII, DIII y aVF.',
+            fb:'El ECG precoz es la prioridad absoluta: define reperfusión.' },
+          { id:'x2', texto:'Troponinas seriadas', tipo:'clave', puntos:2,
+            resp:'Troponina inicial elevada.', fb:'Marcador de necrosis miocárdica.' },
+          { id:'x3', texto:'Radiografía de tórax', tipo:'util', puntos:1,
+            resp:'Silueta cardíaca normal, sin ensanchamiento mediastínico.',
+            fb:'Apoya el diferencial (disección, neumotórax).' },
+          { id:'x4', texto:'Glicemia, función renal y electrolitos', tipo:'util', puntos:1,
+            resp:'Dentro de rangos.', fb:'Basales útiles para manejo.' },
+          { id:'x5', texto:'Esperar 6 horas para repetir troponina antes de actuar', tipo:'peligroso', puntos:-3, critico:true,
+            resp:'Retrasa la reperfusión de un IAM con SDST.',
+            fb:'En SDST no se espera troponina: se activa reperfusión de inmediato.' },
+        ],
+      },
+      {
+        comp: 'Diagnóstico',
+        tipo: 'unica',
+        instruccion: 'Plantee el diagnóstico.',
+        opciones: [
+          { id:'d1', texto:'IAM con supradesnivel del ST (pared inferior)', tipo:'clave', puntos:4,
+            resp:'Correcto: SDST en cara inferior + clínica + troponina.',
+            fb:'El SDST en DII-DIII-aVF define IAMCEST inferior.' },
+          { id:'d2', texto:'Angina estable', tipo:'peligroso', puntos:-2,
+            resp:'Incorrecto: hay dolor en reposo, prolongado y con SDST.',
+            fb:'Subestima un IAM en curso.' },
+          { id:'d3', texto:'Dolor musculoesquelético', tipo:'peligroso', puntos:-3,
+            resp:'Incorrecto y peligroso.', fb:'Alto riesgo de alta inadecuada.' },
+          { id:'d4', texto:'Pericarditis aguda', tipo:'neutro', puntos:0,
+            resp:'Menos probable: patrón y clínica no concordantes.', fb:'Diferencial a considerar pero descartado.' },
+        ],
+      },
+      {
+        comp: 'Manejo',
+        tipo: 'multi',
+        instruccion: 'Indique el manejo inicial del IAMCEST.',
+        opciones: [
+          { id:'m1', texto:'Aspirina (carga) + segundo antiagregante', tipo:'clave', puntos:2,
+            resp:'Se administra doble antiagregación.', fb:'Pilar del tratamiento del SCA.' },
+          { id:'m2', texto:'Activar reperfusión: angioplastía primaria o trombólisis según acceso/tiempos', tipo:'clave', puntos:4, critico:true,
+            resp:'Se activa la red de reperfusión.',
+            fb:'La reperfusión precoz es la intervención que salva miocardio.' },
+          { id:'m3', texto:'Monitorización continua + oxígeno si SatO₂ < 90%', tipo:'clave', puntos:2,
+            resp:'Se monitoriza; O₂ solo si hipoxemia.',
+            fb:'Oxígeno solo si hay hipoxemia; monitorizar por arritmias.' },
+          { id:'m4', texto:'Analgesia y manejo del dolor', tipo:'util', puntos:1,
+            resp:'Se controla el dolor.', fb:'Reduce el tono simpático.' },
+          { id:'m5', texto:'Nitroglicerina sin verificar PA ni uso de sildenafil', tipo:'peligroso', puntos:-2,
+            resp:'Riesgo de hipotensión grave.',
+            fb:'Contraindicada en hipotensión, IAM de VD o uso de inhibidores PDE5.' },
+        ],
+      },
+      {
+        comp: 'Comunicación',
+        tipo: 'multi',
+        instruccion: 'Comunicación y seguridad del paciente.',
+        opciones: [
+          { id:'c1', texto:'Informar el diagnóstico y la urgencia del tratamiento', tipo:'clave', puntos:2,
+            resp:'El paciente/familia comprenden.', fb:'Transparencia y consentimiento.' },
+          { id:'c2', texto:'Explicar riesgos del procedimiento de reperfusión', tipo:'util', puntos:1,
+            resp:'Se explican riesgos y beneficios.', fb:'Parte del consentimiento informado.' },
+        ],
+      },
+    ],
+    aprobacion: { minPct: 60, requiereDx: true },
+  },
+
+  /* ============= PEDIATRÍA — Dificultad respiratoria ============= */
+  {
+    id: 'ped-sbo',
+    area: 'pediatria',
+    titulo: 'Lactante con dificultad respiratoria',
+    nivel: 'Internado',
+    minutos: 8,
+    motivo: 'Lactante de 8 meses con tos y dificultad respiratoria.',
+    briefing:
+      'Consulta en urgencia pediátrica acompañado de su madre. En 8 minutos realice anamnesis, examen, ' +
+      'evalúe gravedad, plantee diagnóstico y defina manejo y educación.',
+    vineta:
+      'Lactante de 8 meses, previamente sano, con 3 días de coriza y tos, hoy con dificultad respiratoria ' +
+      'y sibilancias. Rechazo parcial de la alimentación. Sin fiebre alta.',
+    etapas: [
+      {
+        comp: 'Anamnesis',
+        tipo: 'multi',
+        instruccion: 'Seleccione las preguntas dirigidas a la madre.',
+        opciones: [
+          { id:'a1', texto:'Tiempo de evolución y progresión de los síntomas', tipo:'clave', puntos:2,
+            resp:'"Lleva 3 días resfriado y hoy empezó a respirar más rápido."',
+            fb:'Define la fase evolutiva (típico de bronquiolitis).' },
+          { id:'a2', texto:'Tolerancia oral, diuresis y signos de deshidratación', tipo:'clave', puntos:3, critico:true,
+            resp:'"Come menos de la mitad, ha mojado menos pañales hoy."',
+            fb:'La tolerancia oral y la hidratación son claves para decidir hospitalización.' },
+          { id:'a3', texto:'Signos de alarma respiratorios (apneas, cianosis, quejido)', tipo:'clave', puntos:3, critico:true,
+            resp:'"A veces se pone moradito de los labios y hace un quejido."',
+            fb:'Apneas/cianosis indican gravedad y necesidad de manejo inmediato.' },
+          { id:'a4', texto:'Antecedentes: prematuridad, cardiopatía, vacunas', tipo:'util', puntos:2,
+            resp:'"Nació de término, vacunas al día, sin enfermedades."',
+            fb:'Los factores de riesgo modifican la gravedad esperada.' },
+          { id:'a5', texto:'Contactos enfermos / asistencia a sala cuna', tipo:'util', puntos:1,
+            resp:'"El hermano mayor anda resfriado."', fb:'Contexto epidemiológico viral.' },
+          { id:'a6', texto:'Preguntar por antecedentes laborales de la madre', tipo:'neutro', puntos:0,
+            resp:'Sin relevancia.', fb:'No prioritario para el cuadro agudo.' },
+        ],
+      },
+      {
+        comp: 'Examen físico',
+        tipo: 'multi',
+        instruccion: 'Seleccione el examen físico y evaluación de gravedad.',
+        opciones: [
+          { id:'e1', texto:'Signos vitales + saturación de O₂', tipo:'clave', puntos:3, critico:true,
+            resp:'FR 62, FC 148, T° 37,6 °C, SatO₂ 89% ambiental.',
+            fb:'La saturación y la FR son determinantes de la gravedad.' },
+          { id:'e2', texto:'Evaluar retracciones y uso de musculatura accesoria', tipo:'clave', puntos:2,
+            resp:'Retracción subcostal e intercostal, aleteo nasal.',
+            fb:'El trabajo respiratorio gradúa la severidad (score).' },
+          { id:'e3', texto:'Auscultación pulmonar', tipo:'clave', puntos:2,
+            resp:'Sibilancias difusas y crépitos bilaterales, espiración prolongada.',
+            fb:'Patrón compatible con bronquiolitis.' },
+          { id:'e4', texto:'Evaluar estado de hidratación y conciencia', tipo:'util', puntos:1,
+            resp:'Mucosas algo secas, activo, consolable.', fb:'Complementa la evaluación de gravedad.' },
+          { id:'e5', texto:'Otoscopía y examen de fauces', tipo:'util', puntos:1,
+            resp:'Sin otitis, faringe congestiva.', fb:'Descarta foco asociado.' },
+        ],
+      },
+      {
+        comp: 'Exámenes',
+        tipo: 'multi',
+        instruccion: 'Seleccione una conducta apropiada respecto a exámenes.',
+        opciones: [
+          { id:'x1', texto:'Diagnóstico principalmente clínico; no solicitar exámenes de rutina', tipo:'clave', puntos:3, critico:true,
+            resp:'La bronquiolitis es un diagnóstico clínico.',
+            fb:'No se recomiendan exámenes de rutina en bronquiolitis típica.' },
+          { id:'x2', texto:'Panel viral solo si cambia la conducta/aislamiento', tipo:'util', puntos:1,
+            resp:'Puede solicitarse para cohorte de aislamiento.',
+            fb:'Uso selectivo, no universal.' },
+          { id:'x3', texto:'Radiografía de tórax de rutina', tipo:'peligroso', puntos:-2,
+            resp:'No indicada de rutina.',
+            fb:'Aumenta radiación y uso innecesario de antibióticos.' },
+          { id:'x4', texto:'Solicitar hemograma y PCR de rutina', tipo:'neutro', puntos:0,
+            resp:'Bajo rendimiento en cuadro típico.', fb:'No aporta en bronquiolitis no complicada.' },
+        ],
+      },
+      {
+        comp: 'Diagnóstico',
+        tipo: 'unica',
+        instruccion: 'Plantee el diagnóstico más probable.',
+        opciones: [
+          { id:'d1', texto:'Bronquiolitis aguda (con hipoxemia)', tipo:'clave', puntos:4,
+            resp:'Correcto: lactante < 1 año, pródromo viral, sibilancias/crépitos e hipoxemia.',
+            fb:'Cuadro típico de bronquiolitis con criterio de gravedad (SatO₂ 89%).' },
+          { id:'d2', texto:'Neumonía bacteriana', tipo:'neutro', puntos:0,
+            resp:'Menos probable sin fiebre alta ni foco radiológico.', fb:'Diferencial a considerar.' },
+          { id:'d3', texto:'Crisis asmática', tipo:'neutro', puntos:0,
+            resp:'Poco probable a esta edad y primer episodio.', fb:'Diferencial menos probable en lactante.' },
+          { id:'d4', texto:'Cuerpo extraño en vía aérea', tipo:'neutro', puntos:0,
+            resp:'Sin antecedente de atoro ni inicio súbito.', fb:'Considerar si inicio brusco.' },
+        ],
+      },
+      {
+        comp: 'Manejo',
+        tipo: 'multi',
+        instruccion: 'Defina el manejo inicial.',
+        opciones: [
+          { id:'m1', texto:'Oxígeno suplementario para SatO₂ ≥ 92%', tipo:'clave', puntos:3, critico:true,
+            resp:'Se administra O₂; mejora la saturación.',
+            fb:'La corrección de la hipoxemia es la prioridad.' },
+          { id:'m2', texto:'Hospitalizar por hipoxemia y baja tolerancia oral', tipo:'clave', puntos:3, critico:true,
+            resp:'Se decide hospitalización.',
+            fb:'SatO₂ < 92% y mala tolerancia oral son criterios de ingreso.' },
+          { id:'m3', texto:'Aseo nasal y manejo de soporte (hidratación, alimentación fraccionada)', tipo:'clave', puntos:2,
+            resp:'Se indican medidas de soporte.', fb:'El manejo es fundamentalmente de soporte.' },
+          { id:'m4', texto:'Antibióticos de rutina', tipo:'peligroso', puntos:-2,
+            resp:'No indicados en bronquiolitis viral.',
+            fb:'Sin foco bacteriano no corresponden.' },
+          { id:'m5', texto:'Enviar a casa con SatO₂ 89% y control en 48 h', tipo:'peligroso', puntos:-4, critico:true,
+            resp:'Conducta insegura: hipoxemia no corregida.',
+            fb:'Dar de alta a un lactante hipoxémico es un error grave.' },
+        ],
+      },
+      {
+        comp: 'Comunicación',
+        tipo: 'multi',
+        instruccion: 'Educación y comunicación con la madre.',
+        opciones: [
+          { id:'c1', texto:'Explicar diagnóstico, evolución esperada y motivo de hospitalización', tipo:'clave', puntos:2,
+            resp:'La madre comprende.', fb:'Reduce ansiedad y mejora adherencia.' },
+          { id:'c2', texto:'Enseñar signos de alarma para reconsultar', tipo:'clave', puntos:2,
+            resp:'Se enseñan signos de alarma.', fb:'Seguridad al alta / durante hospitalización.' },
+          { id:'c3', texto:'Indicar que es culpa de la madre por no abrigarlo', tipo:'peligroso', puntos:-3,
+            resp:'Comentario culpabilizador e incorrecto.',
+            fb:'Falta a la empatía y a la evidencia; daña la relación.' },
+        ],
+      },
+    ],
+    aprobacion: { minPct: 60, requiereDx: true },
+  },
+
+  /* ============= GINECO-OBSTETRICIA — SHE / Preeclampsia ============= */
+  {
+    id: 'gin-preeclampsia',
+    area: 'gineco',
+    titulo: 'Embarazada con cefalea e hipertensión',
+    nivel: 'Internado',
+    minutos: 8,
+    motivo: 'Embarazada de 34 semanas con cefalea y presión elevada.',
+    briefing:
+      'Atiende en urgencia maternal. En 8 minutos realice anamnesis, examen dirigido, solicite exámenes, ' +
+      'plantee el diagnóstico y defina la conducta inicial.',
+    vineta:
+      'Mujer de 29 años, primigesta de 34 semanas, consulta por cefalea intensa y "ver lucecitas" desde ' +
+      'hace horas. En control se pesquisa PA elevada. Refiere hinchazón de manos y cara.',
+    etapas: [
+      {
+        comp: 'Anamnesis',
+        tipo: 'multi',
+        instruccion: 'Seleccione las preguntas dirigidas.',
+        opciones: [
+          { id:'a1', texto:'Síntomas de gravedad: cefalea, fotopsias, tinnitus, epigastralgia', tipo:'clave', puntos:3, critico:true,
+            resp:'"Me duele mucho la cabeza, veo lucecitas y me duele la boca del estómago."',
+            fb:'Los síntomas de crisis hipertensiva/premonitorios definen severidad.' },
+          { id:'a2', texto:'Percepción de movimientos fetales', tipo:'clave', puntos:2,
+            resp:'"Siento que se mueve, pero menos que ayer."',
+            fb:'Evalúa el bienestar fetal.' },
+          { id:'a3', texto:'Edad gestacional confiable y controles previos', tipo:'clave', puntos:2,
+            resp:'"34 semanas por eco precoz; presión siempre normal antes."',
+            fb:'La EG determina las decisiones obstétricas.' },
+          { id:'a4', texto:'Pérdida de líquido, sangrado o dinámica uterina', tipo:'util', puntos:2,
+            resp:'"No he perdido líquido ni sangre, no tengo contracciones."',
+            fb:'Descarta RPM, DPPNI y trabajo de parto.' },
+          { id:'a5', texto:'Antecedentes: HTA crónica, preeclampsia previa, diabetes', tipo:'util', puntos:1,
+            resp:'"Primer embarazo, sin enfermedades conocidas."',
+            fb:'Factores de riesgo de SHE.' },
+          { id:'a6', texto:'Preguntar solo por la dieta de los últimos días', tipo:'neutro', puntos:0,
+            resp:'Sin relevancia inmediata.', fb:'No prioritario ante sospecha de preeclampsia severa.' },
+        ],
+      },
+      {
+        comp: 'Examen físico',
+        tipo: 'multi',
+        instruccion: 'Seleccione el examen dirigido.',
+        opciones: [
+          { id:'e1', texto:'Medición correcta de presión arterial (repetida)', tipo:'clave', puntos:3, critico:true,
+            resp:'PA 168/112 mmHg confirmada en dos tomas.',
+            fb:'La PA ≥ 160/110 confirma rango severo.' },
+          { id:'e2', texto:'Reflejos osteotendíneos y búsqueda de clonus', tipo:'clave', puntos:2,
+            resp:'ROT exaltados, clonus presente.',
+            fb:'La hiperreflexia/clonus advierte riesgo de eclampsia.' },
+          { id:'e3', texto:'Evaluación de edema y examen pulmonar', tipo:'util', puntos:1,
+            resp:'Edema de manos y cara; pulmones sin crépitos.',
+            fb:'Evalúa compromiso y edema pulmonar.' },
+          { id:'e4', texto:'Altura uterina y latidos cardíacos fetales', tipo:'clave', puntos:2,
+            resp:'AU acorde a 34 sem; LCF 148 lpm.',
+            fb:'Evaluación básica del bienestar fetal.' },
+          { id:'e5', texto:'Tacto vaginal de rutina inmediato', tipo:'neutro', puntos:0,
+            resp:'Sin indicación en este momento.', fb:'No prioritario sin sospecha de trabajo de parto/RPM.' },
+        ],
+      },
+      {
+        comp: 'Exámenes',
+        tipo: 'multi',
+        instruccion: 'Solicite los exámenes pertinentes.',
+        opciones: [
+          { id:'x1', texto:'Proteinuria (relación proteína/creatinina o cualitativa)', tipo:'clave', puntos:2,
+            resp:'Proteinuria (+++).', fb:'Apoya el diagnóstico de preeclampsia.' },
+          { id:'x2', texto:'Laboratorio: hemograma, plaquetas, pruebas hepáticas, creatinina, LDH', tipo:'clave', puntos:3, critico:true,
+            resp:'Plaquetas 95.000, transaminasas elevadas, LDH alta.',
+            fb:'Buscan compromiso severo / HELLP.' },
+          { id:'x3', texto:'Monitorización fetal (RBNE) / ecografía', tipo:'clave', puntos:2,
+            resp:'RBNE reactivo por ahora.', fb:'Evalúa bienestar fetal.' },
+          { id:'x4', texto:'Solicitar solo un examen de orina completo y esperar', tipo:'peligroso', puntos:-2,
+            resp:'Insuficiente ante sospecha de severidad.',
+            fb:'Subestima el cuadro; se requiere laboratorio completo urgente.' },
+        ],
+      },
+      {
+        comp: 'Diagnóstico',
+        tipo: 'unica',
+        instruccion: 'Plantee el diagnóstico.',
+        opciones: [
+          { id:'d1', texto:'Preeclampsia con criterios de severidad', tipo:'clave', puntos:4,
+            resp:'Correcto: PA ≥160/110, síntomas premonitorios y alteración de laboratorio.',
+            fb:'Cumple criterios de severidad (incluye sospecha de HELLP).' },
+          { id:'d2', texto:'Cefalea tensional', tipo:'peligroso', puntos:-3,
+            resp:'Incorrecto y peligroso.', fb:'Ignora una emergencia obstétrica.' },
+          { id:'d3', texto:'Hipertensión gestacional sin severidad', tipo:'peligroso', puntos:-2,
+            resp:'Incorrecto: hay criterios de severidad.', fb:'Subestima la gravedad.' },
+          { id:'d4', texto:'Migraña del embarazo', tipo:'neutro', puntos:0,
+            resp:'Poco probable con PA 168/112 y proteinuria.', fb:'Diferencial descartado por hallazgos.' },
+        ],
+      },
+      {
+        comp: 'Manejo',
+        tipo: 'multi',
+        instruccion: 'Defina la conducta inicial.',
+        opciones: [
+          { id:'m1', texto:'Sulfato de magnesio para prevención de eclampsia', tipo:'clave', puntos:3, critico:true,
+            resp:'Se inicia sulfato de magnesio.',
+            fb:'Profilaxis/tratamiento de convulsiones en preeclampsia severa.' },
+          { id:'m2', texto:'Antihipertensivos para PA severa (labetalol/hidralazina/nifedipino)', tipo:'clave', puntos:3, critico:true,
+            resp:'Se maneja la crisis hipertensiva.',
+            fb:'Bajar PA severa reduce riesgo de ACV materno.' },
+          { id:'m3', texto:'Hospitalizar y evaluar interrupción del embarazo según condición', tipo:'clave', puntos:3, critico:true,
+            resp:'Ingreso a unidad de alto riesgo; equipo define interrupción.',
+            fb:'El tratamiento definitivo es la interrupción; se coordina con obstetricia/neonatología.' },
+          { id:'m4', texto:'Corticoides para maduración pulmonar fetal (34 sem)', tipo:'util', puntos:2,
+            resp:'Se administran corticoides según protocolo.',
+            fb:'Considerar por prematurez según edad gestacional.' },
+          { id:'m5', texto:'Enviar a casa con reposo y control ambulatorio', tipo:'peligroso', puntos:-4, critico:true,
+            resp:'Conducta insegura ante preeclampsia severa.',
+            fb:'Manejo ambulatorio de preeclampsia severa pone en riesgo la vida.' },
+        ],
+      },
+      {
+        comp: 'Comunicación',
+        tipo: 'multi',
+        instruccion: 'Comunicación con la paciente.',
+        opciones: [
+          { id:'c1', texto:'Explicar el diagnóstico, la gravedad y el plan (incluida posible interrupción)', tipo:'clave', puntos:2,
+            resp:'La paciente comprende.', fb:'Consentimiento informado y contención.' },
+          { id:'c2', texto:'Explicar signos de alarma y responder dudas', tipo:'util', puntos:1,
+            resp:'Se aclaran dudas.', fb:'Buena práctica comunicacional.' },
+        ],
+      },
+    ],
+    aprobacion: { minPct: 60, requiereDx: true },
+  },
+];
