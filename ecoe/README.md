@@ -73,8 +73,36 @@ Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
 
 | Archivo | Rol |
 |---|---|
-| `index.html` | App completa (UI + motor de estaciones). Vanilla JS + Tailwind + Chart.js por CDN. |
-| `data.js` | Banco de estaciones. **Aquí se agrega/edita el contenido clínico.** |
+| `index.html` | App completa (UI + motor + circuito + edición). Vanilla JS + Tailwind + Chart.js por CDN. |
+| `data/00-core.js` | Configuración: áreas, competencias (SEGURA), helpers de etapas, catálogo `FUENTES`, `ESTACIONES = []`. |
+| `data/medint.js` | Estaciones de Medicina Interna. |
+| `data/pediatria.js` | Estaciones de Pediatría. |
+| `data/gineco.js` | Estaciones de Obstetricia y Ginecología. |
+| `data/cirugia.js` | Estaciones de Cirugía y Urología. |
+| `data/transversal.js` | Estaciones transversales (comunicación y consejería). |
+
+Cada archivo de área registra sus estaciones con `ESTACIONES.push(...)`. Para
+añadir un área nueva, crea el archivo y súmalo a los `<script>` de `index.html`.
+
+## Fuentes y trazabilidad
+
+Cada estación declara `fuentes: ['clave', ...]` con claves del catálogo `FUENTES`
+(`data/00-core.js`): guías GES/MINSAL, manual de Obstetricia y Ginecología UC,
+ATLS, AHA, Perfil de Conocimientos EUNACOM. Se muestran en el briefing.
+
+Son **referencias contra las que contrastar** el contenido, no textos que la
+estación reproduzca. Sirven para que quien estudie —o quien valide— pueda
+verificar cada criterio en la guía vigente en lugar de confiar en el material.
+
+Por diseño, las pautas evalúan **decisiones clínicas** (qué priorizar, qué examen
+primero, cuándo derivar, qué es peligroso) y **no incluyen dosis de fármacos**:
+la posología es donde un error es más dañino y más difícil de mantener vigente.
+
+## Reporte de dudas
+
+Cada estación tiene un botón **🚩 Reportar duda**: registra la observación en el
+navegador y permite exportar todas las dudas a un `.txt` desde el inicio, para
+revisarlas y corregir el contenido.
 
 ## Cómo agregar una estación
 
