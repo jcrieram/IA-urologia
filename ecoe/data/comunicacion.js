@@ -1,9 +1,11 @@
-/* ECOE — Estaciones · Transversales
+/* ECOE — Estaciones de comunicación y consejería
+   Agrupadas por TIPO de estación, no por área: cada una declara su área
+   (Medicina Interna o Cirugía) entre las 4 áreas del EUNACOM.
    Ver data/00-core.js para el modelo de datos y el estado de validación. */
 ESTACIONES.push(
-  /* ========== 10 · TRANSVERSAL — Comunicación de diagnóstico grave ========== */
+  /* ========== MEDICINA INTERNA — Comunicación de un diagnóstico grave ========== */
   {
-    id:'tx-malas-noticias', area:'transversal', titulo:'Comunicación de un diagnóstico grave', nivel:'Médico general', minutos:8,
+    id:'mi-malas-noticias', area:'medint', titulo:'Comunicación de un diagnóstico grave', nivel:'Médico general', minutos:8,
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Entregar información de una probable enfermedad grave.',
     puerta:'Explique a un paciente que los resultados sugieren una enfermedad grave y que requiere estudio especializado.',
@@ -33,9 +35,9 @@ ESTACIONES.push(
     aprobacion:{ minPct:65, requiereDx:false },
   },
 
-  /* ========== TRANSVERSAL — Paciente enojado / reclamo ========== */
+  /* ========== CIRUGÍA — Paciente enojado / reclamo en urgencia ========== */
   {
-    id:'tx-paciente-enojado', area:'transversal', titulo:'Paciente enojado o reclamo por la atención', nivel:'Médico general', minutos:8,
+    id:'cir-paciente-enojado', area:'cirugia', titulo:'Paciente enojado o reclamo por la atención', nivel:'Médico general', minutos:8,
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Paciente molesto por una espera prolongada y por sentirse mal atendido.',
     puerta:'Un paciente reclama airadamente por la demora y por la atención recibida. Maneje la situación.',
@@ -75,9 +77,9 @@ ESTACIONES.push(
     aprobacion:{ minPct:65, requiereDx:false },
   },
 
-  /* ========== TRANSVERSAL — Rechazo de tratamiento ========== */
+  /* ========== MEDICINA INTERNA — Rechazo de tratamiento ========== */
   {
-    id:'tx-rechazo-tratamiento', area:'transversal', titulo:'Paciente que rechaza el tratamiento indicado', nivel:'Médico general', minutos:8,
+    id:'mi-rechazo-tratamiento', area:'medint', titulo:'Paciente que rechaza el tratamiento indicado', nivel:'Médico general', minutos:8,
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Paciente que se niega a una indicación necesaria y quiere retirarse.',
     puerta:'Un paciente rechaza la hospitalización que usted indica y solicita irse de alta. Maneje la situación.',
@@ -119,9 +121,9 @@ ESTACIONES.push(
     aprobacion:{ minPct:65, requiereDx:false },
   },
 
-  /* ========== TRANSVERSAL — Consejería breve: cese de tabaquismo ========== */
+  /* ========== MEDICINA INTERNA — Consejería breve: cese de tabaquismo ========== */
   {
-    id:'tx-consejeria-tabaco', area:'transversal', titulo:'Consejería breve de cese de tabaquismo', nivel:'Médico general', minutos:8,
+    id:'mi-consejeria-tabaco', area:'medint', titulo:'Consejería breve de cese de tabaquismo', nivel:'Médico general', minutos:8,
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Paciente fumador en control, sin intención clara de dejar de fumar.',
     puerta:'Realice una consejería breve de cese de tabaquismo a un paciente fumador que consulta por otro motivo.',

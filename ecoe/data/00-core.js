@@ -45,7 +45,6 @@ const AREAS = {
   pediatria: { nombre:'Pediatría',                  color:'#22c55e', icono:'🧒', semana:2 },
   gineco:    { nombre:'Obstetricia y Ginecología',  color:'#ec4899', icono:'🤰', semana:3 },
   cirugia:   { nombre:'Cirugía',                    color:'#ef4444', icono:'🔪', semana:4 },
-  transversal:{nombre:'Transversal',                color:'#8b5cf6', icono:'💬', semana:4 },
 };
 
 // Orden de competencias = algoritmo SEGURA (rige el orden de las etapas)
