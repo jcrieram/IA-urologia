@@ -9,10 +9,21 @@ Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritm
 **SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
 con sus criterios mínimos.
 
-> ⚠️ **Contenido borrador.** Casos y pautas son material **original** de práctica,
-> generados como punto de partida y **pendientes de validación médica**. No son
-> casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no reemplaza
-> el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
+> **Estado de validación.** Casos y pautas son material **original** de práctica.
+> Las estaciones marcadas **✓ Validado** en la app fueron revisadas y aprobadas por
+> el Dr. Juan Carlos Riera; el resto sigue en **borrador** pendiente de validación
+> médica. No son casos oficiales ni bancos filtrados de la UC. Herramienta
+> educativa; no reemplaza el juicio clínico ni las guías vigentes
+> (MINSAL/GES/UC/EUNACOM).
+>
+> | Área | Estado |
+> |---|---|
+> | Medicina Interna | ✓ Validada (2026-08-02) |
+> | Pediatría | En revisión |
+> | Obstetricia y Ginecología | Borrador |
+> | Cirugía / Transversal | Borrador |
+>
+> En el código, una estación validada lleva el campo `validado:'AAAA-MM-DD'`.
 
 ## Qué hace (v2)
 
