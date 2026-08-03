@@ -75,6 +75,15 @@ ESTACIONES.push(
         { id:'s2', texto:'Equipo de protección personal y seguridad de la escena', tipo:'util', puntos:1, resp:'Se coloca EPP.', fb:'Autoprotección del equipo.' },
         { id:'s3', texto:'Iniciar anamnesis detallada antes de evaluar el ABCDE', tipo:'peligroso', puntos:-2, resp:'Retrasa la estabilización.', fb:'Primero ABCDE; la historia (AMPLIA) va después.' },
       ]},
+      { comp:'Examen físico', tipo:'secuencia', puntos:10, criticos:['A','B'],
+        instruccion:'Ordene la secuencia de evaluación del paciente politraumatizado.',
+        pasos:[
+          { id:'A', texto:'A — Vía aérea permeable con control de la columna cervical', fb:'Primero siempre: sin vía aérea nada de lo demás sirve, y el cuello se protege desde el inicio.' },
+          { id:'B', texto:'B — Ventilación y oxigenación; descartar neumotórax a tensión', fb:'Una vez permeable la vía aérea, asegurar que el paciente ventile.' },
+          { id:'C', texto:'C — Circulación: controlar hemorragias y reponer volumen', fb:'El shock hemorrágico se trata deteniendo el sangrado, no solo aportando volumen.' },
+          { id:'D', texto:'D — Déficit neurológico: Glasgow, pupilas y glicemia', fb:'Se evalúa después de estabilizar lo que mata antes.' },
+          { id:'E', texto:'E — Exposición completa evitando la hipotermia', fb:'Buscar lesiones ocultas sin enfriar al paciente.' },
+        ] },
       { comp:'Examen físico', tipo:'multi', instruccion:'A — Vía aérea con control cervical.', opciones:[
         { id:'a1', texto:'Evaluar/permeabilizar vía aérea con inmovilización cervical', tipo:'clave', puntos:3, critico:true, resp:'Vía aérea permeable; collar cervical.', fb:'A siempre con protección de la columna cervical.' },
         { id:'a2', texto:'Aspirar secreciones / retirar cuerpos extraños si obstruyen', tipo:'util', puntos:1, resp:'Se despeja la vía aérea.', fb:'Asegura la permeabilidad.' },

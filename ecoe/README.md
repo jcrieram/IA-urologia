@@ -69,6 +69,10 @@ con sus criterios mínimos.
   vitales se **deterioran con el tiempo** si no se ejecutan las medidas
   estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en
   rojo. Declarado por estación en el campo `monitor`.
+- **🔢 Etapas de secuencia**: donde el orden importa (ABCDE del politrauma), se
+  ordenan los pasos tocándolos en la secuencia en que se ejecutarían. Se evalúa
+  la posición, no solo el conjunto: un desorden menor cuesta puntos, pero
+  invertir una prioridad vital (circulación antes que vía aérea) **reprueba**.
 - **📈 Material de interpretación** en la etapa de diagnóstico: trazados de ECG
   dibujados por código (SVG original, sin material de terceros) y paneles de
   laboratorio. Obligan a **interpretar** para llegar al diagnóstico, que es una
@@ -77,6 +81,23 @@ con sus criterios mínimos.
   reconocer el patrón (ST, ritmo, ondas P), no sustituyen el entrenamiento con
   trazados reales de 12 derivaciones.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
+
+### Etapa de secuencia
+
+```js
+{ comp:'Examen físico', tipo:'secuencia', puntos:10,
+  criticos:['A','B'],                    // su posición exacta es crítica
+  instruccion:'Ordene la secuencia…',
+  pasos:[                                // el orden declarado ES el correcto
+    { id:'A', texto:'A — Vía aérea con control cervical', fb:'Por qué va primero.' },
+    { id:'B', texto:'B — Ventilación y oxigenación',      fb:'…' },
+  ] }
+```
+
+El puntaje es proporcional a los pasos ubicados en su posición correcta. Los
+`pasos` cuyo id figure en `criticos` reprueban la estación si quedan fuera de su
+posición: en el ABCDE, hacer circulación antes que vía aérea no es un desorden
+menor, es el error que mata.
 
 ### Campo `monitor` (estaciones de urgencia)
 

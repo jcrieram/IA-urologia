@@ -106,7 +106,7 @@
     let etapas = base.etapas.map((et,i)=>{
       const eid = baseId+'::'+i;
       const extra = (c.opciones[eid]||[]).map((o,k)=>({...o, id:'cu'+i+'_'+k, _custom:true}));
-      return {...et, eid, opciones:[...et.opciones, ...extra]};
+      return {...et, eid, opciones:[...(et.opciones||[]), ...extra]};
     });
     // Las etapas del alumno se insertan en su lugar lógico SIN reordenar las
     // originales: algunas estaciones (comunicación, procedimiento) tienen un
@@ -265,7 +265,7 @@
   // ============================ Motor de estación ============================
   function iniciar(id){
     const e = buildEstacion(id);
-    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{}, region:null,
+    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{}, region:null, orden:{},
                tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null,
                mon: e.monitor? { paso:-1, estabilizado:false, vitales:Object.assign({},e.monitor.vitales), aviso:'' } : null };
     sesion.timer = setInterval(()=>{
@@ -474,6 +474,47 @@
       const ta=document.getElementById('recuerdoTxt'); if(ta) ta.focus();
       return;
     }
+    // --- Etapa de secuencia: el orden es lo que se evalúa ---
+    if(etapa.tipo==='secuencia'){
+      const ord = sesion.orden[idx]||[];
+      const pendientes = etapa.pasos.filter(p=>!ord.includes(p.id));
+      const correcto = etapa.pasos.map(p=>p.id);
+      const puestos = ord.map((id,i)=>{
+        const paso=etapa.pasos.find(p=>p.id===id);
+        const ok = revelado ? correcto[i]===id : null;
+        const col = ok===null?'border-sky-300 bg-sky-50':ok?'border-emerald-400 bg-emerald-50':'border-red-300 bg-red-50';
+        return `<div class="border-2 ${col} rounded-xl p-2.5 flex items-start gap-2">
+          <span class="font-mono font-bold ${ok===false?'text-red-600':'text-sky-700'} w-5 text-center">${i+1}</span>
+          <span class="flex-1 text-sm">${esc(paso.texto)}
+            ${revelado&&paso.fb?`<span class="block text-xs text-slate-500 mt-0.5">${esc(paso.fb)}</span>`:''}</span>
+          ${revelado?'':`<button onclick="quitarPaso(${idx},'${paso.id}')" class="text-slate-400 text-xs">✕</button>`}
+        </div>`;
+      }).join('');
+      const disponibles = pendientes.map(p=>`<button onclick="ponerPaso(${idx},'${p.id}')" class="w-full text-left border-2 border-slate-200 bg-white rounded-xl p-2.5 text-sm opt">${esc(p.texto)}</button>`).join('');
+      const listo = ord.length===etapa.pasos.length;
+      const esUlt = idx===e.etapas.length-1;
+      app.innerHTML=`<div class="fade">
+        ${circuito?`<div class="text-xs text-sky-600 font-semibold mb-2">🔁 Circuito · estación ${circuito.idx+1}/${circuito.cola.length}</div>`:''}
+        <div class="flex items-center justify-between mb-3">${badge(e.area)}
+          <div id="timerBox" class="font-mono font-bold text-lg text-slate-700 flex items-center gap-1">⏱ <span id="timer">${fmt(Math.max(0,sesion.tRestante))}</span></div></div>
+        <div id="faseHint" class="text-[11px] text-slate-400 text-right mb-2">⌛ Fase sugerida: ${faseSugerida(sesion.tInicial,sesion.tRestante)}</div>
+        <div class="flex gap-1 mb-4">${progreso}</div>
+        ${sesion.mon?`<div id="monitorBox" class="mb-3">${monitorHTML()}</div>`:''}
+        <div class="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm">
+          <div class="text-xs font-bold uppercase tracking-wide text-sky-600">${etapa.comp} · secuencia · etapa ${idx+1}/${e.etapas.length}</div>
+          <h2 class="text-lg font-bold mt-1 mb-1">${esc(etapa.instruccion)}</h2>
+          <p class="text-xs text-slate-400 mb-3">Aquí no basta con saber los pasos: <b>el orden es lo que se evalúa</b>. Tócalos en la secuencia en que los ejecutarías.</p>
+          ${ord.length?`<div class="space-y-2 mb-3">${puestos}</div>`:'<p class="text-xs text-slate-300 italic mb-3">Aún no has ordenado ningún paso.</p>'}
+          ${!revelado&&pendientes.length?`<div class="text-[11px] font-bold uppercase text-slate-400 mb-1">Pasos disponibles</div><div class="space-y-2">${disponibles}</div>`:''}
+          <div class="mt-5">${revelado
+            ? `<button onclick="${esUlt?'irAOral()':'siguienteEtapa()'}" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl">${esUlt?'Continuar ▶':'Siguiente etapa →'}</button>`
+            : `<button onclick="confirmarEtapa()" ${listo?'':'disabled'} class="w-full ${listo?'bg-sky-600 hover:bg-sky-700':'bg-slate-300 cursor-not-allowed'} text-white font-bold py-3 rounded-xl">${listo?'Confirmar secuencia':`Faltan ${etapa.pasos.length-ord.length} paso(s)`}</button>`}</div>
+        </div>
+        <button onclick="if(confirm('¿Abandonar? No se guardará.')){circuito=null;renderHome();}" class="mt-4 text-xs text-slate-400 hover:text-red-500 underline">Abandonar</button>
+      </div>`;
+      return;
+    }
+
     // --- Mapa corporal: solo en examen físico, antes de revelar la pauta ---
     const usaMapa = etapa.comp==='Examen físico' && cfg.load().mapaCorporal!==false && !revelado && etapa.opciones.length;
     let mapaHTML='';
@@ -544,6 +585,9 @@
     </div>`;
   }
 
+  function ponerPaso(idx,id){ const o=sesion.orden[idx]||[]; if(!o.includes(id)) o.push(id); sesion.orden[idx]=o; renderEtapa(); }
+  function quitarPaso(idx,id){ sesion.orden[idx]=(sesion.orden[idx]||[]).filter(x=>x!==id); renderEtapa(); }
+
   function toggle(optId){
     const idx=sesion.etapaIdx, etapa=sesion.estacion.etapas[idx];
     let sel=sesion.seleccion[idx]||[];
@@ -552,6 +596,7 @@
   }
   function confirmarEtapa(){
     const idx=sesion.etapaIdx, etapa=sesion.estacion.etapas[idx];
+    if(etapa.tipo==='secuencia' && (sesion.orden[idx]||[]).length!==etapa.pasos.length){ alert('Ordena todos los pasos antes de confirmar.'); return; }
     if(etapa.tipo==='unica' && !(sesion.seleccion[idx]||[]).length){ alert('Selecciona una opción.'); return; }
     sesion.revelado[idx]=true; actualizarMonitor(); renderEtapa();
   }
@@ -562,7 +607,22 @@
     const porComp={}; COMPETENCIAS.forEach(k=>porComp[k]={comp:k,ganado:0,total:0});
     e.etapas.forEach((etapa,idx)=>{
       const sel=sesion.seleccion[idx]||[]; const cmp=porComp[etapa.comp]||(porComp[etapa.comp]={comp:etapa.comp,ganado:0,total:0});
-      etapa.opciones.forEach(o=>{
+      if(etapa.tipo==='secuencia'){
+        const ord=sesion.orden[idx]||[], correcto=etapa.pasos.map(p=>p.id);
+        const pts=etapa.puntos||correcto.length*2;
+        total+=pts; cmp.total+=pts;
+        let aciertos=0; correcto.forEach((id,i)=>{ if(ord[i]===id) aciertos++; });
+        const g=Math.round(pts*aciertos/correcto.length);
+        ganado+=g; cmp.ganado+=g;
+        (etapa.criticos||[]).forEach(id=>{
+          if(correcto.indexOf(id)!==ord.indexOf(id)){
+            const paso=etapa.pasos.find(p=>p.id===id)||{};
+            clavesCriticasOmitidas.push('Secuencia fuera de orden: '+paso.texto);
+          }
+        });
+        return;
+      }
+      (etapa.opciones||[]).forEach(o=>{
         if(o.puntos>0){ total+=o.puntos; cmp.total+=o.puntos; }
         if(sel.includes(o.id)){ ganado+=o.puntos; cmp.ganado+=o.puntos; if(o.tipo==='peligroso'&&o.critico) peligrosCriticos.push(o.texto); }
         else if(o.tipo==='clave'&&o.critico) clavesCriticasOmitidas.push(o.texto);
@@ -653,7 +713,18 @@
     const e=sesion.estacion;
     return e.etapas.map((etapa,idx)=>{
       const sel=sesion.seleccion[idx]||[];
-      const items=etapa.opciones.map(o=>{
+      if(etapa.tipo==='secuencia'){
+        const ord=sesion.orden[idx]||[], correcto=etapa.pasos.map(p=>p.id);
+        const filas=correcto.map((id,i)=>{
+          const paso=etapa.pasos.find(p=>p.id===id), puesto=ord.indexOf(id);
+          const ok=ord[i]===id;
+          return `<li class="flex gap-2 text-sm"><span class="${ok?'text-emerald-600':'text-red-600'} w-4 text-center font-bold">${ok?'✓':'✗'}</span>
+            <span class="flex-1 text-slate-700">${i+1}. ${esc(paso.texto)}
+            ${ok?'':`<span class="block text-xs text-red-500">Lo ubicaste en la posición ${puesto<0?'—':puesto+1}</span>`}</span></li>`;
+        }).join('');
+        return `<div class="bg-white rounded-xl border border-sky-100 p-4 mb-3"><div class="text-xs font-bold uppercase text-sky-600 mb-2">${etapa.comp} · secuencia</div><ul class="space-y-1.5">${filas}</ul></div>`;
+      }
+      const items=(etapa.opciones||[]).map(o=>{
         const el=sel.includes(o.id); let icon,cls;
         if(o.tipo==='clave'||(o.tipo==='util'&&o.puntos>0)){ icon=el?'✓':'○'; cls=el?'text-emerald-600':'text-amber-600'; }
         else if(o.tipo==='peligroso'){ icon=el?'⚠':'·'; cls=el?'text-red-600':'text-slate-300'; }
