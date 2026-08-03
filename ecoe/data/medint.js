@@ -33,7 +33,7 @@ ESTACIONES.push(
         { id:'x3', texto:'Radiografía de tórax', tipo:'util', puntos:1, resp:'Sin ensanchamiento mediastínico.', fb:'Apoya diferenciales (disección, neumotórax).' },
         { id:'x4', texto:'Esperar 6 h para repetir troponina antes de actuar', tipo:'peligroso', puntos:-3, critico:true, resp:'Retrasa la reperfusión.', fb:'En SDST NO se espera troponina: se activa reperfusión de inmediato.' },
       ]},
-      { comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
+      { material:{ tipo:'ecg', fc:92, st:26, r:44, deriv:'DII — cara inferior', nota:'Interprete el trazado antes de responder.' }, comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
         { id:'d1', texto:'IAM con SDST (pared inferior)', tipo:'clave', puntos:4, resp:'Correcto.', fb:'SDST en DII-DIII-aVF define IAMCEST inferior.' },
         { id:'d2', texto:'Angina estable', tipo:'peligroso', puntos:-2, resp:'Incorrecto: dolor en reposo, prolongado, con SDST.', fb:'Subestima un IAM en curso.' },
         { id:'d3', texto:'Dolor musculoesquelético', tipo:'peligroso', puntos:-3, resp:'Incorrecto y peligroso.', fb:'Riesgo de alta inadecuada.' },
@@ -89,7 +89,7 @@ ESTACIONES.push(
         { id:'x3', texto:'Hemograma, glicemia, coagulación', tipo:'util', puntos:1, resp:'Normales.', fb:'Necesarios antes de trombólisis.' },
         { id:'x4', texto:'Iniciar aspirina antes de la TC', tipo:'peligroso', puntos:-3, critico:true, resp:'Riesgo si es hemorrágico.', fb:'Nunca antiagregar/anticoagular antes de descartar hemorragia por imagen.' },
       ]},
-      { comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
+      { material:{ tipo:'ecg', fc:96, irregular:true, p:false, st:0, r:42, deriv:'DII largo', nota:'Observe el ritmo y la presencia o ausencia de ondas P.' }, comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
         { id:'d1', texto:'Ataque cerebrovascular (probable isquémico)', tipo:'clave', puntos:4, resp:'Correcto.', fb:'Déficit focal súbito con TC sin sangrado.' },
         { id:'d2', texto:'Crisis de pánico', tipo:'peligroso', puntos:-3, resp:'Incorrecto y peligroso.', fb:'Ignora una emergencia tiempo-dependiente.' },
         { id:'d3', texto:'Migraña con aura', tipo:'neutro', puntos:0, resp:'Poco probable a esta edad y presentación.', fb:'Diferencial descartado.' },
@@ -403,7 +403,7 @@ ESTACIONES.push(
         { id:'x5', texto:'Imagen renal (ecografía o tomografía) si hay sospecha de obstrucción, litiasis o mala respuesta', tipo:'clave', puntos:2, resp:'Ecografía sin hidronefrosis.', fb:'La pielonefritis obstructiva es una urgencia urológica que requiere drenaje.' },
         { id:'x6', texto:'Esperar todos los resultados antes de iniciar antibiótico y volumen', tipo:'peligroso', puntos:-4, critico:true, resp:'Retrasa el tratamiento en una paciente séptica.', fb:'En sepsis el tratamiento se inicia junto con la toma de exámenes, nunca después de los resultados.' },
       ]},
-      { comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
+      { material:{ tipo:'labs', nota:'Interprete el conjunto antes de responder.', datos:[['Leucocitos','19.800 /mm³','↑'],['PCR','240 mg/L','↑'],['Lactato','3,8 mmol/L','↑','(<2)'],['Creatinina','1,9 mg/dL','↑'],['Sedimento urinario','Piuria y bacteriuria','+'],['Presión arterial','88/48 mmHg','↓']] }, comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
         { id:'d1', texto:'Sepsis de foco urinario (pielonefritis aguda complicada en paciente diabética)', tipo:'clave', puntos:4, resp:'Correcto.', fb:'Foco urinario claro con hipotensión, taquipnea, alteración del estado mental y lactato elevado.' },
         { id:'d2', texto:'Cistitis no complicada', tipo:'peligroso', puntos:-4, resp:'Incorrecto y peligroso: hay fiebre alta, puñopercusión positiva e hipotensión.', fb:'Subestimar una sepsis urinaria como cistitis lleva al alta y a un desenlace grave.' },
         { id:'d3', texto:'Cólico renal', tipo:'peligroso', puntos:-2, resp:'Incorrecto: el dolor no es cólico y hay fiebre con signos de sepsis.', fb:'Retrasa el antibiótico.' },
@@ -465,7 +465,7 @@ ESTACIONES.push(
         { id:'x6', texto:'ECG', tipo:'util', puntos:1, resp:'Taquicardia sinusal, sin alteraciones de la onda T.', fb:'Ayuda a detectar alteraciones del potasio de forma rápida.' },
         { id:'x7', texto:'Iniciar insulina de inmediato sin conocer el potasio ni haber repuesto volumen', tipo:'peligroso', puntos:-4, critico:true, resp:'Riesgo de hipokalemia grave y arritmia.', fb:'La insulina introduce potasio a la célula: si el potasio está bajo, primero se repone. Error crítico.' },
       ]},
-      { comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
+      { material:{ tipo:'labs', nota:'Interprete el conjunto antes de responder.', datos:[['Glicemia','480 mg/dL','↑'],['pH arterial','7,18','↓','(7,35-7,45)'],['Bicarbonato','9 mEq/L','↓','(22-26)'],['Cetonemia','Positiva','+'],['Potasio','5,4 mEq/L','↑','(3,5-5,0)'],['Sodio','131 mEq/L','↓','(135-145)']] }, comp:'Diagnóstico', tipo:'unica', instruccion:'Diagnóstico más probable.', opciones:[
         { id:'d1', texto:'Cetoacidosis diabética gatillada por infección urinaria y omisión de insulina', tipo:'clave', puntos:4, resp:'Correcto.', fb:'Hiperglicemia + cetosis + acidosis metabólica con anion gap elevado, en diabética tipo 1 con gatillante identificado.' },
         { id:'d2', texto:'Gastroenteritis aguda', tipo:'peligroso', puntos:-4, resp:'Incorrecto y peligroso: no explica la hiperglicemia, la cetosis ni la acidosis.', fb:'Error de anclaje clásico que retrasa el tratamiento de una emergencia metabólica.' },
         { id:'d3', texto:'Estado hiperglicémico hiperosmolar', tipo:'neutro', puntos:0, resp:'Menos probable: es propio del adulto mayor con diabetes tipo 2, con hiperosmolaridad marcada y sin cetoacidosis significativa.', fb:'Diferencial obligado que conviene mencionar.' },

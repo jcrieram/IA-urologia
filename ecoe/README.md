@@ -65,6 +65,13 @@ con sus criterios mínimos.
   vitales se **deterioran con el tiempo** si no se ejecutan las medidas
   estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en
   rojo. Declarado por estación en el campo `monitor`.
+- **📈 Material de interpretación** en la etapa de diagnóstico: trazados de ECG
+  dibujados por código (SVG original, sin material de terceros) y paneles de
+  laboratorio. Obligan a **interpretar** para llegar al diagnóstico, que es una
+  de las dimensiones que evalúa el examen.
+  Los ECG son **esquemáticos** y así se rotulan en pantalla: sirven para
+  reconocer el patrón (ST, ritmo, ondas P), no sustituyen el entrenamiento con
+  trazados reales de 12 derivaciones.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
 
 ### Campo `monitor` (estaciones de urgencia)
