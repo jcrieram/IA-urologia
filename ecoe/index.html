@@ -22,7 +22,12 @@
 <body class="min-h-screen">
   <div id="app" class="max-w-4xl mx-auto px-4 py-6"></div>
 
-  <script src="data.js"></script>
+  <script src="data/00-core.js"></script>
+  <script src="data/medint.js"></script>
+  <script src="data/pediatria.js"></script>
+  <script src="data/gineco.js"></script>
+  <script src="data/cirugia.js"></script>
+  <script src="data/comunicacion.js"></script>
   <script>
   // ============================ Persistencia ============================
   const LS_KEY = 'ecoe_progreso_v2';
@@ -42,6 +47,36 @@
     reset(id){ const d=this.load(); delete d[id]; this.save(d); },
   };
 
+  // Configuración del entrenamiento
+  const LS_CFG = 'ecoe_config_v1';
+  const cfg = {
+    load(){ try { return Object.assign({recuerdoAbierto:true, mapaCorporal:true}, JSON.parse(localStorage.getItem(LS_CFG))||{}); } catch(e){ return {recuerdoAbierto:true, mapaCorporal:true}; } },
+    set(k,v){ const c=this.load(); c[k]=v; localStorage.setItem(LS_CFG, JSON.stringify(c)); },
+  };
+  // Competencias donde el recuerdo abierto aporta (evocar antes de reconocer)
+  const COMP_RECUERDO = ['Anamnesis','Examen físico','Exámenes e interpretación','Manejo y destino','Procedimiento'];
+
+  // Reportes de contenido dudoso (para revisar y corregir después)
+  const LS_DUDAS = 'ecoe_dudas_v1';
+  const dudas = {
+    load(){ try { return JSON.parse(localStorage.getItem(LS_DUDAS)) || []; } catch(e){ return []; } },
+    add(d){ const l=this.load(); l.push(d); localStorage.setItem(LS_DUDAS, JSON.stringify(l)); },
+    clear(){ localStorage.removeItem(LS_DUDAS); },
+  };
+  function reportarDuda(id){
+    const e = ESTACIONES.find(x=>x.id===id);
+    const txt = prompt(`Reportar duda — ${e.titulo}\n\n¿Qué no cuadra? (ítem, manejo, dosis, criterio...). Se guarda para revisarlo y corregirlo.`);
+    if(txt===null || !txt.trim()) return;
+    dudas.add({ estacionId:id, titulo:e.titulo, area:e.area, texto:txt.trim(), fecha:new Date().toISOString() });
+    alert('Reporte guardado. Puedes exportarlos desde el inicio, al final de la página.');
+  }
+  function exportarDudas(){
+    const l=dudas.load(); if(!l.length){ alert('No hay reportes guardados.'); return; }
+    const txt = l.map(d=>`[${d.fecha.slice(0,10)}] ${AREAS[d.area]?AREAS[d.area].nombre:d.area} · ${d.titulo}\n  ${d.texto}`).join('\n\n');
+    const blob = new Blob([`REPORTES DE CONTENIDO — Entrenador ECOE\n${'='.repeat(45)}\n\n${txt}\n`], {type:'text/plain;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ecoe-reportes.txt'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
   let sesion = null;    // estado de la estación en curso
   let circuito = null;  // { cola:[ids], idx, resultados:[], nombre }
 
@@ -49,6 +84,12 @@
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
   const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const badge = area => { const a=AREAS[area]; return `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full" style="background:${a.color}1a;color:${a.color}">${a.icono} ${a.nombre}</span>`; };
+  // Dos niveles distintos: revisión de estructura ≠ validación clínica
+  const sello = e => e.validacionClinica
+    ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700" title="Contenido clínico verificado por ${esc(e.validacionClinica.por)}">✓ Validado clínicamente</span>`
+    : e.revisionEstructura
+      ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700" title="Formato y pauta revisados; contenido clínico aún sin verificar">Estructura revisada</span>`
+      : `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700" title="Pendiente de revisión">Borrador</span>`;
   // Fase sugerida según la gestión de tiempo del informe UC
   function faseSugerida(tot,rest){
     const el=tot-rest;
@@ -67,14 +108,18 @@
       const extra = (c.opciones[eid]||[]).map((o,k)=>({...o, id:'cu'+i+'_'+k, _custom:true}));
       return {...et, eid, opciones:[...et.opciones, ...extra]};
     });
+    // Las etapas del alumno se insertan en su lugar lógico SIN reordenar las
+    // originales: algunas estaciones (comunicación, procedimiento) tienen un
+    // flujo deliberado que no coincide con el orden estricto de COMPETENCIAS.
     (c.etapas||[]).forEach((et,j)=>{
       const eid = baseId+'::c'+j;
       const ops = (c.opciones[eid]||[]).map((o,k)=>({...o, id:'ce'+j+'_'+k, _custom:true}));
-      etapas.push({ comp:et.comp, tipo:et.tipo||'multi', instruccion:et.instruccion, eid, _customEtapa:true, opciones:ops });
+      const nueva = { comp:et.comp, tipo:et.tipo||'multi', instruccion:et.instruccion, eid, _customEtapa:true, opciones:ops };
+      const ci = COMPETENCIAS.indexOf(et.comp);
+      let pos = 0;
+      etapas.forEach((x,k)=>{ if(COMPETENCIAS.indexOf(x.comp) <= ci) pos = k+1; });
+      etapas.splice(pos, 0, nueva);
     });
-    etapas = etapas.map((et,idx)=>({et,idx}))
-      .sort((a,b)=>(COMPETENCIAS.indexOf(a.et.comp)-COMPETENCIAS.indexOf(b.et.comp))||(a.idx-b.idx))
-      .map(x=>x.et);
     return {...base, etapas};
   }
 
@@ -96,7 +141,7 @@
           ? `<div class="mt-2 text-sm"><span class="font-bold" style="color:${p.aprobado?'#16a34a':'#dc2626'}">${p.aprobado?'✓ Aprobado':'✗ No aprobado'}</span> <span class="text-slate-500">· ${p.pct}%</span></div>`
           : `<div class="mt-2 text-sm text-slate-400">Sin intentos</div>`;
         return `<button onclick="verBriefing('${e.id}')" class="text-left bg-white rounded-2xl shadow-sm hover:shadow-md border border-sky-100 p-4 opt">
-          <div class="flex justify-between items-start"><span class="text-xs text-slate-400">⏱ ${e.minutos} min</span></div>
+          <div class="flex justify-between items-start gap-2"><span class="text-xs text-slate-400">⏱ ${e.minutos} min</span>${sello(e)}</div>
           <h3 class="mt-1 font-bold leading-snug">${e.titulo}</h3>
           <p class="text-xs text-slate-500 mt-1">${esc(e.motivo)}</p>${estado}</button>`;
       }).join('');
@@ -110,9 +155,27 @@
         <h1 class="text-3xl font-extrabold text-sky-900">Entrenador ECOE</h1>
         <p class="text-slate-600 mt-1">Sección práctica del EUNACOM · perfil de <b>médico/a general</b> · formato ECOE (UC)</p>
         <div class="mt-3 text-xs bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2">
-          ⚠️ Contenido educativo <b>borrador</b> pendiente de validación médica. Material original de práctica: no son casos oficiales ni bancos filtrados de la UC.
+          ⚠️ <b>Ninguna estación cuenta todavía con validación clínica</b> por un profesional con experiencia vigente en el área. "Estructura revisada" significa que el <i>formato</i> de la estación fue aprobado, no su contenido médico. Úsalas para entrenar el <b>método</b> (SEGURA, gestión del tiempo, comunicación) y contrasta siempre el contenido con tus guías de estudio. Material original de práctica: no son casos oficiales ni bancos filtrados de la UC.
         </div>
       </header>
+
+      <div class="bg-white rounded-2xl border border-violet-200 p-4 mb-4 fade flex items-start gap-3">
+        <input type="checkbox" id="cfgRecuerdo" ${cfg.load().recuerdoAbierto?'checked':''}
+          onchange="cfg.set('recuerdoAbierto', this.checked)" class="mt-1 w-4 h-4 accent-violet-600">
+        <label for="cfgRecuerdo" class="text-sm cursor-pointer">
+          <b class="text-violet-700">🧠 Modo recuerdo abierto</b>
+          <span class="block text-xs text-slate-500 mt-0.5">Antes de ver la pauta, escribes de memoria qué harías. Sin la lista delante no hay pistas: entrena evocar, que es lo que necesitas frente al paciente.</span>
+        </label>
+      </div>
+
+      <div class="bg-white rounded-2xl border border-sky-200 p-4 mb-4 fade flex items-start gap-3">
+        <input type="checkbox" id="cfgMapa" ${cfg.load().mapaCorporal!==false?'checked':''}
+          onchange="cfg.set('mapaCorporal', this.checked)" class="mt-1 w-4 h-4 accent-sky-600">
+        <label for="cfgMapa" class="text-sm cursor-pointer">
+          <b class="text-sky-700">🫆 Mapa corporal en el examen f&iacute;sico</b>
+          <span class="block text-xs text-slate-500 mt-0.5">Examinas tocando la regi&oacute;n del cuerpo en vez de leer una lista completa. Se acerca a decidir <i>d&oacute;nde</i> mirar, que es parte de lo que se eval&uacute;a.</span>
+        </label>
+      </div>
 
       <div class="bg-sky-600 text-white rounded-2xl p-5 fade">
         <div class="font-bold text-lg">🔁 Modo circuito</div>
@@ -138,7 +201,8 @@
       <div class="mt-2 text-sm text-slate-500">Sugerencia del plan: comienza por <b>Medicina Interna (Semana 1)</b>.</div>
       ${grupos}
 
-      <div class="mt-8 text-center">
+      <div class="mt-8 text-center space-x-4">
+        ${dudas.load().length?`<button onclick="exportarDudas()" class="text-xs text-amber-600 hover:text-amber-700 underline">🚩 Exportar mis reportes de contenido (${dudas.load().length})</button>`:''}
         <button onclick="if(confirm('¿Borrar tu progreso local? (no afecta tus módulos personalizados)')){store.reset();renderHome();}" class="text-xs text-slate-400 hover:text-red-500 underline">Borrar mi progreso</button>
       </div>
       <footer class="mt-6 text-center text-xs text-slate-400">Módulo ECOE · Dr. Juan Carlos Riera · v2</footer>`;
@@ -175,7 +239,7 @@
       <div class="bg-white rounded-2xl border border-sky-100 p-6 shadow-sm">
         ${badge(e.area)}
         <h1 class="text-2xl font-extrabold mt-3">${e.titulo}</h1>
-        <p class="text-slate-500 mt-1">Nivel: ${e.nivel} · ⏱ ${e.minutos} min</p>
+        <p class="text-slate-500 mt-1">Nivel: ${e.nivel} · ⏱ ${e.minutos} min · ${sello(e)}</p>
         <div class="mt-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
           <h3 class="font-bold text-slate-700 mb-1 text-sm">🚪 Instrucción de puerta</h3>
           <p class="text-slate-700 text-sm">${esc(e.puerta||e.briefing)}</p>
@@ -187,22 +251,139 @@
           <h3 class="font-bold text-sky-800 mb-1 text-sm">Viñeta clínica</h3>
           <p class="text-slate-700 text-sm">${esc(e.vineta)}</p>
         </div>
+        ${(e.fuentes&&e.fuentes.length)?`<details class="mt-3 text-sm">
+          <summary class="cursor-pointer text-slate-600 font-semibold">📚 Fuentes para contrastar este contenido</summary>
+          <ul class="mt-2 text-xs text-slate-500 list-disc pl-5 space-y-1">${e.fuentes.map(f=>`<li>${esc(typeof FUENTES!=='undefined'&&FUENTES[f]?FUENTES[f]:f)}</li>`).join('')}</ul>
+          <p class="text-[11px] text-slate-400 mt-1">Referencias sugeridas para verificar el contenido; la estación no las reproduce textualmente.</p>
+        </details>`:''}
         <button onclick="iniciar('${e.id}')" class="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 rounded-xl">Iniciar estación ▶</button>
         <button onclick="renderPersonalizar('${e.id}')" class="mt-2 w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl text-sm">🛠️ Personalizar estación (agregar módulos) ${nCustom?`· ${nCustom}`:''}</button>
+        <button onclick="reportarDuda('${e.id}')" class="mt-2 w-full text-amber-700 hover:bg-amber-50 border border-amber-200 font-semibold py-2.5 rounded-xl text-sm">🚩 Reportar duda sobre el contenido</button>
       </div></div>`;
   }
 
   // ============================ Motor de estación ============================
   function iniciar(id){
     const e = buildEstacion(id);
-    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null };
+    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{}, region:null,
+               tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null,
+               mon: e.monitor? { paso:-1, estabilizado:false, vitales:Object.assign({},e.monitor.vitales), aviso:'' } : null };
     sesion.timer = setInterval(()=>{
       sesion.tRestante--;
       const t=document.getElementById('timer');
       if(t){ t.textContent=fmt(Math.max(0,sesion.tRestante)); if(sesion.tRestante<=60) document.getElementById('timerBox').classList.add('timer-warn','text-red-600'); }
       const fh=document.getElementById('faseHint'); if(fh) fh.textContent='⌛ Fase sugerida: '+faseSugerida(sesion.tInicial,sesion.tRestante);
+      actualizarMonitor();
       if(sesion.tRestante<=0) clearInterval(sesion.timer);
     },1000);
+    renderEtapa();
+  }
+
+  // ============================ Monitor de signos vitales ============================
+  // El paciente se deteriora con el tiempo salvo que se ejecuten las medidas
+  // estabilizadoras declaradas por la estación (monitor.estabiliza: [ids]).
+  function yaEstabilizo(){
+    const m=sesion.estacion.monitor; if(!m||!m.estabiliza) return false;
+    const hechas=new Set(); Object.keys(sesion.seleccion).forEach(i=>{
+      if(sesion.revelado[i]) (sesion.seleccion[i]||[]).forEach(id=>hechas.add(id));
+    });
+    return m.estabiliza.every(id=>hechas.has(id));
+  }
+  function actualizarMonitor(){
+    if(!sesion || !sesion.mon) return;
+    const m=sesion.estacion.monitor, s=sesion.mon;
+    const transcurrido = sesion.tInicial - sesion.tRestante;
+    if(!s.estabilizado && yaEstabilizo()){
+      s.estabilizado=true;
+      if(m.estable){ Object.assign(s.vitales, m.estable.vitales||{}); s.aviso=m.estable.aviso||''; }
+    }
+    if(!s.estabilizado && m.deterioro){
+      m.deterioro.forEach((d,i)=>{
+        if(transcurrido>=d.seg && i>s.paso){ s.paso=i; Object.assign(s.vitales, d.vitales||{}); s.aviso=d.aviso||''; }
+      });
+    }
+    pintarMonitor();
+  }
+  function pintarMonitor(){
+    const box=document.getElementById('monitorBox'); if(!box||!sesion.mon) return;
+    box.innerHTML=monitorHTML();
+  }
+  function monitorHTML(){
+    const s=sesion.mon; if(!s) return '';
+    const v=s.vitales;
+    const crit = (k,val)=>{
+      const n=parseFloat(String(val));
+      if(k==='SatO2') return n<92;
+      if(k==='FC') return n>120||n<50;
+      if(k==='FR') return n>24||n<10;
+      if(k==='PA'){ const sis=parseInt(String(val),10); return sis<90; }
+      return false;
+    };
+    const etiquetas={PA:'PA',FC:'FC',FR:'FR',SatO2:'SatO₂',T:'T°'};
+    const celdas=Object.keys(etiquetas).filter(k=>v[k]!==undefined).map(k=>{
+      const alerta=crit(k,v[k]);
+      return `<div class="text-center px-2">
+        <div class="text-[10px] uppercase tracking-wide ${alerta?'text-red-300':'text-emerald-300'}">${etiquetas[k]}</div>
+        <div class="font-mono font-bold text-lg ${alerta?'text-red-400 timer-warn':'text-emerald-400'}">${esc(String(v[k]))}</div>
+      </div>`;
+    }).join('');
+    return `<div class="bg-slate-900 rounded-xl px-3 py-2 flex items-center justify-between gap-2">
+        <div class="flex items-center gap-1">${celdas}</div>
+        <div class="text-[10px] ${s.estabilizado?'text-emerald-400':'text-amber-300'} max-w-[40%] text-right leading-tight">${s.estabilizado?'✓ ':''}${esc(s.aviso)}</div>
+      </div>`;
+  }
+
+  // ============================ Mapa corporal ============================
+  // Regiones examinables. Cada opción de examen físico se asigna a una región
+  // por su campo `region` o, si no lo declara, infiriéndola del texto.
+  const REGIONES = {
+    general:      { nombre:'General y signos vitales', icono:'📊' },
+    cabeza:       { nombre:'Cabeza y cara',            icono:'🧠' },
+    cuello:       { nombre:'Cuello',                   icono:'🦴' },
+    torax:        { nombre:'Tórax',                    icono:'🫁' },
+    abdomen:      { nombre:'Abdomen',                  icono:'🩺' },
+    pelvis:       { nombre:'Pelvis y genital',         icono:'⚕️' },
+    extremidades: { nombre:'Extremidades',             icono:'🦵' },
+  };
+  const REGLAS_REGION = [
+    [/tacto rectal|pr[óo]stata|escroto|testic|pene|meato|genital|ginecol[óo]g|especuloscop|vaginal|tacto vaginal|perin|uretr/i,'pelvis'],
+    [/mcburney|blumberg|abdom|hep[áa]t|esplen|pu[ñn]opercusi|fosa il[íi]aca|hipogastrio|globo vesical|altura uterina|rovsing|psoas|obturador|ruidos hidroa[ée]reos|latidos cardiofetales|lcf/i,'abdomen'],
+    [/t[óo]rax|tor[áa]cic|pulmonar|respiratori|murmullo|cr[ée]pitos|sibilanc|auscultaci[óo]n card|card[íi]ac|coraz[óo]n|soplo|r3|retracc|expansi[óo]n|neumot[óo]rax|mama|pleur|derrame|vibraciones vocales|matidez|quejido|aleteo/i,'torax'],
+    [/cuello|yugular|tiroide|carot[íi]d|rigidez de nuca|men[íi]nge|kernig|brudzinski/i,'cuello'],
+    [/pupila|glasgow|fauces|otoscop|o[íi]do|boca|facial|craneal|cefal|fondo de ojo|conciencia|neurol[óo]gic|lenguaje|afasia|campos visuales|fontanela|estado mental|orientaci[óo]n|ocular|ojos hundidos|faringe|amigdal/i,'cabeza'],
+    [/extremidad|pulsos?\b|pedio|edema|tvp|pierna|brazo|fractura|luxaci|inmoviliz|reflejo|rot\b|clonus|hemipare|fuerza muscular|marcha|articulaci/i,'extremidades'],
+    [/signos vitales|presi[óo]n arterial|temperatura|saturaci|frecuencia (card|resp)|peso|talla|estado general|apariencia|perfusi[óo]n|llene capilar|piel|hidrataci|mucosas|palidez|deshidrat|pliegue|glicemia|hgt|abcde/i,'general'],
+  ];
+  function regionDe(o){
+    if(o.region && REGIONES[o.region]) return o.region;
+    for(const [re,r] of REGLAS_REGION) if(re.test(o.texto)) return r;
+    return 'general';
+  }
+  function mapaCorporalSVG(activas, sel){
+    const col = r => sel===r ? '#0284c7' : (activas.has(r) ? '#bae6fd' : '#e2e8f0');
+    const cur = r => activas.has(r) ? 'cursor:pointer' : 'cursor:default';
+    const p = (r,shape) => `<g onclick="${activas.has(r)?`selRegion('${r}')`:''}" style="${cur(r)}">${shape.replace('FILL',col(r))}</g>`;
+    return `<svg viewBox="0 0 200 400" class="w-full max-w-[190px] mx-auto block">
+      ${p('cabeza', '<circle cx="100" cy="34" r="25" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('cuello', '<rect x="89" y="57" width="22" height="15" rx="4" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('torax',  '<path d="M64 74 h72 a8 8 0 0 1 8 8 v56 a6 6 0 0 1 -6 6 h-76 a6 6 0 0 1 -6 -6 v-56 a8 8 0 0 1 8 -8 z" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('abdomen','<rect x="68" y="147" width="64" height="55" rx="6" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('pelvis', '<path d="M70 205 h60 v30 a10 10 0 0 1 -10 10 h-40 a10 10 0 0 1 -10 -10 z" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('extremidades','<g><rect x="36" y="80" width="21" height="112" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="143" y="80" width="21" height="112" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="74" y="248" width="22" height="130" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="104" y="248" width="22" height="130" rx="10" fill="FILL" stroke="#94a3b8"/></g>')}
+    </svg>`;
+  }
+  function selRegion(r){ sesion.region = (sesion.region===r? null : r); renderEtapa(); }
+
+  // ¿Esta etapa debe pedir recuerdo abierto antes de mostrar la pauta?
+  function pideRecuerdo(idx){
+    const etapa = sesion.estacion.etapas[idx];
+    return cfg.load().recuerdoAbierto && COMP_RECUERDO.includes(etapa.comp)
+           && etapa.tipo!=='unica' && !sesion.recuerdoHecho[idx];
+  }
+  function guardarRecuerdo(idx){
+    const ta=document.getElementById('recuerdoTxt');
+    sesion.recuerdo[idx] = ta? ta.value.trim() : '';
+    sesion.recuerdoHecho[idx]=true;
     renderEtapa();
   }
 
@@ -210,7 +391,55 @@
     const e=sesion.estacion, idx=sesion.etapaIdx, etapa=e.etapas[idx];
     const sel=sesion.seleccion[idx]||[], revelado=sesion.revelado[idx];
     const progreso=e.etapas.map((et,i)=>`<div class="flex-1 h-1.5 rounded-full ${i<idx?'bg-emerald-400':i===idx?'bg-sky-500':'bg-slate-200'}"></div>`).join('');
-    const opciones=etapa.opciones.length? etapa.opciones.map(o=>{
+
+    // --- Fase de recuerdo abierto: evocar sin ver la lista ---
+    if(pideRecuerdo(idx)){
+      app.innerHTML=`<div class="fade">
+        ${circuito?`<div class="text-xs text-sky-600 font-semibold mb-2">🔁 Circuito · estación ${circuito.idx+1}/${circuito.cola.length}</div>`:''}
+        <div class="flex items-center justify-between mb-3">${badge(e.area)}
+          <div id="timerBox" class="font-mono font-bold text-lg text-slate-700 flex items-center gap-1">⏱ <span id="timer">${fmt(Math.max(0,sesion.tRestante))}</span></div></div>
+        <div id="faseHint" class="text-[11px] text-slate-400 text-right mb-2">⌛ Fase sugerida: ${faseSugerida(sesion.tInicial,sesion.tRestante)}</div>
+        <div class="flex gap-1 mb-4">${progreso}</div>
+        <div class="bg-white rounded-2xl border-2 border-violet-200 p-5 shadow-sm">
+          <div class="text-xs font-bold uppercase tracking-wide text-violet-600">🧠 Recuerdo abierto · ${etapa.comp}</div>
+          <h2 class="text-lg font-bold mt-1 mb-1">${esc(etapa.instruccion)}</h2>
+          <p class="text-xs text-slate-500 mb-3">Escríbelo <b>de memoria</b>, como lo dirías en la estación. Recién después verás la pauta para autocorregirte. Sin lista no hay pistas: así se entrena de verdad.</p>
+          <textarea id="recuerdoTxt" rows="6" class="w-full border-2 border-slate-200 rounded-xl p-3 text-sm focus:border-violet-400 outline-none" placeholder="Ej: preguntaría por... buscaría... solicitaría..."></textarea>
+          <button onclick="guardarRecuerdo(${idx})" class="mt-3 w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl">Ya lo escribí — ver la pauta ▶</button>
+          <button onclick="guardarRecuerdo(${idx})" class="mt-2 w-full text-slate-400 text-xs underline">Saltar este paso</button>
+        </div>
+        <button onclick="if(confirm('¿Abandonar? No se guardará.')){circuito=null;renderHome();}" class="mt-4 text-xs text-slate-400 hover:text-red-500 underline">Abandonar</button>
+      </div>`;
+      const ta=document.getElementById('recuerdoTxt'); if(ta) ta.focus();
+      return;
+    }
+    // --- Mapa corporal: solo en examen físico, antes de revelar la pauta ---
+    const usaMapa = etapa.comp==='Examen físico' && cfg.load().mapaCorporal!==false && !revelado && etapa.opciones.length;
+    let mapaHTML='';
+    let visibles = etapa.opciones;
+    if(usaMapa){
+      const activas = new Set(etapa.opciones.map(regionDe));
+      const chips = Object.keys(REGIONES).filter(r=>activas.has(r)).map(r=>{
+        const n = etapa.opciones.filter(o=>regionDe(o)===r).length;
+        const hechas = etapa.opciones.filter(o=>regionDe(o)===r && sel.includes(o.id)).length;
+        const act = sesion.region===r;
+        return `<button onclick="selRegion('${r}')" class="text-xs px-2.5 py-1.5 rounded-full border-2 ${act?'bg-sky-600 text-white border-sky-600':'bg-white text-slate-600 border-slate-200'}">
+          ${REGIONES[r].icono} ${REGIONES[r].nombre} <span class="opacity-70">${hechas}/${n}</span></button>`;
+      }).join(' ');
+      mapaHTML = `<div class="mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold uppercase text-slate-500 mb-1">🫆 Examine por región</div>
+        <p class="text-[11px] text-slate-400 mb-2">Toca la zona del cuerpo (o una etiqueta) para examinarla. Solo verás las maniobras de esa región.</p>
+        <div class="flex gap-3 items-start">
+          <div class="w-1/3">${mapaCorporalSVG(activas, sesion.region)}</div>
+          <div class="flex-1 flex flex-wrap gap-1.5 content-start">${chips}
+            ${sesion.region?`<button onclick="selRegion('${sesion.region}')" class="text-xs px-2.5 py-1.5 rounded-full border-2 border-slate-200 bg-white text-slate-500">Ver todas</button>`:''}
+          </div>
+        </div>
+      </div>`;
+      if(sesion.region) visibles = etapa.opciones.filter(o=>regionDe(o)===sesion.region);
+    }
+
+    const opciones=visibles.length? visibles.map(o=>{
       const checked=sel.includes(o.id), showResp=revelado&&checked;
       let ring=checked?'border-sky-500 bg-sky-50':'border-slate-200 bg-white', mark='';
       if(revelado&&checked){ const good=o.tipo!=='peligroso'&&o.puntos>0;
@@ -220,7 +449,9 @@
         <div class="flex items-start gap-2"><div class="mt-0.5 w-5 text-center">${revelado?mark:(checked?'<span class="text-sky-600 font-bold">✓</span>':'<span class="text-slate-300">▢</span>')}</div>
         <div class="flex-1"><p class="text-sm font-medium text-slate-800">${esc(o.texto)}${o._custom?' <span class="text-[10px] text-violet-500 font-bold">(tuyo)</span>':''}</p>
         ${showResp?`<div class="mt-2 text-sm text-slate-600 bg-white/70 rounded-lg p-2 border border-slate-100"><b class="text-slate-500">Hallazgo:</b> ${esc(o.resp)||'—'}<br><b class="text-slate-500">Nota:</b> ${esc(o.fb)}</div>`:''}</div></div></div>`;
-    }).join('') : `<div class="text-sm text-slate-400 italic p-3">Módulo sin opciones todavía. Agrégalas desde "Personalizar estación".</div>`;
+    }).join('') : (usaMapa && sesion.region
+        ? `<div class="text-sm text-slate-400 italic p-3">No hay maniobras registradas para esta región en esta estación.</div>`
+        : `<div class="text-sm text-slate-400 italic p-3">Módulo sin opciones todavía. Agrégalas desde "Personalizar estación".</div>`);
 
     const esUltima=idx===e.etapas.length-1;
     const btn=!revelado
@@ -234,10 +465,16 @@
         <div id="timerBox" class="font-mono font-bold text-lg text-slate-700 flex items-center gap-1">⏱ <span id="timer">${fmt(Math.max(0,sesion.tRestante))}</span></div></div>
       <div id="faseHint" class="text-[11px] text-slate-400 text-right mb-2">⌛ Fase sugerida: ${faseSugerida(sesion.tInicial,sesion.tRestante)}</div>
       <div class="flex gap-1 mb-4">${progreso}</div>
+      ${sesion.mon?`<div id="monitorBox" class="mb-3">${monitorHTML()}</div>`:''}
       <div class="bg-white rounded-2xl border border-sky-100 p-5 shadow-sm">
         <div class="text-xs font-bold uppercase tracking-wide text-sky-600">${etapa.comp} · etapa ${idx+1}/${e.etapas.length}</div>
         <h2 class="text-lg font-bold mt-1 mb-1">${esc(etapa.instruccion)}</h2>
         <p class="text-xs text-slate-400 mb-4">${etapa.tipo==='unica'?'Elige una opción.':'Puedes elegir varias. Las acciones innecesarias o riesgosas restan.'}</p>
+        ${sesion.recuerdo[idx]?`<div class="mb-3 bg-violet-50 border border-violet-200 rounded-xl p-3">
+          <div class="text-[11px] font-bold uppercase text-violet-600 mb-1">🧠 Lo que escribiste de memoria</div>
+          <p class="text-sm text-slate-700 whitespace-pre-wrap">${esc(sesion.recuerdo[idx])}</p>
+          <p class="text-[11px] text-violet-500 mt-1">Contrástalo con la pauta: lo que no escribiste es tu brecha real.</p></div>`:''}
+        ${mapaHTML}
         <div class="space-y-2 scroll">${opciones}</div>
         <div class="mt-5">${btn}</div>
       </div>
@@ -254,9 +491,9 @@
   function confirmarEtapa(){
     const idx=sesion.etapaIdx, etapa=sesion.estacion.etapas[idx];
     if(etapa.tipo==='unica' && !(sesion.seleccion[idx]||[]).length){ alert('Selecciona una opción.'); return; }
-    sesion.revelado[idx]=true; renderEtapa();
+    sesion.revelado[idx]=true; actualizarMonitor(); renderEtapa();
   }
-  function siguienteEtapa(){ sesion.etapaIdx++; renderEtapa(); }
+  function siguienteEtapa(){ sesion.etapaIdx++; sesion.region=null; renderEtapa(); }
 
   function calcular(){
     const e=sesion.estacion; let ganado=0,total=0,peligrosCriticos=[],clavesCriticasOmitidas=[],dxCorrecto=true,huboDx=false;

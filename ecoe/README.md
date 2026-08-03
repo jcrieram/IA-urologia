@@ -9,10 +9,26 @@ Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritm
 **SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
 con sus criterios mínimos.
 
-> ⚠️ **Contenido borrador.** Casos y pautas son material **original** de práctica,
-> generados como punto de partida y **pendientes de validación médica**. No son
-> casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no reemplaza
-> el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
+> ⚠️ **Ninguna estación tiene validación clínica todavía.** Casos y pautas son
+> material **original** de práctica. No son casos oficiales ni bancos filtrados de
+> la UC. Herramienta educativa; no reemplaza el juicio clínico ni las guías
+> vigentes (MINSAL/GES/UC/EUNACOM).
+
+## Dos niveles de revisión (no confundir)
+
+| Campo en los datos | Sello en la app | Qué garantiza |
+|---|---|---|
+| `revisionEstructura:'AAAA-MM-DD'` | Estructura revisada (azul) | El **formato**: etapas SEGURA, pauta, ítems críticos, instrucción de puerta y tiempos. **No** verifica el contenido médico. |
+| `validacionClinica:{por,fecha,fuente}` | ✓ Validado clínicamente (verde) | El **contenido clínico**, verificado por un profesional con experiencia vigente en el área, contra una fuente citable. |
+| — (sin campo) | Borrador (ámbar) | Pendiente de revisión. |
+
+| Área | Estaciones | Estructura | Contenido clínico |
+|---|---|---|---|
+| Medicina Interna | 14 | ✓ 2 revisadas | ⏳ Pendiente |
+| Cirugía | 12 | ⏳ | ⏳ Pendiente |
+| Pediatría | 11 | ⏳ | ⏳ Pendiente |
+| Obstetricia y Ginecología | 11 | ⏳ | ⏳ Pendiente |
+| **Total** | **48** | | |
 
 ## Qué hace (v2)
 
@@ -34,22 +50,107 @@ con sus criterios mínimos.
   respuesta modelo y autoevaluación (no afecta el puntaje de la estación).
 - **Cronómetro por fase:** guía la gestión del tiempo (apertura → núcleo →
   resolver → cierre) según el informe UC.
+- **🧠 Modo recuerdo abierto** (activable en el inicio): antes de ver la pauta,
+  escribes de memoria qué harías; recién después aparece la lista para
+  autocorregirte y se muestra tu texto al lado. Sin la lista delante no hay
+  pistas — entrena **evocar** en vez de reconocer, que es lo que se necesita
+  frente al paciente. Se aplica a anamnesis, examen físico, exámenes,
+  procedimiento y manejo.
+- **🫆 Mapa corporal** en el examen físico: en vez de leer la lista completa de
+  maniobras, tocas la región del cuerpo (cabeza, cuello, tórax, abdomen, pelvis,
+  extremidades o general) y solo ves las maniobras de esa zona. Entrena decidir
+  *dónde* examinar. Cada opción se asigna por su campo `region` o, si no lo
+  declara, infiriéndola del texto (`REGLAS_REGION` en `index.html`).
+- **🖥️ Monitor de signos vitales dinámico** en estaciones de urgencia: los
+  vitales se **deterioran con el tiempo** si no se ejecutan las medidas
+  estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en
+  rojo. Declarado por estación en el campo `monitor`.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
 
-## Estaciones incluidas (borrador)
+### Campo `monitor` (estaciones de urgencia)
 
-| # | Área | Estación |
-|---|------|----------|
-| 1 | Medicina Interna | Dolor torácico agudo (IAMCEST) |
-| 2 | Medicina Interna | Déficit neurológico focal (ACV) |
-| 3 | Pediatría | Lactante con dificultad respiratoria |
-| 4 | Pediatría | Diarrea y deshidratación |
-| 5 | Obstetricia y Ginecología | Sangrado del primer trimestre |
-| 6 | Obstetricia y Ginecología | Preeclampsia |
-| 7 | Cirugía | Abdomen agudo |
-| 8 | Cirugía | Politrauma (ABCDE) |
-| 9 | Cirugía / Urología | Retención urinaria y sondaje (con procedimiento) |
-| 10 | Transversal | Comunicación de un diagnóstico grave (SPIKES) |
+```js
+monitor:{
+  vitales:{ PA:'92/58', FC:128, FR:28, SatO2:93, T:'36,1' },  // estado inicial
+  deterioro:[                                  // se aplica si NO se estabiliza
+    { seg:90,  vitales:{ PA:'86/50', FC:136 }, aviso:'La hemorragia continúa.' },
+    { seg:180, vitales:{ PA:'78/44', FC:142 }, aviso:'Shock progresivo.' },
+  ],
+  estabiliza:['a1','b1','c1'],                 // ids de opciones que lo detienen
+  estable:{ vitales:{ PA:'106/68', FC:110 }, aviso:'Responde a la reanimación.' },
+}
+```
+
+`seg` son segundos transcurridos desde el inicio. El deterioro se detiene en
+cuanto se han confirmado **todas** las opciones de `estabiliza`. Lo llevan
+politrauma, sepsis de foco urinario, hemorragia digestiva alta y shock por
+deshidratación en el niño.
+
+## Estaciones incluidas (48)
+
+Todas en estado **borrador**: ninguna tiene validación clínica.
+
+### 🫀 Medicina Interna (14)
+
+- Dolor torácico agudo
+- Déficit neurológico focal agudo
+- Disnea aguda — Insuficiencia cardíaca descompensada
+- Crisis hipertensiva — urgencia vs emergencia
+- Exacerbación de EPOC
+- Neumonía adquirida en la comunidad — ¿hospitalizar?
+- Sepsis de foco urinario — pielonefritis aguda 🖥️
+- Cetoacidosis diabética
+- Hemorragia digestiva alta 🖥️
+- Crisis convulsiva y estado post-ictal con sospecha de meningitis
+- Síncope — estratificación de riesgo
+- Comunicación de un diagnóstico grave
+- Paciente que rechaza el tratamiento indicado
+- Consejería breve de cese de tabaquismo
+
+### 🧒 Pediatría (11)
+
+- Lactante con dificultad respiratoria
+- Diarrea y deshidratación
+- Síndrome febril sin foco en lactante
+- Convulsión febril
+- Neumonía adquirida en la comunidad en el niño
+- Crisis obstructiva bronquial y técnica inhalatoria
+- Sospecha de meningitis en el niño
+- Ictericia neonatal
+- Control del niño sano: crecimiento, desarrollo y vacunas
+- Sospecha de maltrato infantil
+- Deshidratación grave y shock en el niño 🖥️
+
+### 🤰 Obstetricia y Ginecología (11)
+
+- Sangrado del primer trimestre
+- Preeclampsia
+- Hemorragia posparto
+- Rotura prematura de membranas
+- Trabajo de parto: evaluación inicial y derivación
+- Control prenatal: primera consulta
+- Diabetes gestacional: pesquisa y manejo inicial
+- Flujo vaginal e infección de transmisión sexual
+- Proceso inflamatorio pelviano
+- Sangrado uterino anormal con sospecha de cáncer cervicouterino
+- Anticoncepción: consejería, elegibilidad y decisión compartida
+
+### 🔪 Cirugía (12)
+
+- Abdomen agudo
+- Politrauma (manejo ABCDE) 🖥️
+- Retención urinaria aguda y sondaje
+- Cólico renal y litiasis ureteral
+- Escroto agudo y torsión testicular
+- Pielonefritis obstructiva y urosepsis
+- Hematuria macroscópica
+- Trauma genitourinario: cuándo NO sondear
+- Colecistitis y colangitis aguda
+- Obstrucción intestinal
+- Manejo de herida y profilaxis antitetánica
+- Paciente enojado o reclamo por la atención
+
+🖥️ = incluye monitor de signos vitales dinámico.
 
 Orden de estudio sugerido (plan de 4 semanas del informe): **Semana 1 Medicina
 Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
@@ -58,12 +159,40 @@ Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
 
 | Archivo | Rol |
 |---|---|
-| `index.html` | App completa (UI + motor de estaciones). Vanilla JS + Tailwind + Chart.js por CDN. |
-| `data.js` | Banco de estaciones. **Aquí se agrega/edita el contenido clínico.** |
+| `index.html` | App completa (UI + motor + circuito + edición). Vanilla JS + Tailwind + Chart.js por CDN. |
+| `data/00-core.js` | Configuración: áreas, competencias (SEGURA), helpers de etapas, catálogo `FUENTES`, `ESTACIONES = []`. |
+| `data/medint.js` | Estaciones de Medicina Interna. |
+| `data/pediatria.js` | Estaciones de Pediatría. |
+| `data/gineco.js` | Estaciones de Obstetricia y Ginecología. |
+| `data/cirugia.js` | Estaciones de Cirugía (incluye los temas urológicos del temario). |
+| `data/comunicacion.js` | Estaciones de comunicación y consejería (declaran su área entre las 4). |
+
+Cada archivo registra sus estaciones con `ESTACIONES.push(...)` y debe estar
+listado en los `<script>` de `index.html`.
+
+## Fuentes y trazabilidad
+
+Cada estación declara `fuentes: ['clave', ...]` con claves del catálogo `FUENTES`
+(`data/00-core.js`): guías GES/MINSAL, manual de Obstetricia y Ginecología UC,
+ATLS, AHA, Perfil de Conocimientos EUNACOM. Se muestran en el briefing.
+
+Son **referencias contra las que contrastar** el contenido, no textos que la
+estación reproduzca. Sirven para que quien estudie —o quien valide— pueda
+verificar cada criterio en la guía vigente en lugar de confiar en el material.
+
+Por diseño, las pautas evalúan **decisiones clínicas** (qué priorizar, qué examen
+primero, cuándo derivar, qué es peligroso) y **no incluyen dosis de fármacos**:
+la posología es donde un error es más dañino y más difícil de mantener vigente.
+
+## Reporte de dudas
+
+Cada estación tiene un botón **🚩 Reportar duda**: registra la observación en el
+navegador y permite exportar todas las dudas a un `.txt` desde el inicio, para
+revisarlas y corregir el contenido.
 
 ## Cómo agregar una estación
 
-Añade un objeto al arreglo `ESTACIONES` en `data.js`:
+Añade un objeto al `ESTACIONES.push(...)` del archivo de su área (`data/<area>.js`):
 
 ```js
 {
