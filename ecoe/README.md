@@ -16,7 +16,7 @@ con sus criterios mínimos.
 
 ## Dos niveles de revisión (no confundir)
 
-| Campo en `data.js` | Sello en la app | Qué garantiza |
+| Campo en los datos | Sello en la app | Qué garantiza |
 |---|---|---|
 | `revisionEstructura:'AAAA-MM-DD'` | Estructura revisada (azul) | El **formato**: etapas SEGURA, pauta, ítems críticos, instrucción de puerta y tiempos. **No** verifica el contenido médico. |
 | `validacionClinica:{por,fecha,fuente}` | ✓ Validado clínicamente (verde) | El **contenido clínico**, verificado por un profesional con experiencia vigente en el área, contra una fuente citable. |
@@ -86,20 +86,71 @@ cuanto se han confirmado **todas** las opciones de `estabiliza`. Lo llevan
 politrauma, sepsis de foco urinario, hemorragia digestiva alta y shock por
 deshidratación en el niño.
 
-## Estaciones incluidas (borrador)
+## Estaciones incluidas (48)
 
-| # | Área | Estación |
-|---|------|----------|
-| 1 | Medicina Interna | Dolor torácico agudo (IAMCEST) |
-| 2 | Medicina Interna | Déficit neurológico focal (ACV) |
-| 3 | Pediatría | Lactante con dificultad respiratoria |
-| 4 | Pediatría | Diarrea y deshidratación |
-| 5 | Obstetricia y Ginecología | Sangrado del primer trimestre |
-| 6 | Obstetricia y Ginecología | Preeclampsia |
-| 7 | Cirugía | Abdomen agudo |
-| 8 | Cirugía | Politrauma (ABCDE) |
-| 9 | Cirugía / Urología | Retención urinaria y sondaje (con procedimiento) |
-| 10 | Transversal | Comunicación de un diagnóstico grave (SPIKES) |
+Todas en estado **borrador**: ninguna tiene validación clínica.
+
+### 🫀 Medicina Interna (14)
+
+- Dolor torácico agudo
+- Déficit neurológico focal agudo
+- Disnea aguda — Insuficiencia cardíaca descompensada
+- Crisis hipertensiva — urgencia vs emergencia
+- Exacerbación de EPOC
+- Neumonía adquirida en la comunidad — ¿hospitalizar?
+- Sepsis de foco urinario — pielonefritis aguda 🖥️
+- Cetoacidosis diabética
+- Hemorragia digestiva alta 🖥️
+- Crisis convulsiva y estado post-ictal con sospecha de meningitis
+- Síncope — estratificación de riesgo
+- Comunicación de un diagnóstico grave
+- Paciente que rechaza el tratamiento indicado
+- Consejería breve de cese de tabaquismo
+
+### 🧒 Pediatría (11)
+
+- Lactante con dificultad respiratoria
+- Diarrea y deshidratación
+- Síndrome febril sin foco en lactante
+- Convulsión febril
+- Neumonía adquirida en la comunidad en el niño
+- Crisis obstructiva bronquial y técnica inhalatoria
+- Sospecha de meningitis en el niño
+- Ictericia neonatal
+- Control del niño sano: crecimiento, desarrollo y vacunas
+- Sospecha de maltrato infantil
+- Deshidratación grave y shock en el niño 🖥️
+
+### 🤰 Obstetricia y Ginecología (11)
+
+- Sangrado del primer trimestre
+- Preeclampsia
+- Hemorragia posparto
+- Rotura prematura de membranas
+- Trabajo de parto: evaluación inicial y derivación
+- Control prenatal: primera consulta
+- Diabetes gestacional: pesquisa y manejo inicial
+- Flujo vaginal e infección de transmisión sexual
+- Proceso inflamatorio pelviano
+- Sangrado uterino anormal con sospecha de cáncer cervicouterino
+- Anticoncepción: consejería, elegibilidad y decisión compartida
+
+### 🔪 Cirugía (12)
+
+- Abdomen agudo
+- Politrauma (manejo ABCDE) 🖥️
+- Retención urinaria aguda y sondaje
+- Cólico renal y litiasis ureteral
+- Escroto agudo y torsión testicular
+- Pielonefritis obstructiva y urosepsis
+- Hematuria macroscópica
+- Trauma genitourinario: cuándo NO sondear
+- Colecistitis y colangitis aguda
+- Obstrucción intestinal
+- Manejo de herida y profilaxis antitetánica
+- Paciente enojado o reclamo por la atención
+
+🖥️ = incluye monitor de signos vitales dinámico.
 
 Orden de estudio sugerido (plan de 4 semanas del informe): **Semana 1 Medicina
 Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
@@ -113,11 +164,11 @@ Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
 | `data/medint.js` | Estaciones de Medicina Interna. |
 | `data/pediatria.js` | Estaciones de Pediatría. |
 | `data/gineco.js` | Estaciones de Obstetricia y Ginecología. |
-| `data/cirugia.js` | Estaciones de Cirugía y Urología. |
-| `data/transversal.js` | Estaciones transversales (comunicación y consejería). |
+| `data/cirugia.js` | Estaciones de Cirugía (incluye los temas urológicos del temario). |
+| `data/comunicacion.js` | Estaciones de comunicación y consejería (declaran su área entre las 4). |
 
-Cada archivo de área registra sus estaciones con `ESTACIONES.push(...)`. Para
-añadir un área nueva, crea el archivo y súmalo a los `<script>` de `index.html`.
+Cada archivo registra sus estaciones con `ESTACIONES.push(...)` y debe estar
+listado en los `<script>` de `index.html`.
 
 ## Fuentes y trazabilidad
 
@@ -141,7 +192,7 @@ revisarlas y corregir el contenido.
 
 ## Cómo agregar una estación
 
-Añade un objeto al arreglo `ESTACIONES` en `data.js`:
+Añade un objeto al `ESTACIONES.push(...)` del archivo de su área (`data/<area>.js`):
 
 ```js
 {
