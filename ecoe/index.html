@@ -27,6 +27,9 @@
   <script src="data/pediatria.js"></script>
   <script src="data/gineco.js"></script>
   <script src="data/cirugia.js"></script>
+  <script src="data/cirugia-musculoesqueletico.js"></script>
+  <script src="data/cirugia-biliar-urologia.js"></script>
+  <script src="data/cirugia-vascular.js"></script>
   <script src="data/comunicacion.js"></script>
   <script>
   // ============================ Persistencia ============================
@@ -77,6 +80,7 @@
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ecoe-reportes.txt'; a.click(); URL.revokeObjectURL(a.href);
   }
 
+  let filtroArea = null; // null = todas las áreas
   let sesion = null;    // estado de la estación en curso
   let circuito = null;  // { cola:[ids], idx, resultados:[], nombre }
 
@@ -84,6 +88,18 @@
   const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
   const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   const badge = area => { const a=AREAS[area]; return `<span class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full" style="background:${a.color}1a;color:${a.color}">${a.icono} ${a.nombre}</span>`; };
+  // Prioridad de estudio según la frecuencia con que el tema aparece en el examen.
+  // Fuente: recopilación de temas aportada por el usuario. Orienta el orden de
+  // estudio; no garantiza qué saldrá en una rendición concreta.
+  const FRECUENCIA = {
+    repetida: { txt:'Sale seguido', orden:0, cls:'bg-red-100 text-red-700',       tip:'Tema que se ha repetido en varias rendiciones' },
+    reciente: { txt:'Caso reciente', orden:1, cls:'bg-orange-100 text-orange-700', tip:'Apareció entre los últimos casos conocidos' },
+    listada:  { txt:'En el temario', orden:2, cls:'bg-slate-100 text-slate-600',   tip:'Figura en el temario del examen' },
+  };
+  const selloFrec = e => e.frecuencia && FRECUENCIA[e.frecuencia]
+    ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${FRECUENCIA[e.frecuencia].cls}" title="${esc(FRECUENCIA[e.frecuencia].tip)}">${FRECUENCIA[e.frecuencia].txt}</span>` : '';
+  const ordenFrec = e => e.frecuencia && FRECUENCIA[e.frecuencia] ? FRECUENCIA[e.frecuencia].orden : 3;
+
   // Dos niveles distintos: revisión de estructura ≠ validación clínica
   const sello = e => e.validacionClinica
     ? `<span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700" title="Contenido clínico verificado por ${esc(e.validacionClinica.por)}">✓ Validado clínicamente</span>`
@@ -132,8 +148,10 @@
 
     // agrupar por área en orden del plan de 4 semanas
     const ordenAreas = Object.keys(AREAS).sort((a,b)=>AREAS[a].semana-AREAS[b].semana);
-    const grupos = ordenAreas.map(ak=>{
-      const ests = ESTACIONES.filter(e=>e.area===ak);
+    const visibles = filtroArea? ordenAreas.filter(a=>a===filtroArea) : ordenAreas;
+    const grupos = visibles.map(ak=>{
+      const ests = ESTACIONES.filter(e=>e.area===ak)
+        .sort((a,b)=>ordenFrec(a)-ordenFrec(b) || a.titulo.localeCompare(b.titulo));
       if(!ests.length) return '';
       const cards = ests.map(e=>{
         const p=ultimo[e.id];
@@ -141,7 +159,7 @@
           ? `<div class="mt-2 text-sm"><span class="font-bold" style="color:${p.aprobado?'#16a34a':'#dc2626'}">${p.aprobado?'✓ Aprobado':'✗ No aprobado'}</span> <span class="text-slate-500">· ${p.pct}%</span></div>`
           : `<div class="mt-2 text-sm text-slate-400">Sin intentos</div>`;
         return `<button onclick="verBriefing('${e.id}')" class="text-left bg-white rounded-2xl shadow-sm hover:shadow-md border border-sky-100 p-4 opt">
-          <div class="flex justify-between items-start gap-2"><span class="text-xs text-slate-400">⏱ ${e.minutos} min</span>${sello(e)}</div>
+          <div class="flex justify-between items-start gap-2"><span class="text-xs text-slate-400">⏱ ${e.minutos} min</span><span class="flex gap-1 flex-wrap justify-end">${selloFrec(e)}${sello(e)}</span></div>
           <h3 class="mt-1 font-bold leading-snug">${e.titulo}</h3>
           <p class="text-xs text-slate-500 mt-1">${esc(e.motivo)}</p>${estado}</button>`;
       }).join('');
@@ -198,7 +216,12 @@
         </div>
       </details>
 
-      <div class="mt-2 text-sm text-slate-500">Sugerencia del plan: comienza por <b>Medicina Interna (Semana 1)</b>.</div>
+      <div class="mt-6 flex flex-wrap gap-1.5 items-center">
+        <span class="text-xs text-slate-400 mr-1">Ver:</span>
+        <button onclick="setFiltro(null)" class="text-xs px-3 py-1.5 rounded-full border-2 ${!filtroArea?'bg-slate-700 text-white border-slate-700':'bg-white text-slate-600 border-slate-200'}">Todas (${ESTACIONES.length})</button>
+        ${ordenAreas.map(a=>`<button onclick="setFiltro('${a}')" class="text-xs px-3 py-1.5 rounded-full border-2 ${filtroArea===a?'text-white':'bg-white text-slate-600 border-slate-200'}" ${filtroArea===a?`style="background:${AREAS[a].color};border-color:${AREAS[a].color}"`:''}>${AREAS[a].icono} ${AREAS[a].nombre} (${ESTACIONES.filter(e=>e.area===a).length})</button>`).join('')}
+      </div>
+      <div class="mt-2 text-sm text-slate-500">${filtroArea? 'Ordenadas por frecuencia en el examen: primero las que más se repiten.' : 'Sugerencia del plan: comienza por <b>Medicina Interna (Semana 1)</b>.'}</div>
       ${grupos}
 
       <div class="mt-8 text-center space-x-4">
@@ -208,6 +231,8 @@
       <footer class="mt-6 text-center text-xs text-slate-400">Módulo ECOE · Dr. Juan Carlos Riera · v2</footer>`;
     renderGraficoResumen(d);
   }
+
+  function setFiltro(a){ filtroArea=a; renderHome(); window.scrollTo(0,0); }
 
   function renderResumen(d){
     if(!d.intentos.length) return `<div class="bg-white rounded-2xl border border-sky-100 p-5 text-slate-500 mt-4 fade">Aún no tienes intentos. Elige una estación o arma un circuito para empezar.</div>`;

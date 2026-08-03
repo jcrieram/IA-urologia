@@ -4,6 +4,7 @@ ESTACIONES.push(
   /* ========== 7 · CIRUGÍA — Abdomen agudo ========== */
   {
     id:'cir-abdomen-agudo', area:'cirugia', titulo:'Abdomen agudo', nivel:'Médico general', minutos:8,
+    frecuencia:'repetida',
     revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 37 años con dolor abdominal de 18 horas.',
@@ -179,6 +180,7 @@ ESTACIONES.push(
   /* ========== 10 · CIRUGÍA — Cólico renal / litiasis ureteral ========== */
   {
     id:'cir-colico-renal', area:'cirugia', titulo:'Cólico renal y litiasis ureteral', nivel:'Médico general', minutos:8,
+    frecuencia:'repetida',
     revisionEstructura:'2026-08-03',
     validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','eunacom_perfil'],
