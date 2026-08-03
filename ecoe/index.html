@@ -108,14 +108,18 @@
       const extra = (c.opciones[eid]||[]).map((o,k)=>({...o, id:'cu'+i+'_'+k, _custom:true}));
       return {...et, eid, opciones:[...et.opciones, ...extra]};
     });
+    // Las etapas del alumno se insertan en su lugar lógico SIN reordenar las
+    // originales: algunas estaciones (comunicación, procedimiento) tienen un
+    // flujo deliberado que no coincide con el orden estricto de COMPETENCIAS.
     (c.etapas||[]).forEach((et,j)=>{
       const eid = baseId+'::c'+j;
       const ops = (c.opciones[eid]||[]).map((o,k)=>({...o, id:'ce'+j+'_'+k, _custom:true}));
-      etapas.push({ comp:et.comp, tipo:et.tipo||'multi', instruccion:et.instruccion, eid, _customEtapa:true, opciones:ops });
+      const nueva = { comp:et.comp, tipo:et.tipo||'multi', instruccion:et.instruccion, eid, _customEtapa:true, opciones:ops };
+      const ci = COMPETENCIAS.indexOf(et.comp);
+      let pos = 0;
+      etapas.forEach((x,k)=>{ if(COMPETENCIAS.indexOf(x.comp) <= ci) pos = k+1; });
+      etapas.splice(pos, 0, nueva);
     });
-    etapas = etapas.map((et,idx)=>({et,idx}))
-      .sort((a,b)=>(COMPETENCIAS.indexOf(a.et.comp)-COMPETENCIAS.indexOf(b.et.comp))||(a.idx-b.idx))
-      .map(x=>x.et);
     return {...base, etapas};
   }
 

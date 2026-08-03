@@ -22,12 +22,13 @@ con sus criterios mínimos.
 | `validacionClinica:{por,fecha,fuente}` | ✓ Validado clínicamente (verde) | El **contenido clínico**, verificado por un profesional con experiencia vigente en el área, contra una fuente citable. |
 | — (sin campo) | Borrador (ámbar) | Pendiente de revisión. |
 
-| Área | Estructura | Contenido clínico |
-|---|---|---|
-| Medicina Interna | ✓ 2026-08-02 | ⏳ Pendiente |
-| Pediatría | ⏳ | ⏳ Pendiente |
-| Obstetricia y Ginecología | ⏳ | ⏳ Pendiente |
-| Cirugía / Transversal | ⏳ | ⏳ Pendiente |
+| Área | Estaciones | Estructura | Contenido clínico |
+|---|---|---|---|
+| Medicina Interna | 14 | ✓ 2 revisadas | ⏳ Pendiente |
+| Cirugía | 12 | ⏳ | ⏳ Pendiente |
+| Pediatría | 11 | ⏳ | ⏳ Pendiente |
+| Obstetricia y Ginecología | 11 | ⏳ | ⏳ Pendiente |
+| **Total** | **48** | | |
 
 ## Qué hace (v2)
 
