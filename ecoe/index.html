@@ -194,6 +194,53 @@
         </div>
       </header>
 
+      <div class="bg-white rounded-2xl border-2 border-sky-300 p-4 mb-4 fade">
+        <button onclick="cfg.set('guiaVista', !${cfg.load().guiaVista!==false}); renderHome();" class="w-full flex items-center justify-between text-left">
+          <span class="font-bold text-sky-800">👋 ¿Cómo se usa esta app?</span>
+          <span class="text-sky-500 text-sm">${cfg.load().guiaVista!==false?'ocultar ▲':'ver ▼'}</span>
+        </button>
+        ${cfg.load().guiaVista!==false?`
+        <div class="mt-3 text-sm text-slate-700 space-y-3">
+          <div>
+            <b class="text-sky-700">1 · Elige una estación</b>
+            <p class="text-slate-600">Cada tarjeta es un caso clínico, como una estación del examen. Usa el filtro de <b>área</b> para trabajar una etapa a la vez.</p>
+          </div>
+          <div>
+            <b class="text-sky-700">2 · Decide cómo trabajarla</b>
+            <p class="text-slate-600">Al abrirla verás la <b>instrucción de puerta</b> (lo que dice el enunciado) y el caso. Ahí eliges:</p>
+            <ul class="mt-1 space-y-1 text-slate-600">
+              <li class="bg-emerald-50 border border-emerald-200 rounded-lg p-2"><b>📖 Ficha de estudio</b> — repasar el tema sin cronómetro: diagnóstico, lo obligatorio, los errores graves y dónde estudiarlo. <i>Empieza por aquí si el tema no lo tienes fresco.</i></li>
+              <li class="bg-sky-50 border border-sky-200 rounded-lg p-2"><b>▶ Iniciar estación</b> — el simulacro cronometrado de verdad.</li>
+            </ul>
+          </div>
+          <div>
+            <b class="text-sky-700">3 · Durante el simulacro</b>
+            <p class="text-slate-600">Avanzas por etapas: seguridad → anamnesis → examen físico → exámenes → diagnóstico → manejo → cierre. En cada una marcas <b>qué harías</b> y al confirmar se revela el hallazgo y por qué. Ojo: <b>las acciones innecesarias o peligrosas restan</b>, igual que en el examen.</p>
+          </div>
+          <div>
+            <b class="text-sky-700">4 · Al terminar</b>
+            <p class="text-slate-600">Obtienes el puntaje, si aprobaste, qué elementos críticos omitiste y una revisión etapa por etapa.</p>
+          </div>
+          <div>
+            <b class="text-sky-700">5 · Cuando ya domines estaciones sueltas</b>
+            <p class="text-slate-600">Usa el <b>🔁 modo circuito</b>: varias estaciones seguidas, como el examen real, donde hay que aprobarlas todas.</p>
+          </div>
+          <div class="border-t border-slate-200 pt-2">
+            <b class="text-sky-700">Qué significan los sellos</b>
+            <ul class="mt-1 text-xs text-slate-600 space-y-1">
+              <li><span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">Sale seguido</span> el tema se ha repetido en el examen — priorízalo</li>
+              <li><span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">Caso reciente</span> apareció entre los últimos casos conocidos</li>
+              <li><span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">✓ Validado clínicamente</span> un especialista del área revisó el contenido</li>
+              <li><span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-700">Estructura revisada</span> el formato está aprobado, pero <b>el contenido clínico no</b>: contrástalo con las guías</li>
+            </ul>
+          </div>
+          <div class="border-t border-slate-200 pt-2">
+            <b class="text-sky-700">Dos ayudas que puedes apagar</b>
+            <p class="text-slate-600 text-xs">Más abajo verás <b>🧠 recuerdo abierto</b> (te pide escribir de memoria antes de mostrarte la lista) y <b>🫆 mapa corporal</b> (examinas tocando la zona del cuerpo). Ambas hacen el entrenamiento más exigente y más parecido a la realidad. Si solo quieres repasar rápido, desactívalas.</p>
+          </div>
+        </div>`:''}
+      </div>
+
       <div class="bg-white rounded-2xl border border-violet-200 p-4 mb-4 fade flex items-start gap-3">
         <input type="checkbox" id="cfgRecuerdo" ${cfg.load().recuerdoAbierto?'checked':''}
           onchange="cfg.set('recuerdoAbierto', this.checked)" class="mt-1 w-4 h-4 accent-violet-600">
