@@ -55,6 +55,11 @@ con sus criterios mínimos.
   pistas — entrena **evocar** en vez de reconocer, que es lo que se necesita
   frente al paciente. Se aplica a anamnesis, examen físico, exámenes,
   procedimiento y manejo.
+- **🫆 Mapa corporal** en el examen físico: en vez de leer la lista completa de
+  maniobras, tocas la región del cuerpo (cabeza, cuello, tórax, abdomen, pelvis,
+  extremidades o general) y solo ves las maniobras de esa zona. Entrena decidir
+  *dónde* examinar. Cada opción se asigna por su campo `region` o, si no lo
+  declara, infiriéndola del texto (`REGLAS_REGION` en `index.html`).
 - **🖥️ Monitor de signos vitales dinámico** en estaciones de urgencia: los
   vitales se **deterioran con el tiempo** si no se ejecutan las medidas
   estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en

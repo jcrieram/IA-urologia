@@ -50,7 +50,7 @@
   // Configuración del entrenamiento
   const LS_CFG = 'ecoe_config_v1';
   const cfg = {
-    load(){ try { return Object.assign({recuerdoAbierto:true}, JSON.parse(localStorage.getItem(LS_CFG))||{}); } catch(e){ return {recuerdoAbierto:true}; } },
+    load(){ try { return Object.assign({recuerdoAbierto:true, mapaCorporal:true}, JSON.parse(localStorage.getItem(LS_CFG))||{}); } catch(e){ return {recuerdoAbierto:true, mapaCorporal:true}; } },
     set(k,v){ const c=this.load(); c[k]=v; localStorage.setItem(LS_CFG, JSON.stringify(c)); },
   };
   // Competencias donde el recuerdo abierto aporta (evocar antes de reconocer)
@@ -164,6 +164,15 @@
         </label>
       </div>
 
+      <div class="bg-white rounded-2xl border border-sky-200 p-4 mb-4 fade flex items-start gap-3">
+        <input type="checkbox" id="cfgMapa" ${cfg.load().mapaCorporal!==false?'checked':''}
+          onchange="cfg.set('mapaCorporal', this.checked)" class="mt-1 w-4 h-4 accent-sky-600">
+        <label for="cfgMapa" class="text-sm cursor-pointer">
+          <b class="text-sky-700">🫆 Mapa corporal en el examen f&iacute;sico</b>
+          <span class="block text-xs text-slate-500 mt-0.5">Examinas tocando la regi&oacute;n del cuerpo en vez de leer una lista completa. Se acerca a decidir <i>d&oacute;nde</i> mirar, que es parte de lo que se eval&uacute;a.</span>
+        </label>
+      </div>
+
       <div class="bg-sky-600 text-white rounded-2xl p-5 fade">
         <div class="font-bold text-lg">🔁 Modo circuito</div>
         <p class="text-sky-100 text-sm mt-1">Encadena varias estaciones seguidas, como el examen real: cambios rápidos de especialidad y puntaje global.</p>
@@ -252,7 +261,7 @@
   // ============================ Motor de estación ============================
   function iniciar(id){
     const e = buildEstacion(id);
-    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{},
+    sesion = { estacion:e, etapaIdx:0, seleccion:{}, revelado:{}, recuerdo:{}, recuerdoHecho:{}, region:null,
                tInicial:e.minutos*60, tRestante:e.minutos*60, timer:null,
                mon: e.monitor? { paso:-1, estabilizado:false, vitales:Object.assign({},e.monitor.vitales), aviso:'' } : null };
     sesion.timer = setInterval(()=>{
@@ -320,6 +329,47 @@
       </div>`;
   }
 
+  // ============================ Mapa corporal ============================
+  // Regiones examinables. Cada opción de examen físico se asigna a una región
+  // por su campo `region` o, si no lo declara, infiriéndola del texto.
+  const REGIONES = {
+    general:      { nombre:'General y signos vitales', icono:'📊' },
+    cabeza:       { nombre:'Cabeza y cara',            icono:'🧠' },
+    cuello:       { nombre:'Cuello',                   icono:'🦴' },
+    torax:        { nombre:'Tórax',                    icono:'🫁' },
+    abdomen:      { nombre:'Abdomen',                  icono:'🩺' },
+    pelvis:       { nombre:'Pelvis y genital',         icono:'⚕️' },
+    extremidades: { nombre:'Extremidades',             icono:'🦵' },
+  };
+  const REGLAS_REGION = [
+    [/tacto rectal|pr[óo]stata|escroto|testic|pene|meato|genital|ginecol[óo]g|especuloscop|vaginal|tacto vaginal|perin|uretr/i,'pelvis'],
+    [/mcburney|blumberg|abdom|hep[áa]t|esplen|pu[ñn]opercusi|fosa il[íi]aca|hipogastrio|globo vesical|altura uterina|rovsing|psoas|obturador|ruidos hidroa[ée]reos|latidos cardiofetales|lcf/i,'abdomen'],
+    [/t[óo]rax|tor[áa]cic|pulmonar|respiratori|murmullo|cr[ée]pitos|sibilanc|auscultaci[óo]n card|card[íi]ac|coraz[óo]n|soplo|r3|retracc|expansi[óo]n|neumot[óo]rax|mama|pleur|derrame|vibraciones vocales|matidez|quejido|aleteo/i,'torax'],
+    [/cuello|yugular|tiroide|carot[íi]d|rigidez de nuca|men[íi]nge|kernig|brudzinski/i,'cuello'],
+    [/pupila|glasgow|fauces|otoscop|o[íi]do|boca|facial|craneal|cefal|fondo de ojo|conciencia|neurol[óo]gic|lenguaje|afasia|campos visuales|fontanela|estado mental|orientaci[óo]n|ocular|ojos hundidos|faringe|amigdal/i,'cabeza'],
+    [/extremidad|pulsos?\b|pedio|edema|tvp|pierna|brazo|fractura|luxaci|inmoviliz|reflejo|rot\b|clonus|hemipare|fuerza muscular|marcha|articulaci/i,'extremidades'],
+    [/signos vitales|presi[óo]n arterial|temperatura|saturaci|frecuencia (card|resp)|peso|talla|estado general|apariencia|perfusi[óo]n|llene capilar|piel|hidrataci|mucosas|palidez|deshidrat|pliegue|glicemia|hgt|abcde/i,'general'],
+  ];
+  function regionDe(o){
+    if(o.region && REGIONES[o.region]) return o.region;
+    for(const [re,r] of REGLAS_REGION) if(re.test(o.texto)) return r;
+    return 'general';
+  }
+  function mapaCorporalSVG(activas, sel){
+    const col = r => sel===r ? '#0284c7' : (activas.has(r) ? '#bae6fd' : '#e2e8f0');
+    const cur = r => activas.has(r) ? 'cursor:pointer' : 'cursor:default';
+    const p = (r,shape) => `<g onclick="${activas.has(r)?`selRegion('${r}')`:''}" style="${cur(r)}">${shape.replace('FILL',col(r))}</g>`;
+    return `<svg viewBox="0 0 200 400" class="w-full max-w-[190px] mx-auto block">
+      ${p('cabeza', '<circle cx="100" cy="34" r="25" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('cuello', '<rect x="89" y="57" width="22" height="15" rx="4" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('torax',  '<path d="M64 74 h72 a8 8 0 0 1 8 8 v56 a6 6 0 0 1 -6 6 h-76 a6 6 0 0 1 -6 -6 v-56 a8 8 0 0 1 8 -8 z" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('abdomen','<rect x="68" y="147" width="64" height="55" rx="6" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('pelvis', '<path d="M70 205 h60 v30 a10 10 0 0 1 -10 10 h-40 a10 10 0 0 1 -10 -10 z" fill="FILL" stroke="#94a3b8"/>')}
+      ${p('extremidades','<g><rect x="36" y="80" width="21" height="112" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="143" y="80" width="21" height="112" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="74" y="248" width="22" height="130" rx="10" fill="FILL" stroke="#94a3b8"/><rect x="104" y="248" width="22" height="130" rx="10" fill="FILL" stroke="#94a3b8"/></g>')}
+    </svg>`;
+  }
+  function selRegion(r){ sesion.region = (sesion.region===r? null : r); renderEtapa(); }
+
   // ¿Esta etapa debe pedir recuerdo abierto antes de mostrar la pauta?
   function pideRecuerdo(idx){
     const etapa = sesion.estacion.etapas[idx];
@@ -359,7 +409,33 @@
       const ta=document.getElementById('recuerdoTxt'); if(ta) ta.focus();
       return;
     }
-    const opciones=etapa.opciones.length? etapa.opciones.map(o=>{
+    // --- Mapa corporal: solo en examen físico, antes de revelar la pauta ---
+    const usaMapa = etapa.comp==='Examen físico' && cfg.load().mapaCorporal!==false && !revelado && etapa.opciones.length;
+    let mapaHTML='';
+    let visibles = etapa.opciones;
+    if(usaMapa){
+      const activas = new Set(etapa.opciones.map(regionDe));
+      const chips = Object.keys(REGIONES).filter(r=>activas.has(r)).map(r=>{
+        const n = etapa.opciones.filter(o=>regionDe(o)===r).length;
+        const hechas = etapa.opciones.filter(o=>regionDe(o)===r && sel.includes(o.id)).length;
+        const act = sesion.region===r;
+        return `<button onclick="selRegion('${r}')" class="text-xs px-2.5 py-1.5 rounded-full border-2 ${act?'bg-sky-600 text-white border-sky-600':'bg-white text-slate-600 border-slate-200'}">
+          ${REGIONES[r].icono} ${REGIONES[r].nombre} <span class="opacity-70">${hechas}/${n}</span></button>`;
+      }).join(' ');
+      mapaHTML = `<div class="mb-4 bg-slate-50 border border-slate-200 rounded-xl p-3">
+        <div class="text-[11px] font-bold uppercase text-slate-500 mb-1">🫆 Examine por región</div>
+        <p class="text-[11px] text-slate-400 mb-2">Toca la zona del cuerpo (o una etiqueta) para examinarla. Solo verás las maniobras de esa región.</p>
+        <div class="flex gap-3 items-start">
+          <div class="w-1/3">${mapaCorporalSVG(activas, sesion.region)}</div>
+          <div class="flex-1 flex flex-wrap gap-1.5 content-start">${chips}
+            ${sesion.region?`<button onclick="selRegion('${sesion.region}')" class="text-xs px-2.5 py-1.5 rounded-full border-2 border-slate-200 bg-white text-slate-500">Ver todas</button>`:''}
+          </div>
+        </div>
+      </div>`;
+      if(sesion.region) visibles = etapa.opciones.filter(o=>regionDe(o)===sesion.region);
+    }
+
+    const opciones=visibles.length? visibles.map(o=>{
       const checked=sel.includes(o.id), showResp=revelado&&checked;
       let ring=checked?'border-sky-500 bg-sky-50':'border-slate-200 bg-white', mark='';
       if(revelado&&checked){ const good=o.tipo!=='peligroso'&&o.puntos>0;
@@ -369,7 +445,9 @@
         <div class="flex items-start gap-2"><div class="mt-0.5 w-5 text-center">${revelado?mark:(checked?'<span class="text-sky-600 font-bold">✓</span>':'<span class="text-slate-300">▢</span>')}</div>
         <div class="flex-1"><p class="text-sm font-medium text-slate-800">${esc(o.texto)}${o._custom?' <span class="text-[10px] text-violet-500 font-bold">(tuyo)</span>':''}</p>
         ${showResp?`<div class="mt-2 text-sm text-slate-600 bg-white/70 rounded-lg p-2 border border-slate-100"><b class="text-slate-500">Hallazgo:</b> ${esc(o.resp)||'—'}<br><b class="text-slate-500">Nota:</b> ${esc(o.fb)}</div>`:''}</div></div></div>`;
-    }).join('') : `<div class="text-sm text-slate-400 italic p-3">Módulo sin opciones todavía. Agrégalas desde "Personalizar estación".</div>`;
+    }).join('') : (usaMapa && sesion.region
+        ? `<div class="text-sm text-slate-400 italic p-3">No hay maniobras registradas para esta región en esta estación.</div>`
+        : `<div class="text-sm text-slate-400 italic p-3">Módulo sin opciones todavía. Agrégalas desde "Personalizar estación".</div>`);
 
     const esUltima=idx===e.etapas.length-1;
     const btn=!revelado
@@ -392,6 +470,7 @@
           <div class="text-[11px] font-bold uppercase text-violet-600 mb-1">🧠 Lo que escribiste de memoria</div>
           <p class="text-sm text-slate-700 whitespace-pre-wrap">${esc(sesion.recuerdo[idx])}</p>
           <p class="text-[11px] text-violet-500 mt-1">Contrástalo con la pauta: lo que no escribiste es tu brecha real.</p></div>`:''}
+        ${mapaHTML}
         <div class="space-y-2 scroll">${opciones}</div>
         <div class="mt-5">${btn}</div>
       </div>
@@ -410,7 +489,7 @@
     if(etapa.tipo==='unica' && !(sesion.seleccion[idx]||[]).length){ alert('Selecciona una opción.'); return; }
     sesion.revelado[idx]=true; actualizarMonitor(); renderEtapa();
   }
-  function siguienteEtapa(){ sesion.etapaIdx++; renderEtapa(); }
+  function siguienteEtapa(){ sesion.etapaIdx++; sesion.region=null; renderEtapa(); }
 
   function calcular(){
     const e=sesion.estacion; let ganado=0,total=0,peligrosCriticos=[],clavesCriticasOmitidas=[],dxCorrecto=true,huboDx=false;
