@@ -6,6 +6,7 @@ ESTACIONES.push(
   /* ========== MEDICINA INTERNA — Comunicación de un diagnóstico grave ========== */
   {
     id:'mi-malas-noticias', area:'medint', titulo:'Comunicación de un diagnóstico grave', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Entregar información de una probable enfermedad grave.',
     puerta:'Explique a un paciente que los resultados sugieren una enfermedad grave y que requiere estudio especializado.',
@@ -38,6 +39,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA — Paciente enojado / reclamo en urgencia ========== */
   {
     id:'cir-paciente-enojado', area:'cirugia', titulo:'Paciente enojado o reclamo por la atención', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Paciente molesto por una espera prolongada y por sentirse mal atendido.',
     puerta:'Un paciente reclama airadamente por la demora y por la atención recibida. Maneje la situación.',
@@ -80,6 +82,7 @@ ESTACIONES.push(
   /* ========== MEDICINA INTERNA — Rechazo de tratamiento ========== */
   {
     id:'mi-rechazo-tratamiento', area:'medint', titulo:'Paciente que rechaza el tratamiento indicado', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['eunacom_perfil','eunacom_sp'],
     motivo:'Paciente que se niega a una indicación necesaria y quiere retirarse.',
     puerta:'Un paciente rechaza la hospitalización que usted indica y solicita irse de alta. Maneje la situación.',
@@ -124,6 +127,7 @@ ESTACIONES.push(
   /* ========== MEDICINA INTERNA — Consejería breve: cese de tabaquismo ========== */
   {
     id:'mi-consejeria-tabaco', area:'medint', titulo:'Consejería breve de cese de tabaquismo', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Paciente fumador en control, sin intención clara de dejar de fumar.',
     puerta:'Realice una consejería breve de cese de tabaquismo a un paciente fumador que consulta por otro motivo.',

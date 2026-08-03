@@ -4,6 +4,7 @@ ESTACIONES.push(
   /* ========== 7 · CIRUGÍA — Abdomen agudo ========== */
   {
     id:'cir-abdomen-agudo', area:'cirugia', titulo:'Abdomen agudo', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 37 años con dolor abdominal de 18 horas.',
     puerta:'Hombre de 37 años con dolor abdominal de 18 horas. Realice anamnesis y examen, plantee diagnóstico y conducta.',
@@ -51,6 +52,7 @@ ESTACIONES.push(
   /* ========== 8 · CIRUGÍA — Politrauma (ABCDE) ========== */
   {
     id:'cir-politrauma', area:'cirugia', titulo:'Politrauma (manejo ABCDE)', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     monitor:{
       vitales:{ PA:'92/58', FC:128, FR:28, SatO2:93, T:'36,1' },
       deterioro:[
@@ -73,6 +75,15 @@ ESTACIONES.push(
         { id:'s2', texto:'Equipo de protección personal y seguridad de la escena', tipo:'util', puntos:1, resp:'Se coloca EPP.', fb:'Autoprotección del equipo.' },
         { id:'s3', texto:'Iniciar anamnesis detallada antes de evaluar el ABCDE', tipo:'peligroso', puntos:-2, resp:'Retrasa la estabilización.', fb:'Primero ABCDE; la historia (AMPLIA) va después.' },
       ]},
+      { comp:'Examen físico', tipo:'secuencia', puntos:10, criticos:['A','B'],
+        instruccion:'Ordene la secuencia de evaluación del paciente politraumatizado.',
+        pasos:[
+          { id:'A', texto:'A — Vía aérea permeable con control de la columna cervical', fb:'Primero siempre: sin vía aérea nada de lo demás sirve, y el cuello se protege desde el inicio.' },
+          { id:'B', texto:'B — Ventilación y oxigenación; descartar neumotórax a tensión', fb:'Una vez permeable la vía aérea, asegurar que el paciente ventile.' },
+          { id:'C', texto:'C — Circulación: controlar hemorragias y reponer volumen', fb:'El shock hemorrágico se trata deteniendo el sangrado, no solo aportando volumen.' },
+          { id:'D', texto:'D — Déficit neurológico: Glasgow, pupilas y glicemia', fb:'Se evalúa después de estabilizar lo que mata antes.' },
+          { id:'E', texto:'E — Exposición completa evitando la hipotermia', fb:'Buscar lesiones ocultas sin enfriar al paciente.' },
+        ] },
       { comp:'Examen físico', tipo:'multi', instruccion:'A — Vía aérea con control cervical.', opciones:[
         { id:'a1', texto:'Evaluar/permeabilizar vía aérea con inmovilización cervical', tipo:'clave', puntos:3, critico:true, resp:'Vía aérea permeable; collar cervical.', fb:'A siempre con protección de la columna cervical.' },
         { id:'a2', texto:'Aspirar secreciones / retirar cuerpos extraños si obstruyen', tipo:'util', puntos:1, resp:'Se despeja la vía aérea.', fb:'Asegura la permeabilidad.' },
@@ -113,6 +124,8 @@ ESTACIONES.push(
   /* ========== 9 · CIRUGÍA/UROLOGÍA — Retención urinaria y sondaje ========== */
   {
     id:'cir-retencion-sondaje', area:'cirugia', titulo:'Retención urinaria aguda y sondaje', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Varón de 72 años con imposibilidad para orinar y dolor hipogástrico.',
     puerta:'Varón de 72 años con imposibilidad para orinar y dolor hipogástrico. Evalúe y realice el manejo (incluye procedimiento).',
@@ -166,6 +179,8 @@ ESTACIONES.push(
   /* ========== 10 · CIRUGÍA — Cólico renal / litiasis ureteral ========== */
   {
     id:'cir-colico-renal', area:'cirugia', titulo:'Cólico renal y litiasis ureteral', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 42 años con dolor lumbar derecho intenso de inicio brusco.',
     puerta:'Hombre de 42 años con dolor lumbar derecho de inicio brusco, intenso y en oleadas. Realice anamnesis y examen, plantee diagnóstico y conducta.',
@@ -232,6 +247,8 @@ ESTACIONES.push(
   /* ========== 11 · CIRUGÍA — Escroto agudo / torsión testicular ========== */
   {
     id:'cir-escroto-agudo', area:'cirugia', titulo:'Escroto agudo y torsión testicular', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Adolescente de 14 años con dolor testicular izquierdo de inicio brusco.',
     puerta:'Adolescente de 14 años con dolor testicular izquierdo de inicio brusco hace 3 horas. Evalúe, plantee diagnóstico y defina conducta.',
@@ -298,6 +315,8 @@ ESTACIONES.push(
   /* ========== 12 · CIRUGÍA — Pielonefritis obstructiva / urosepsis ========== */
   {
     id:'cir-pielonefritis-obstructiva', area:'cirugia', titulo:'Pielonefritis obstructiva y urosepsis', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','minsal_ges','eunacom_perfil'],
     motivo:'Mujer de 58 años con fiebre alta, calofríos y dolor lumbar izquierdo.',
     puerta:'Mujer de 58 años con fiebre alta, calofríos y dolor lumbar izquierdo, con antecedente de litiasis. Evalúe, estabilice y defina conducta.',
@@ -363,6 +382,8 @@ ESTACIONES.push(
   /* ========== 13 · CIRUGÍA — Hematuria macroscópica ========== */
   {
     id:'cir-hematuria-macroscopica', area:'cirugia', titulo:'Hematuria macroscópica', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 66 años consulta por orina con sangre.',
     puerta:'Hombre de 66 años, fumador, consulta por orina con sangre sin dolor. Realice anamnesis y examen, plantee diagnóstico y conducta.',
@@ -432,6 +453,8 @@ ESTACIONES.push(
   /* ========== 14 · CIRUGÍA — Trauma genitourinario y uretrorragia ========== */
   {
     id:'cir-trauma-genitourinario', area:'cirugia', titulo:'Trauma genitourinario: cuándo NO sondear', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     fuentes:['atls','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 30 años politraumatizado con fractura de pelvis y sangre en el meato.',
     puerta:'Hombre de 30 años tras caída de altura, con dolor pélvico, imposibilidad de orinar y sangre en el meato uretral. Realice la evaluación y defina la conducta.',
@@ -515,6 +538,7 @@ ESTACIONES.push(
   /* ========== 15 · CIRUGÍA — Colecistitis y colangitis aguda ========== */
   {
     id:'cir-colecistitis-colangitis', area:'cirugia', titulo:'Colecistitis y colangitis aguda', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 55 años con dolor en hipocondrio derecho, fiebre e ictericia.',
     puerta:'Mujer de 55 años con dolor en hipocondrio derecho, fiebre e ictericia. Realice anamnesis y examen, plantee diagnóstico y conducta.',
@@ -582,6 +606,7 @@ ESTACIONES.push(
   /* ========== 16 · CIRUGÍA — Obstrucción intestinal ========== */
   {
     id:'cir-obstruccion-intestinal', area:'cirugia', titulo:'Obstrucción intestinal', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 68 años con dolor abdominal cólico, vómitos y ausencia de gases.',
     puerta:'Hombre de 68 años con dolor abdominal cólico, distensión, vómitos y ausencia de gases hace 2 días. Evalúe, plantee diagnóstico y conducta.',
@@ -651,6 +676,7 @@ ESTACIONES.push(
   /* ========== 17 · CIRUGÍA — Herida y profilaxis antitetánica ========== */
   {
     id:'cir-herida-antitetanica', area:'cirugia', titulo:'Manejo de herida y profilaxis antitetánica', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 28 años con herida cortante en el antebrazo.',
     puerta:'Hombre de 28 años con herida cortante en el antebrazo derecho ocurrida hace 4 horas. Evalúe y realice el manejo de la herida (incluye procedimiento).',

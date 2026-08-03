@@ -9,10 +9,14 @@ Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritm
 **SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
 con sus criterios mínimos.
 
-> ⚠️ **Ninguna estación tiene validación clínica todavía.** Casos y pautas son
-> material **original** de práctica. No son casos oficiales ni bancos filtrados de
-> la UC. Herramienta educativa; no reemplaza el juicio clínico ni las guías
-> vigentes (MINSAL/GES/UC/EUNACOM).
+> **Estado de validación.** Casos y pautas son material **original** de práctica.
+> No son casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no
+> reemplaza el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
+>
+> Las 48 estaciones tienen revisada la **estructura**. Solo las **6 urológicas**
+> tienen además **validación clínica** de su contenido (Dr. Juan Carlos Riera,
+> urólogo). En las otras 42 nadie con experiencia vigente en el área ha
+> verificado el contenido médico: entrenan el método, no acreditan la clínica.
 
 ## Dos niveles de revisión (no confundir)
 
@@ -24,11 +28,11 @@ con sus criterios mínimos.
 
 | Área | Estaciones | Estructura | Contenido clínico |
 |---|---|---|---|
-| Medicina Interna | 14 | ✓ 2 revisadas | ⏳ Pendiente |
-| Cirugía | 12 | ⏳ | ⏳ Pendiente |
-| Pediatría | 11 | ⏳ | ⏳ Pendiente |
-| Obstetricia y Ginecología | 11 | ⏳ | ⏳ Pendiente |
-| **Total** | **48** | | |
+| Medicina Interna | 14 | ✓ 2026-08-03 | ⏳ Pendiente |
+| Cirugía | 12 | ✓ 2026-08-03 | ✓ 6 urológicas · ⏳ 6 |
+| Pediatría | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
+| Obstetricia y Ginecología | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
+| **Total** | **48** | **48** | **6** |
 
 ## Qué hace (v2)
 
@@ -65,6 +69,10 @@ con sus criterios mínimos.
   vitales se **deterioran con el tiempo** si no se ejecutan las medidas
   estabilizadoras, y se recuperan al hacerlas. Los valores críticos se marcan en
   rojo. Declarado por estación en el campo `monitor`.
+- **🔢 Etapas de secuencia**: donde el orden importa (ABCDE del politrauma), se
+  ordenan los pasos tocándolos en la secuencia en que se ejecutarían. Se evalúa
+  la posición, no solo el conjunto: un desorden menor cuesta puntos, pero
+  invertir una prioridad vital (circulación antes que vía aérea) **reprueba**.
 - **📈 Material de interpretación** en la etapa de diagnóstico: trazados de ECG
   dibujados por código (SVG original, sin material de terceros) y paneles de
   laboratorio. Obligan a **interpretar** para llegar al diagnóstico, que es una
@@ -73,6 +81,23 @@ con sus criterios mínimos.
   reconocer el patrón (ST, ritmo, ondas P), no sustituyen el entrenamiento con
   trazados reales de 12 derivaciones.
 - **Progreso local** (intentos y circuitos) en `localStorage`, sin login ni backend.
+
+### Etapa de secuencia
+
+```js
+{ comp:'Examen físico', tipo:'secuencia', puntos:10,
+  criticos:['A','B'],                    // su posición exacta es crítica
+  instruccion:'Ordene la secuencia…',
+  pasos:[                                // el orden declarado ES el correcto
+    { id:'A', texto:'A — Vía aérea con control cervical', fb:'Por qué va primero.' },
+    { id:'B', texto:'B — Ventilación y oxigenación',      fb:'…' },
+  ] }
+```
+
+El puntaje es proporcional a los pasos ubicados en su posición correcta. Los
+`pasos` cuyo id figure en `criticos` reprueban la estación si quedan fuera de su
+posición: en el ABCDE, hacer circulación antes que vía aérea no es un desorden
+menor, es el error que mata.
 
 ### Campo `monitor` (estaciones de urgencia)
 

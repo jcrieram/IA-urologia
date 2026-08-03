@@ -4,8 +4,8 @@ ESTACIONES.push(
   /* ========== 1 · MEDICINA INTERNA — Dolor torácico ========== */
   {
     id:'mi-dolor-toracico', area:'medint', titulo:'Dolor torácico agudo', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','acls','eunacom_perfil'],
-    revisionEstructura:'2026-08-02',
     motivo:'Hombre de 58 años con dolor torácico de 40 minutos.',
     puerta:'Hombre de 58 años con dolor torácico de 40 minutos. Realice anamnesis dirigida, explique su hipótesis y la conducta inicial.',
     criterios:['Caracterizar el dolor e irradiación','Buscar disnea, diaforesis, náuseas y síncope','Factores de riesgo cardiovascular','ECG, monitorización y evaluación urgente','No dar de alta sin estudio'],
@@ -61,8 +61,8 @@ ESTACIONES.push(
   /* ========== 2 · MEDICINA INTERNA — Déficit neurológico focal (ACV) ========== */
   {
     id:'mi-acv', area:'medint', titulo:'Déficit neurológico focal agudo', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','eunacom_perfil'],
-    revisionEstructura:'2026-08-02',
     motivo:'Mujer de 70 años con afasia y hemiparesia derecha de inicio súbito.',
     puerta:'Mujer de 70 años con afasia y hemiparesia derecha de inicio súbito. Evalúe y entregue la conducta.',
     criterios:['Hora de inicio o última vez vista normal','ABCDE y glicemia capilar','Evaluación neurológica focalizada','Anticoagulantes y contraindicaciones','Activar protocolo ACV y neuroimagen urgente'],
@@ -121,6 +121,7 @@ ESTACIONES.push(
   /* ========== 3 · MEDICINA INTERNA — Insuficiencia cardíaca descompensada ========== */
   {
     id:'mi-ic-descompensada', area:'medint', titulo:'Disnea aguda — Insuficiencia cardíaca descompensada', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 72 años con disnea progresiva y edema de extremidades inferiores.',
     puerta:'Hombre de 72 años consulta por disnea de 3 días que hoy aparece en reposo. Evalúe, plantee su hipótesis y defina la conducta.',
@@ -183,6 +184,7 @@ ESTACIONES.push(
   /* ========== 4 · MEDICINA INTERNA — Crisis hipertensiva ========== */
   {
     id:'mi-crisis-hipertensiva', area:'medint', titulo:'Crisis hipertensiva — urgencia vs emergencia', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 61 años derivada desde farmacia por presión arterial 215/120 mmHg.',
     puerta:'Mujer de 61 años acude porque en la farmacia le midieron 215/120 mmHg. Evalúe, clasifique el cuadro y defina la conducta.',
@@ -242,6 +244,7 @@ ESTACIONES.push(
   /* ========== 5 · MEDICINA INTERNA — EPOC exacerbado ========== */
   {
     id:'mi-epoc-exacerbado', area:'medint', titulo:'Exacerbación de EPOC', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 68 años, fumador, con aumento de disnea y expectoración purulenta.',
     puerta:'Hombre de 68 años con EPOC conocido consulta por aumento de la disnea y cambio del esputo en 3 días. Evalúe y defina la conducta.',
@@ -302,6 +305,7 @@ ESTACIONES.push(
   /* ========== 6 · MEDICINA INTERNA — Neumonía adquirida en la comunidad ========== */
   {
     id:'mi-nac', area:'medint', titulo:'Neumonía adquirida en la comunidad — ¿hospitalizar?', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 74 años con fiebre, tos y compromiso del estado general de 4 días.',
     puerta:'Hombre de 74 años consulta por fiebre, tos con expectoración y decaimiento de 4 días. Evalúe, plantee su diagnóstico y decida el destino del paciente.',
@@ -362,6 +366,7 @@ ESTACIONES.push(
   /* ========== 7 · MEDICINA INTERNA — Sepsis de foco urinario (pielonefritis) ========== */
   {
     id:'mi-sepsis-pielonefritis', area:'medint', titulo:'Sepsis de foco urinario — pielonefritis aguda', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     monitor:{
       vitales:{ PA:'96/54', FC:118, FR:26, SatO2:94, T:'39,2' },
       deterioro:[
@@ -433,6 +438,7 @@ ESTACIONES.push(
   /* ========== 8 · MEDICINA INTERNA — Cetoacidosis diabética ========== */
   {
     id:'mi-cetoacidosis', area:'medint', titulo:'Cetoacidosis diabética', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 24 años con vómitos, dolor abdominal y respiración profunda.',
     puerta:'Mujer de 24 años, diabética tipo 1, consulta por vómitos y dolor abdominal de un día, con decaimiento progresivo. Evalúe y defina la conducta.',
@@ -496,6 +502,7 @@ ESTACIONES.push(
   /* ========== 9 · MEDICINA INTERNA — Hemorragia digestiva alta ========== */
   {
     id:'mi-hda', area:'medint', titulo:'Hemorragia digestiva alta', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     monitor:{
       vitales:{ PA:'98/60', FC:112, FR:22, SatO2:96 },
       deterioro:[
@@ -567,6 +574,7 @@ ESTACIONES.push(
   /* ========== 10 · MEDICINA INTERNA — Crisis convulsiva con sospecha de meningitis ========== */
   {
     id:'mi-convulsion-meningitis', area:'medint', titulo:'Crisis convulsiva y estado post-ictal con sospecha de meningitis', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 32 años traído por convulsión tónico-clónica, febril y confuso.',
     puerta:'Hombre de 32 años traído por una convulsión tónico-clónica generalizada. Llega febril y confuso. Evalúe y defina la conducta.',
@@ -631,6 +639,7 @@ ESTACIONES.push(
   /* ========== 11 · MEDICINA INTERNA — Síncope ========== */
   {
     id:'mi-sincope', area:'medint', titulo:'Síncope — estratificación de riesgo', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 67 años con pérdida de conciencia brusca mientras subía una escalera.',
     puerta:'Hombre de 67 años sufrió una pérdida de conciencia brusca mientras subía una escalera y se recuperó solo. Evalúe, estratifique el riesgo y decida si se va de alta o queda en estudio.',
