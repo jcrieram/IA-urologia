@@ -16,6 +16,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA/BILIAR — Cólico biliar (colelitiasis sintomática) ========== */
   {
     id:'cir-colico-biliar', area:'cirugia', titulo:'Cólico biliar (colelitiasis sintomática)', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'repetida',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 38 años con dolor en hipocondrio derecho tras una comida abundante.',
@@ -85,6 +86,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA/BILIAR — Coledocolitiasis ========== */
   {
     id:'cir-coledocolitiasis', area:'cirugia', titulo:'Coledocolitiasis', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 58 años con dolor en hipocondrio derecho, ictericia y coluria.',
@@ -157,6 +159,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA/BILIAR — Litiasis vesicular en ecografía: criterios quirúrgicos ========== */
   {
     id:'cir-litiasis-vesicular-hallazgo', area:'cirugia', titulo:'Litiasis vesicular hallada en ecografía: manejo y criterios quirúrgicos', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 46 años trae una ecografía abdominal que informa cálculos en la vesícula.',
@@ -227,6 +230,8 @@ ESTACIONES.push(
   /* ========== CIRUGÍA/UROLOGÍA — Síntomas obstructivos bajos por HPB (ambulatorio) ========== */
   {
     id:'cir-hpb-obstruccion-baja', area:'cirugia', titulo:'Síndrome obstructivo urinario bajo por hiperplasia prostática benigna', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 68 años consulta por dificultad para orinar de dos años de evolución.',
@@ -304,6 +309,8 @@ ESTACIONES.push(
   /* ========== CIRUGÍA/UROLOGÍA — Prostatitis aguda ========== */
   {
     id:'cir-prostatitis-aguda', area:'cirugia', titulo:'Prostatitis aguda', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
+    validacionClinica:{ por:'Dr. Juan Carlos Riera, urólogo', fecha:'2026-08-03', fuente:'Revisión de especialista del área' },
     frecuencia:'reciente',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 52 años con fiebre, calofríos, disuria y dolor perineal.',

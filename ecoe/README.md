@@ -13,9 +13,9 @@ con sus criterios mínimos.
 > No son casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no
 > reemplaza el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
 >
-> Las 48 estaciones tienen revisada la **estructura**. Solo las **6 urológicas**
+> Las 61 estaciones tienen revisada la **estructura**. Solo las **8 urológicas**
 > tienen además **validación clínica** de su contenido (Dr. Juan Carlos Riera,
-> urólogo). En las otras 42 nadie con experiencia vigente en el área ha
+> urólogo). En las otras 53 nadie con experiencia vigente en el área ha
 > verificado el contenido médico: entrenan el método, no acreditan la clínica.
 
 ## Dos niveles de revisión (no confundir)
@@ -28,11 +28,11 @@ con sus criterios mínimos.
 
 | Área | Estaciones | Estructura | Contenido clínico |
 |---|---|---|---|
-| Medicina Interna | 14 | ✓ 2026-08-03 | ⏳ Pendiente |
-| Cirugía | 12 | ✓ 2026-08-03 | ✓ 6 urológicas · ⏳ 6 |
-| Pediatría | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
-| Obstetricia y Ginecología | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
-| **Total** | **48** | **48** | **6** |
+| Cirugía | 25 | ✓ | ✓ 8 urológicas · ⏳ 17 |
+| Medicina Interna | 14 | ✓ | ⏳ Pendiente |
+| Pediatría | 11 | ✓ | ⏳ Pendiente |
+| Obstetricia y Ginecología | 11 | ✓ | ⏳ Pendiente |
+| **Total** | **61** | **61** | **8** |
 
 ## Qué hace (v2)
 
@@ -118,71 +118,84 @@ cuanto se han confirmado **todas** las opciones de `estabiliza`. Lo llevan
 politrauma, sepsis de foco urinario, hemorragia digestiva alta y shock por
 deshidratación en el niño.
 
-## Estaciones incluidas (48)
+## Estaciones incluidas (61)
 
-Todas en estado **borrador**: ninguna tiene validación clínica.
+✓ = contenido clínico validado · 🖥️ = monitor de signos vitales · 🔢 = etapa de secuencia
+
+En Cirugía se indica la frecuencia observada del tema en el examen: **[R]** se repite · **[N]** caso reciente · **[T]** en el temario.
+
+### 🔪 Cirugía (25)
+
+- Abdomen agudo **[R]**
+- Cólico biliar (colelitiasis sintomática) **[R]**
+- ✓ Cólico renal y litiasis ureteral **[R]**
+- Coxartrosis (artrosis de cadera) **[R]**
+- Gonartrosis (artrosis de rodilla) **[R]**
+- Síndrome de hombro doloroso y lesión del manguito rotador **[R]**
+- Lumbago mecánico inespecífico **[N]**
+- Lumbociatalgia con radiculopatía **[N]**
+- ✓ Prostatitis aguda **[N]**
+- Claudicación intermitente (enfermedad arterial periférica crónica) **[T]**
+- Coledocolitiasis **[T]**
+- Isquemia arterial aguda de extremidad inferior **[T]**
+- Litiasis vesicular hallada en ecografía: manejo y criterios quirúrgicos **[T]**
+- ✓ Síndrome obstructivo urinario bajo por hiperplasia prostática benigna **[T]**
+- Trombosis venosa profunda de extremidad inferior **[T]**
+- Colecistitis y colangitis aguda
+- ✓ Escroto agudo y torsión testicular
+- ✓ Hematuria macroscópica
+- Manejo de herida y profilaxis antitetánica
+- Obstrucción intestinal
+- Paciente enojado o reclamo por la atención
+- ✓ Pielonefritis obstructiva y urosepsis
+- Politrauma (manejo ABCDE) 🖥️ 🔢
+- ✓ Retención urinaria aguda y sondaje
+- ✓ Trauma genitourinario: cuándo NO sondear
 
 ### 🫀 Medicina Interna (14)
 
-- Dolor torácico agudo
+- Cetoacidosis diabética
+- Comunicación de un diagnóstico grave
+- Consejería breve de cese de tabaquismo
+- Crisis convulsiva y estado post-ictal con sospecha de meningitis
+- Crisis hipertensiva — urgencia vs emergencia
 - Déficit neurológico focal agudo
 - Disnea aguda — Insuficiencia cardíaca descompensada
-- Crisis hipertensiva — urgencia vs emergencia
+- Dolor torácico agudo
 - Exacerbación de EPOC
-- Neumonía adquirida en la comunidad — ¿hospitalizar?
-- Sepsis de foco urinario — pielonefritis aguda 🖥️
-- Cetoacidosis diabética
 - Hemorragia digestiva alta 🖥️
-- Crisis convulsiva y estado post-ictal con sospecha de meningitis
-- Síncope — estratificación de riesgo
-- Comunicación de un diagnóstico grave
+- Neumonía adquirida en la comunidad — ¿hospitalizar?
 - Paciente que rechaza el tratamiento indicado
-- Consejería breve de cese de tabaquismo
+- Sepsis de foco urinario — pielonefritis aguda 🖥️
+- Síncope — estratificación de riesgo
 
 ### 🧒 Pediatría (11)
 
-- Lactante con dificultad respiratoria
-- Diarrea y deshidratación
-- Síndrome febril sin foco en lactante
-- Convulsión febril
-- Neumonía adquirida en la comunidad en el niño
-- Crisis obstructiva bronquial y técnica inhalatoria
-- Sospecha de meningitis en el niño
-- Ictericia neonatal
 - Control del niño sano: crecimiento, desarrollo y vacunas
-- Sospecha de maltrato infantil
+- Convulsión febril
+- Crisis obstructiva bronquial y técnica inhalatoria
 - Deshidratación grave y shock en el niño 🖥️
+- Diarrea y deshidratación
+- Ictericia neonatal
+- Lactante con dificultad respiratoria
+- Neumonía adquirida en la comunidad en el niño
+- Síndrome febril sin foco en lactante
+- Sospecha de maltrato infantil
+- Sospecha de meningitis en el niño
 
 ### 🤰 Obstetricia y Ginecología (11)
 
-- Sangrado del primer trimestre
-- Preeclampsia
-- Hemorragia posparto
-- Rotura prematura de membranas
-- Trabajo de parto: evaluación inicial y derivación
+- Anticoncepción: consejería, elegibilidad y decisión compartida
 - Control prenatal: primera consulta
 - Diabetes gestacional: pesquisa y manejo inicial
 - Flujo vaginal e infección de transmisión sexual
+- Hemorragia posparto
+- Preeclampsia
 - Proceso inflamatorio pelviano
+- Rotura prematura de membranas
+- Sangrado del primer trimestre
 - Sangrado uterino anormal con sospecha de cáncer cervicouterino
-- Anticoncepción: consejería, elegibilidad y decisión compartida
-
-### 🔪 Cirugía (12)
-
-- Abdomen agudo
-- Politrauma (manejo ABCDE) 🖥️
-- Retención urinaria aguda y sondaje
-- Cólico renal y litiasis ureteral
-- Escroto agudo y torsión testicular
-- Pielonefritis obstructiva y urosepsis
-- Hematuria macroscópica
-- Trauma genitourinario: cuándo NO sondear
-- Colecistitis y colangitis aguda
-- Obstrucción intestinal
-- Manejo de herida y profilaxis antitetánica
-- Paciente enojado o reclamo por la atención
-
-🖥️ = incluye monitor de signos vitales dinámico.
+- Trabajo de parto: evaluación inicial y derivación
 
 Orden de estudio sugerido (plan de 4 semanas del informe): **Semana 1 Medicina
 Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
@@ -197,6 +210,9 @@ Interna → 2 Pediatría → 3 Obs-Gine → 4 Cirugía + circuito completo.**
 | `data/pediatria.js` | Estaciones de Pediatría. |
 | `data/gineco.js` | Estaciones de Obstetricia y Ginecología. |
 | `data/cirugia.js` | Estaciones de Cirugía (incluye los temas urológicos del temario). |
+| `data/cirugia-musculoesqueletico.js` | Cirugía: artrosis, hombro doloroso, lumbago y lumbociatalgia. |
+| `data/cirugia-biliar-urologia.js` | Cirugía: patología biliar y urología ambulatoria. |
+| `data/cirugia-vascular.js` | Cirugía: patología vascular periférica. |
 | `data/comunicacion.js` | Estaciones de comunicación y consejería (declaran su área entre las 4). |
 
 Cada archivo registra sus estaciones con `ESTACIONES.push(...)` y debe estar

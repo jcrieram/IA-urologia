@@ -13,6 +13,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA VASCULAR — Claudicación intermitente (EAP crónica) ========== */
   {
     id:'cir-claudicacion-intermitente', area:'cirugia', titulo:'Claudicación intermitente (enfermedad arterial periférica crónica)',
+    revisionEstructura:'2026-08-03',
     nivel:'Médico general', minutos:8, frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 64 años con dolor en la pantorrilla derecha al caminar.',
@@ -88,6 +89,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA VASCULAR — Isquemia arterial aguda de extremidad inferior ========== */
   {
     id:'cir-isquemia-arterial-aguda', area:'cirugia', titulo:'Isquemia arterial aguda de extremidad inferior',
+    revisionEstructura:'2026-08-03',
     nivel:'Médico general', minutos:8, frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 72 años con dolor brusco, palidez y frialdad de la pierna izquierda.',
@@ -168,6 +170,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA VASCULAR — Trombosis venosa profunda ========== */
   {
     id:'cir-trombosis-venosa-profunda', area:'cirugia', titulo:'Trombosis venosa profunda de extremidad inferior',
+    revisionEstructura:'2026-08-03',
     nivel:'Médico general', minutos:8, frecuencia:'listada',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 52 años con aumento de volumen y dolor de la pierna derecha.',

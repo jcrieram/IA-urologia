@@ -14,6 +14,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA MSK — Gonartrosis ========== */
   {
     id:'cir-gonartrosis', area:'cirugia', titulo:'Gonartrosis (artrosis de rodilla)', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'repetida',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 64 años con dolor de rodillas de años de evolución.',
@@ -96,6 +97,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA MSK — Coxartrosis ========== */
   {
     id:'cir-coxartrosis', area:'cirugia', titulo:'Coxartrosis (artrosis de cadera)', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'repetida',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 68 años con dolor inguinal derecho y claudicación progresiva.',
@@ -183,6 +185,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA MSK — Hombro doloroso / manguito rotador ========== */
   {
     id:'cir-hombro-manguito', area:'cirugia', titulo:'Síndrome de hombro doloroso y lesión del manguito rotador', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'repetida',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 56 años con dolor de hombro derecho de 4 meses.',
@@ -275,6 +278,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA MSK — Lumbago mecánico ========== */
   {
     id:'cir-lumbago-mecanico', area:'cirugia', titulo:'Lumbago mecánico inespecífico', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'reciente',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Hombre de 38 años con dolor lumbar de 5 días tras levantar peso.',
@@ -368,6 +372,7 @@ ESTACIONES.push(
   /* ========== CIRUGÍA MSK — Lumbociatalgia con radiculopatía ========== */
   {
     id:'cir-lumbociatalgia', area:'cirugia', titulo:'Lumbociatalgia con radiculopatía', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     frecuencia:'reciente',
     fuentes:['minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 45 años con dolor lumbar irradiado a la pierna derecha hasta el pie.',
