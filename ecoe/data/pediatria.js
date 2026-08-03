@@ -4,6 +4,7 @@ ESTACIONES.push(
   /* ========== 3 · PEDIATRÍA — Lactante con dificultad respiratoria ========== */
   {
     id:'ped-dificultad-resp', area:'pediatria', titulo:'Lactante con dificultad respiratoria', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Lactante de 8 meses con tos, rechazo alimentario y taquipnea.',
     puerta:'Lactante de ocho meses con tos, rechazo alimentario y taquipnea. Evalúe y explique el manejo.',
@@ -51,6 +52,7 @@ ESTACIONES.push(
   /* ========== 4 · PEDIATRÍA — Diarrea y deshidratación ========== */
   {
     id:'ped-diarrea', area:'pediatria', titulo:'Diarrea y deshidratación', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Niño de 2 años con diarrea y vómitos.',
     puerta:'Niño de dos años con diarrea y vómitos. Clasifique la hidratación y plantee el manejo.',
@@ -98,6 +100,7 @@ ESTACIONES.push(
   /* ========== 5 · PEDIATRÍA — Síndrome febril sin foco en lactante ========== */
   {
     id:'ped-febril-sin-foco', area:'pediatria', titulo:'Síndrome febril sin foco en lactante', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Lactante de 2 meses con fiebre de 12 horas, sin foco evidente.',
     puerta:'Lactante de dos meses con fiebre sin foco. Evalúe el riesgo de infección bacteriana grave y defina la conducta.',
@@ -167,6 +170,7 @@ ESTACIONES.push(
   /* ========== 6 · PEDIATRÍA — Convulsión febril ========== */
   {
     id:'ped-convulsion-febril', area:'pediatria', titulo:'Convulsión febril', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Niño de 18 meses traído por episodio convulsivo durante un cuadro febril.',
     puerta:'Niño de dieciocho meses que convulsionó en su casa durante un cuadro febril. Evalúe, clasifique y explique el manejo a los padres.',
@@ -237,6 +241,7 @@ ESTACIONES.push(
   /* ========== 7 · PEDIATRÍA — Neumonía adquirida en la comunidad ========== */
   {
     id:'ped-neumonia', area:'pediatria', titulo:'Neumonía adquirida en la comunidad en el niño', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','minsal_ges','aiepi','eunacom_perfil'],
     motivo:'Niño de 3 años con fiebre alta y tos de 4 días.',
     puerta:'Niño de tres años con fiebre alta y tos. Evalúe, plantee su diagnóstico y decida el destino.',
@@ -309,6 +314,7 @@ ESTACIONES.push(
   /* ========== 8 · PEDIATRÍA — Crisis obstructiva / crisis asmática ========== */
   {
     id:'ped-crisis-asmatica', area:'pediatria', titulo:'Crisis obstructiva bronquial y técnica inhalatoria', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','minsal_ges','aiepi','eunacom_perfil'],
     motivo:'Niño de 5 años con sibilancias y dificultad respiratoria.',
     puerta:'Niño de cinco años con sibilancias y dificultad respiratoria. Evalúe la gravedad, inicie el manejo y enseñe la técnica inhalatoria.',
@@ -388,6 +394,7 @@ ESTACIONES.push(
   /* ========== 9 · PEDIATRÍA — Sospecha de meningitis ========== */
   {
     id:'ped-meningitis', area:'pediatria', titulo:'Sospecha de meningitis en el niño', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','minsal_ges','aiepi','eunacom_perfil'],
     motivo:'Niño de 4 años con fiebre alta, cefalea, vómitos y decaimiento.',
     puerta:'Niño de cuatro años con fiebre alta, cefalea y vómitos, muy decaído. Evalúe, inicie el manejo y defina el destino.',
@@ -459,6 +466,7 @@ ESTACIONES.push(
   /* ========== 10 · PEDIATRÍA — Ictericia neonatal ========== */
   {
     id:'ped-ictericia-neonatal', area:'pediatria', titulo:'Ictericia neonatal', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Recién nacido de 3 días con piel amarilla progresiva.',
     puerta:'Recién nacido de tres días traído por ictericia. Evalúe, interprete el riesgo y defina la conducta.',
@@ -532,6 +540,7 @@ ESTACIONES.push(
   /* ========== 11 · PEDIATRÍA — Control del niño sano ========== */
   {
     id:'ped-nino-sano', area:'pediatria', titulo:'Control del niño sano: crecimiento, desarrollo y vacunas', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Control de salud de un niño de 12 meses.',
     puerta:'Control de salud de un niño de doce meses. Evalúe crecimiento, desarrollo y vacunas, y aconseje a la madre.',
@@ -604,6 +613,7 @@ ESTACIONES.push(
   /* ========== 12 · PEDIATRÍA — Sospecha de maltrato infantil ========== */
   {
     id:'ped-maltrato-infantil', area:'pediatria', titulo:'Sospecha de maltrato infantil', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['minsal_guias','aiepi','eunacom_perfil'],
     motivo:'Niña de 3 años traída por lesiones en la piel, con relato poco consistente.',
     puerta:'Niña de tres años con lesiones cutáneas y un relato que no calza con los hallazgos. Evalúe, registre y defina la conducta.',
@@ -680,6 +690,7 @@ ESTACIONES.push(
   /* ========== 13 · PEDIATRÍA — Deshidratación grave / shock ========== */
   {
     id:'ped-shock-deshidratacion', area:'pediatria', titulo:'Deshidratación grave y shock en el niño', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     monitor:{
       vitales:{ PA:'78/40', FC:170, FR:38, SatO2:94, T:'36,8' },
       deterioro:[

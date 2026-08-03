@@ -9,10 +9,14 @@ Alineado al *Informe Ejecutivo ECOE EUNACOM-SP (UC)*: estructura por el algoritm
 **SEGURA**, competencias transversales de alto impacto y las 10 estaciones modelo
 con sus criterios mínimos.
 
-> ⚠️ **Ninguna estación tiene validación clínica todavía.** Casos y pautas son
-> material **original** de práctica. No son casos oficiales ni bancos filtrados de
-> la UC. Herramienta educativa; no reemplaza el juicio clínico ni las guías
-> vigentes (MINSAL/GES/UC/EUNACOM).
+> **Estado de validación.** Casos y pautas son material **original** de práctica.
+> No son casos oficiales ni bancos filtrados de la UC. Herramienta educativa; no
+> reemplaza el juicio clínico ni las guías vigentes (MINSAL/GES/UC/EUNACOM).
+>
+> Las 48 estaciones tienen revisada la **estructura**. Solo las **6 urológicas**
+> tienen además **validación clínica** de su contenido (Dr. Juan Carlos Riera,
+> urólogo). En las otras 42 nadie con experiencia vigente en el área ha
+> verificado el contenido médico: entrenan el método, no acreditan la clínica.
 
 ## Dos niveles de revisión (no confundir)
 
@@ -24,11 +28,11 @@ con sus criterios mínimos.
 
 | Área | Estaciones | Estructura | Contenido clínico |
 |---|---|---|---|
-| Medicina Interna | 14 | ✓ 2 revisadas | ⏳ Pendiente |
-| Cirugía | 12 | ⏳ | ⏳ Pendiente |
-| Pediatría | 11 | ⏳ | ⏳ Pendiente |
-| Obstetricia y Ginecología | 11 | ⏳ | ⏳ Pendiente |
-| **Total** | **48** | | |
+| Medicina Interna | 14 | ✓ 2026-08-03 | ⏳ Pendiente |
+| Cirugía | 12 | ✓ 2026-08-03 | ✓ 6 urológicas · ⏳ 6 |
+| Pediatría | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
+| Obstetricia y Ginecología | 11 | ✓ 2026-08-03 | ⏳ Pendiente |
+| **Total** | **48** | **48** | **6** |
 
 ## Qué hace (v2)
 

@@ -4,6 +4,7 @@ ESTACIONES.push(
   /* ========== 5 · OBS-GINE — Sangrado del primer trimestre ========== */
   {
     id:'gin-sangrado-1t', area:'gineco', titulo:'Sangrado del primer trimestre', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 29 años, 8 semanas de amenorrea, con dolor pélvico y sangrado.',
     puerta:'Mujer de 29 años, ocho semanas de amenorrea, dolor pélvico y sangrado. Evalúe y defina conducta.',
@@ -47,6 +48,7 @@ ESTACIONES.push(
   /* ========== 6 · OBS-GINE — Preeclampsia ========== */
   {
     id:'gin-preeclampsia', area:'gineco', titulo:'Preeclampsia', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_ges','eunacom_perfil'],
     motivo:'Embarazada de 34 semanas con cefalea intensa y visión borrosa.',
     puerta:'Embarazada de 34 semanas con cefalea intensa y visión borrosa. Evalúe y defina conducta.',
@@ -94,6 +96,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Hemorragia posparto ========== */
   {
     id:'gin-hemorragia-posparto', area:'gineco', titulo:'Hemorragia posparto', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Puérpera inmediata con sangrado genital abundante tras un parto vaginal.',
     puerta:'Mujer de 32 años, 20 minutos después de un parto vaginal, con sangrado genital abundante. Evalúe, estabilice y defina conducta.',
@@ -169,6 +172,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Rotura prematura de membranas ========== */
   {
     id:'gin-rpm', area:'gineco', titulo:'Rotura prematura de membranas', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Embarazada de 33 semanas con pérdida de líquido por genitales.',
     puerta:'Primigesta de 27 años, 33 semanas de gestación, con pérdida de líquido claro por genitales desde hace 3 horas. Evalúe y defina conducta.',
@@ -238,6 +242,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Trabajo de parto: evaluación inicial y derivación ========== */
   {
     id:'gin-trabajo-parto', area:'gineco', titulo:'Trabajo de parto: evaluación inicial y derivación', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Multípara de término con contracciones dolorosas regulares en un consultorio rural.',
     puerta:'Mujer de 30 años, 39 semanas, con contracciones dolorosas cada 3 minutos. Consulta en un consultorio rural. Evalúe y defina conducta.',
@@ -311,6 +316,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Control prenatal: primera consulta ========== */
   {
     id:'gin-control-prenatal', area:'gineco', titulo:'Control prenatal: primera consulta', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','minsal_ges','eunacom_perfil'],
     motivo:'Mujer de 26 años con test de embarazo positivo, primer control.',
     puerta:'Mujer de 26 años con test de embarazo casero positivo y 9 semanas de amenorrea. Realice el primer control prenatal.',
@@ -387,6 +393,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Diabetes gestacional ========== */
   {
     id:'gin-diabetes-gestacional', area:'gineco', titulo:'Diabetes gestacional: pesquisa y manejo inicial', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Embarazada de 27 semanas con prueba de tolerancia a la glucosa alterada.',
     puerta:'Embarazada de 32 años, 27 semanas, trae una prueba de tolerancia a la glucosa solicitada en el control anterior. Interprete y defina conducta.',
@@ -461,6 +468,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Flujo vaginal e infección de transmisión sexual ========== */
   {
     id:'gin-flujo-its', area:'gineco', titulo:'Flujo vaginal e infección de transmisión sexual', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 19 años con flujo vaginal y sangrado postcoital.',
     puerta:'Mujer de 19 años consulta por flujo vaginal de 10 días y sangrado después de las relaciones sexuales. Evalúe y defina conducta.',
@@ -535,6 +543,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Proceso inflamatorio pelviano ========== */
   {
     id:'gin-pip', area:'gineco', titulo:'Proceso inflamatorio pelviano', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 24 años con dolor pélvico bajo, fiebre y flujo de mal olor.',
     puerta:'Mujer de 24 años con dolor pélvico bajo de 4 días, fiebre y flujo vaginal de mal olor. Evalúe y defina conducta.',
@@ -610,6 +619,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Sangrado uterino anormal / sospecha de cáncer cervicouterino ========== */
   {
     id:'gin-sua-cacu', area:'gineco', titulo:'Sangrado uterino anormal con sospecha de cáncer cervicouterino', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_ges','minsal_guias','eunacom_perfil'],
     motivo:'Mujer de 48 años con sangrado intermenstrual y postcoital, sin PAP vigente.',
     puerta:'Mujer de 48 años con sangrado intermenstrual de 4 meses y sangrado después de las relaciones sexuales. Evalúe y defina conducta.',
@@ -684,6 +694,7 @@ ESTACIONES.push(
   /* ========== OBS-GINE — Anticoncepción: consejería y elegibilidad ========== */
   {
     id:'gin-anticoncepcion', area:'gineco', titulo:'Anticoncepción: consejería, elegibilidad y decisión compartida', nivel:'Médico general', minutos:8,
+    revisionEstructura:'2026-08-03',
     fuentes:['uc_obsgin','minsal_guias','eunacom_perfil'],
     motivo:'Adolescente de 17 años solicita un método anticonceptivo.',
     puerta:'Adolescente de 17 años consulta sola solicitando un método anticonceptivo. Realice la consejería y defina conducta.',
