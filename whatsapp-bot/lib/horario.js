@@ -24,7 +24,7 @@ function aMinutos(hhmm) {
 }
 
 /** "09:00-13:30" -> { inicio: 540, fin: 810 } */
-function parsearFranja(franja) {
+export function parsearFranja(franja) {
   const partes = String(franja).split('-')
   if (partes.length !== 2) {
     throw new Error(`Franja inválida: "${franja}" (se espera HH:MM-HH:MM)`)
@@ -37,7 +37,7 @@ function parsearFranja(franja) {
  * Devuelve el día de la semana en clave corta, la fecha ISO y los
  * minutos transcurridos desde medianoche.
  */
-function horaLocal(fecha, zonaHoraria) {
+export function horaLocal(fecha, zonaHoraria) {
   const formato = new Intl.DateTimeFormat('en-US', {
     timeZone: zonaHoraria,
     hour12: false,
@@ -63,7 +63,7 @@ function horaLocal(fecha, zonaHoraria) {
 }
 
 /** ¿Están esos minutos dentro de la franja? Soporta franjas que cruzan medianoche. */
-function dentroDeFranja(minutos, franja) {
+export function dentroDeFranja(minutos, franja) {
   const { inicio, fin } = parsearFranja(franja)
   if (fin > inicio) return minutos >= inicio && minutos < fin
   if (fin < inicio) return minutos >= inicio || minutos < fin // cruza medianoche
@@ -73,9 +73,9 @@ function dentroDeFranja(minutos, franja) {
 /**
  * ¿Toca contestar automáticamente en este momento?
  * @param {Date} fecha
- * @param {object} config  Config de whatsapp/config.js
+ * @param {object} config  Config de whatsapp-bot/config.js
  */
-function enHorarioDeConsulta(fecha, config) {
+export function enHorarioDeConsulta(fecha, config) {
   const { dia, fechaISO, minutos } = horaLocal(fecha, config.zonaHoraria)
 
   const excepciones = config.excepciones || {}
@@ -88,12 +88,12 @@ function enHorarioDeConsulta(fecha, config) {
 }
 
 /** Valida la config al arrancar para fallar pronto y con un mensaje claro. */
-function validarConfig(config) {
+export function validarConfig(config) {
   const errores = []
 
   try {
     horaLocal(new Date(), config.zonaHoraria)
-  } catch (error) {
+  } catch {
     errores.push(`zonaHoraria inválida: "${config.zonaHoraria}"`)
   }
 
@@ -124,4 +124,11 @@ function validarConfig(config) {
   return errores
 }
 
-module.exports = { enHorarioDeConsulta, horaLocal, dentroDeFranja, parsearFranja, validarConfig }
+/** Describe el horario configurado en una línea, para el arranque. */
+export function resumenHorario(config) {
+  const nombres = { lun: 'L', mar: 'M', mie: 'X', jue: 'J', vie: 'V', sab: 'S', dom: 'D' }
+  return Object.entries(config.franjas || {})
+    .filter(([, franjas]) => Array.isArray(franjas) && franjas.length)
+    .map(([dia, franjas]) => `${nombres[dia] || dia} ${franjas.join(' y ')}`)
+    .join(' | ') || '(ningún día configurado)'
+}

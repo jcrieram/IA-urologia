@@ -1,0 +1,3 @@
+# El bot de WhatsApp es un proceso que corre 24/7 en un servidor propio,
+# no forma parte del sitio estático que se despliega en Vercel.
+whatsapp-bot/

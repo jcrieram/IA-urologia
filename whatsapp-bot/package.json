@@ -1,0 +1,20 @@
+{
+  "name": "whatsapp-bot-consulta",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Responde automáticamente a los audios recibidos durante el horario de consulta",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "test": "node test.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^6.7.9",
+    "pino": "^9.5.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}

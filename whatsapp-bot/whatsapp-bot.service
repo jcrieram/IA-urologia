@@ -1,0 +1,39 @@
+; Servicio systemd para mantener el bot encendido y reiniciarlo solo.
+;
+; Instalación (en el servidor, como root):
+;   cp whatsapp-bot.service /etc/systemd/system/
+;   nano /etc/systemd/system/whatsapp-bot.service   # ajusta User y rutas
+;   systemctl daemon-reload
+;   systemctl enable --now whatsapp-bot
+;
+; Ver los registros:  journalctl -u whatsapp-bot -f
+
+[Unit]
+Description=Respuesta automática a audios de WhatsApp
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=whatsapp
+WorkingDirectory=/opt/whatsapp-bot
+ExecStart=/usr/bin/node bot.js
+
+Restart=always
+RestartSec=10
+
+; Los datos de sesión y el histórico de avisos viven aquí.
+Environment=WHATSAPP_DATOS=/opt/whatsapp-bot/datos
+
+StandardOutput=journal
+StandardError=journal
+
+; Endurecimiento básico: el bot solo necesita escribir en su carpeta de datos.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/whatsapp-bot/datos
+
+[Install]
+WantedBy=multi-user.target

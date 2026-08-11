@@ -2,11 +2,10 @@
  * Configuración de la respuesta automática a audios de WhatsApp.
  *
  * Este es el único fichero que necesitas tocar para el día a día:
- * horarios, mensaje y frecuencia. Las credenciales van en variables
- * de entorno (ver whatsapp/README.md), nunca aquí.
+ * horarios, mensaje y frecuencia.
  */
 
-module.exports = {
+export default {
   // Zona horaria con la que se interpretan las franjas de abajo.
   zonaHoraria: 'Europe/Madrid',
 
@@ -49,10 +48,19 @@ module.exports = {
   // Marcar el audio como leído (doble check azul) al responder.
   marcarComoLeido: true,
 
+  // Contestar también a los audios que llegan por grupos.
+  responderEnGrupos: false,
+
   /**
-   * Meta reintenta los webhooks que fallan, a veces horas después.
-   * Ignoramos los audios más antiguos que esto para no contestar
-   * "estoy en consulta" a un audio de ayer.
+   * Contactos a los que nunca se responde automáticamente (familia, socios...).
+   * Número completo con prefijo de país y sin '+', por ejemplo '34600111222'.
+   */
+  contactosExcluidos: [],
+
+  /**
+   * Al arrancar, WhatsApp entrega de golpe los mensajes recibidos mientras el
+   * bot estaba apagado. Ignoramos los audios más antiguos que esto para no
+   * contestar "estoy en consulta" a un audio de ayer.
    */
   ignorarMensajesMasViejosQueMin: 10,
 }
