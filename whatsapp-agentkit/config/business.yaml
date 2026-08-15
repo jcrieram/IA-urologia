@@ -33,10 +33,15 @@ centros:
     reserva: "https://agendaconsulta.interclinica.cl/VinadelMar"
     tipo_reserva: "agenda_online"
 
-# PENDIENTE: motivos de consulta y procedimientos que ofrece la consulta.
-# Mientras esté vacío, Gladys dice que no tiene el detalle y ofrece la cita
-# en vez de inventar una lista de prestaciones.
-servicios: []
+# Prestaciones que ofrece la consulta. Gladys puede nombrarlas, pero nunca
+# decirle a un paciente cuál le corresponde: eso lo determina el doctor.
+servicios:
+  - "Consulta urológica especializada"
+  - "Cirugía genital"
+  - "Cirugía láser de próstata"
+  - "Cirugía endoscópica de cálculos"
+  - "Salud sexual masculina"
+  - "Estudios endoscópicos"
 
 # PENDIENTE: precio de la consulta. Vacío = "consúltalo al reservar".
 precios:
