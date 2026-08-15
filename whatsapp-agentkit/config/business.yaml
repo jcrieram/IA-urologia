@@ -15,16 +15,23 @@ negocio:
 centros:
   - nombre: "Centro Médico Aquamed"
     ciudad: "La Ligua"
-    reserva: "PENDIENTE — enlace o teléfono de reserva"
+    reserva: "https://a389b077c16583f0fc8fc251426be04ead2dfca3.agenda.softwaredentalink.com/agenda"
+    tipo_reserva: "agenda_online"
   - nombre: "Clínica Provincia de Petorca"
     ciudad: "La Ligua"
-    reserva: "PENDIENTE — enlace o teléfono de reserva"
+    reserva: "https://clinicaprovinciadepetorca.cl/"
+    # Es la web de la clínica, no una agenda directa: el paciente reserva
+    # desde ahí. Gladys lo presenta como sitio web, no como "reserva aquí".
+    tipo_reserva: "sitio_web"
   - nombre: "Clínica Los Carrera (Interclínica)"
     ciudad: "Quilpué"
-    reserva: "PENDIENTE — enlace o teléfono de reserva"
+    # Enlace sin los parámetros ?_gl= de analítica: caducan y no hacen falta.
+    reserva: "https://agenda.interclinica.cl/LosCarrera/Inicio"
+    tipo_reserva: "agenda_online"
   - nombre: "Interclínica Viña del Mar"
     ciudad: "Viña del Mar"
-    reserva: "PENDIENTE — enlace o teléfono de reserva"
+    reserva: "https://agendaconsulta.interclinica.cl/VinadelMar"
+    tipo_reserva: "agenda_online"
 
 # PENDIENTE: motivos de consulta y procedimientos que ofrece la consulta.
 # Mientras esté vacío, Gladys dice que no tiene el detalle y ofrece la cita
