@@ -55,12 +55,20 @@ class ProveedorTwilio(ProveedorWhatsApp):
         if not firma_recibida:
             return False
 
-        # Twilio firma la URL pública. Detrás de un proxy (Railway) el esquema
-        # llega en X-Forwarded-Proto, así que reconstruimos la URL como la ve Twilio.
-        url = str(request.url)
-        proto = request.headers.get("X-Forwarded-Proto")
-        if proto and url.startswith("http://"):
-            url = proto + url[len("http"):]
+        # Twilio firma la URL pública exacta que tiene configurada. Si la
+        # damos por variable de entorno no hay que adivinarla a partir de
+        # cabeceras de proxy, que con túneles como ngrok no siempre llegan
+        # como uno espera.
+        base_publica = os.getenv("PUBLIC_BASE_URL", "").rstrip("/")
+        if base_publica:
+            url = base_publica + request.url.path
+        else:
+            # Sin PUBLIC_BASE_URL, se reconstruye a partir de cabeceras.
+            # Funciona en la mayoría de proxies, pero es menos fiable.
+            url = str(request.url)
+            proto = request.headers.get("X-Forwarded-Proto")
+            if proto and url.startswith("http://"):
+                url = proto + url[len("http"):]
 
         base = url + "".join(f"{k}{cuerpo[k]}" for k in sorted(cuerpo))
         esperada = base64.b64encode(
