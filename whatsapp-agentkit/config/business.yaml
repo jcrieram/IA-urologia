@@ -1,0 +1,49 @@
+# Configuración del negocio — Generado por AgentKit
+negocio:
+  nombre: "Dr. Juan Carlos Riera — Urología"
+  descripcion: >-
+    Atención urológica especializada del Dr. Juan Carlos Riera en tres ciudades
+    de la Región de Valparaíso, Chile: La Ligua, Quilpué y Viña del Mar. El
+    paciente elige el centro que le quede más cómodo y coordina su hora de
+    evaluación con la ejecutiva de esa clínica.
+  horario: "Lunes a viernes de 9:00 a 13:00"
+  pais: "Chile"
+  region: "Región de Valparaíso"
+
+# Cada clínica gestiona sus propias horas. El agente NO reserva: identifica el
+# centro que le conviene al paciente y lo deriva al canal de esa clínica.
+centros:
+  - nombre: "Centro Médico Aquamed"
+    ciudad: "La Ligua"
+    reserva: "PENDIENTE — enlace o teléfono de reserva"
+  - nombre: "Clínica Provincia de Petorca"
+    ciudad: "La Ligua"
+    reserva: "PENDIENTE — enlace o teléfono de reserva"
+  - nombre: "Clínica Los Carrera (Interclínica)"
+    ciudad: "Quilpué"
+    reserva: "PENDIENTE — enlace o teléfono de reserva"
+  - nombre: "Interclínica Viña del Mar"
+    ciudad: "Viña del Mar"
+    reserva: "PENDIENTE — enlace o teléfono de reserva"
+
+# PENDIENTE: motivos de consulta y procedimientos que ofrece la consulta.
+# Mientras esté vacío, Gladys dice que no tiene el detalle y ofrece la cita
+# en vez de inventar una lista de prestaciones.
+servicios: []
+
+# PENDIENTE: precio de la consulta. Vacío = "consúltalo al reservar".
+precios:
+  consulta: ""
+
+agente:
+  nombre: "Gladys"
+  tono: "Empático y cálido"
+  casos_de_uso:
+    - "Responder preguntas frecuentes"
+    - "Orientar la reserva de hora hacia el centro correcto"
+    - "Recoger datos de contacto de pacientes interesados"
+    - "Seguimiento post-consulta"
+
+metadata:
+  creado: "2026-08-15"
+  version: "1.0"
