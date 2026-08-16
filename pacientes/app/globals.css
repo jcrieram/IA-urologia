@@ -31,6 +31,16 @@
   --color-critical: #d03b3b;
   --color-critical-bg: #fbe4e4;
 
+  /* Categorical (identity) — fixed order, dataviz reference palette */
+  --color-cat-orange: #eb6834;
+  --color-cat-orange-bg: #fce7dc;
+  --color-cat-aqua: #1baf7a;
+  --color-cat-aqua-bg: #dcf4ea;
+  --color-cat-magenta: #e87ba4;
+  --color-cat-magenta-bg: #fbe6ee;
+  --color-cat-violet: #4a3aa7;
+  --color-cat-violet-bg: #e7e4f7;
+
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
     Helvetica, Arial, sans-serif;
 }

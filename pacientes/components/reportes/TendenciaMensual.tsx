@@ -22,7 +22,7 @@ export function TendenciaMensual({
               {m.valor}
             </span>
             <div
-              className="w-full rounded-t-md bg-brand-500 transition group-hover:bg-brand-600"
+              className="w-full rounded-t-md bg-gradient-to-t from-brand-600 to-brand-400 transition group-hover:from-brand-700 group-hover:to-brand-500"
               style={{ height: `${Math.max(3, (m.valor / max) * 100)}%` }}
             />
           </div>

@@ -64,15 +64,25 @@ export default async function PacienteDetallePage({
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Casos totales" value={todos.length} icon={Clock} />
-        <StatTile label="Cirugías realizadas" value={cirugiasRealizadas} icon={Scissors} />
+        <StatTile label="Casos totales" value={todos.length} icon={Clock} color="aqua" />
+        <StatTile
+          label="Cirugías realizadas"
+          value={cirugiasRealizadas}
+          icon={Scissors}
+          color="brand"
+        />
         <StatTile
           label="Total pagado"
           value={`$${totalPagado.toLocaleString("es-CL")}`}
           icon={CircleDollarSign}
-          tone="brand"
+          color="good"
         />
-        <StatTile label="Casos con pago pendiente" value={casosPendientesPago} icon={Clock} />
+        <StatTile
+          label="Casos con pago pendiente"
+          value={casosPendientesPago}
+          icon={Clock}
+          color="warning"
+        />
       </div>
 
       <Card>

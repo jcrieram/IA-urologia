@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/server";
 import { CASO_ESTADO_LABEL, type CasoEstado } from "@/lib/types";
-import { StatTile } from "@/components/ui/StatTile";
+import { StatTile, type StatColor } from "@/components/ui/StatTile";
 import { Card, CardHeader } from "@/components/ui/Card";
 
 export const dynamic = "force-dynamic";
@@ -66,13 +66,19 @@ async function obtenerResumen() {
   };
 }
 
-const ESTADOS_PIPELINE: { estado: CasoEstado; icon: typeof FileClock }[] = [
-  { estado: "solicitud", icon: FileClock },
-  { estado: "agendada", icon: CalendarCheck2 },
-  { estado: "operada", icon: Scissors },
-  { estado: "alta", icon: BadgeCheck },
-  { estado: "cerrada", icon: CheckCircle2 },
+const ESTADOS_PIPELINE: { estado: CasoEstado; icon: typeof FileClock; color: StatColor }[] = [
+  { estado: "solicitud", icon: FileClock, color: "brand" },
+  { estado: "agendada", icon: CalendarCheck2, color: "orange" },
+  { estado: "operada", icon: Scissors, color: "aqua" },
+  { estado: "alta", icon: BadgeCheck, color: "violet" },
+  { estado: "cerrada", icon: CheckCircle2, color: "good" },
 ];
+
+const FECHA_HOY = new Intl.DateTimeFormat("es-CL", {
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+}).format(new Date());
 
 export default async function DashboardPage() {
   const { conteos, noConcretadas, pagoPendiente, resumenSemanal } =
@@ -80,18 +86,30 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold text-ink">Resumen</h1>
-        <p className="text-sm text-ink-muted">Estado general del pipeline de casos.</p>
+      <div className="relative overflow-hidden rounded-2xl bg-brand-700 px-6 py-7 text-white shadow-sm">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(40rem 20rem at 90% -20%, rgba(255,255,255,0.16), transparent 60%)",
+          }}
+        />
+        <p className="relative text-sm capitalize text-brand-100">{FECHA_HOY}</p>
+        <h1 className="relative mt-1 text-2xl font-semibold">Resumen del pipeline</h1>
+        <p className="relative mt-1 text-sm text-brand-100">
+          {resumenSemanal.solicitudes} solicitudes y {resumenSemanal.cirugias} cirugías esta semana.
+        </p>
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {ESTADOS_PIPELINE.map(({ estado, icon }) => (
+        {ESTADOS_PIPELINE.map(({ estado, icon, color }) => (
           <StatTile
             key={estado}
             label={CASO_ESTADO_LABEL[estado]}
             value={conteos[estado] ?? 0}
             icon={icon}
+            color={color}
           />
         ))}
       </section>

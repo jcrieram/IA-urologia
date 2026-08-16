@@ -17,9 +17,9 @@ export function BarraHorizontal({
             <span className="text-ink-secondary">{f.etiqueta}</span>
             <span className="tabular-nums font-medium text-ink">{f.valor}</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-page">
+          <div className="h-2.5 w-full rounded-full bg-page">
             <div
-              className="h-2 rounded-full bg-brand-500"
+              className="h-2.5 rounded-full bg-gradient-to-r from-brand-400 to-brand-600"
               style={{ width: `${Math.max(4, (f.valor / max) * 100)}%` }}
             />
           </div>

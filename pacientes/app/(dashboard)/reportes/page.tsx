@@ -83,17 +83,24 @@ export default async function ReportesPage({
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatTile label="Cirugías realizadas" value={casos.length} icon={Scissors} tone="brand" />
+        <StatTile label="Cirugías realizadas" value={casos.length} icon={Scissors} color="brand" />
         <StatTile
           label="Pagos recibidos"
           value={`$${pagosRecibidos.toLocaleString("es-CL")}`}
           icon={CircleDollarSign}
+          color="good"
         />
-        <StatTile label="Casos con pago pendiente" value={casosPendientes} icon={Clock} />
+        <StatTile
+          label="Casos con pago pendiente"
+          value={casosPendientes}
+          icon={Clock}
+          color="warning"
+        />
         <StatTile
           label="Como cirujano / ayudante"
           value={`${porRol.cirujano ?? 0} / ${porRol.ayudante ?? 0}`}
           icon={Stethoscope}
+          color="violet"
         />
       </section>
 
