@@ -1,10 +1,16 @@
-import Proximamente from "@/components/dashboard/Proximamente";
+import SubirProtocoloForm from "@/components/protocolos/SubirProtocoloForm";
 
 export default function NuevoProtocoloPage() {
   return (
-    <Proximamente
-      titulo="Subir foto de protocolo"
-      descripcion="Extracción y match automático por RUT (Fase 2): si el paciente ya tiene una solicitud, completa su ficha; si no, lo registra como caso de primer ayudante."
-    />
+    <div className="max-w-4xl space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold text-ink">Subir protocolo</h1>
+        <p className="text-sm text-ink-muted">
+          Si el paciente ya tiene una solicitud, se completa su ficha; si no, se registra como
+          caso de primer ayudante.
+        </p>
+      </div>
+      <SubirProtocoloForm />
+    </div>
   );
 }

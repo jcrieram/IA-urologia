@@ -7,11 +7,14 @@ const CasoUpdateSchema = z.object({
   estado: z
     .enum(["solicitud", "agendada", "operada", "alta", "no_concretada", "cerrada"])
     .optional(),
+  rol: z.enum(["cirujano", "ayudante"]).optional(),
+  cirujano_principal: z.string().nullable().optional(),
   clinica_final: z.string().nullable().optional(),
   fecha_cirugia_programada: z.string().nullable().optional(),
   fecha_cirugia_real: z.string().nullable().optional(),
   numero_ingreso: z.string().nullable().optional(),
   fecha_alta: z.string().nullable().optional(),
+  foto_protocolo_path: z.string().nullable().optional(),
   observaciones: z.string().nullable().optional(),
 });
 
