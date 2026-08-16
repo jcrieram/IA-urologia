@@ -1,29 +1,8 @@
 import { redirect } from "next/navigation";
-import {
-  LayoutDashboard,
-  ClipboardList,
-  FilePlus2,
-  FileScan,
-  BookOpen,
-  FileStack,
-  BarChart3,
-  Settings,
-  Stethoscope,
-} from "lucide-react";
+import { Stethoscope } from "lucide-react";
 import { AuthError, requireUser } from "@/lib/auth";
 import CerrarSesionBoton from "@/components/dashboard/CerrarSesionBoton";
-import { SidebarNav, type NavItem } from "@/components/dashboard/SidebarNav";
-
-const NAV: NavItem[] = [
-  { href: "/", label: "Resumen", icon: LayoutDashboard },
-  { href: "/casos", label: "Casos", icon: ClipboardList },
-  { href: "/solicitudes/nueva", label: "Nueva solicitud", icon: FilePlus2 },
-  { href: "/protocolos/nuevo", label: "Subir protocolo", icon: FileScan },
-  { href: "/catalogo", label: "Catálogo Fonasa", icon: BookOpen },
-  { href: "/plantillas", label: "Plantillas", icon: FileStack },
-  { href: "/reportes", label: "Reportes", icon: BarChart3 },
-  { href: "/configuracion", label: "Configuración", icon: Settings },
-];
+import { SidebarNav } from "@/components/dashboard/SidebarNav";
 
 export default async function DashboardLayout({
   children,
@@ -51,7 +30,7 @@ export default async function DashboardLayout({
             </div>
           </div>
 
-          <SidebarNav items={NAV} />
+          <SidebarNav />
 
           <div className="border-t border-border px-3 py-3">
             <CerrarSesionBoton />

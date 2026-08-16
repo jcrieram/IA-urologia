@@ -2,21 +2,35 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutDashboard,
+  ClipboardList,
+  FilePlus2,
+  FileScan,
+  BookOpen,
+  FileStack,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 import { clsx } from "@/lib/clsx";
-import type { LucideIcon } from "lucide-react";
 
-export interface NavItem {
-  href: string;
-  label: string;
-  icon: LucideIcon;
-}
+const NAV = [
+  { href: "/", label: "Resumen", icon: LayoutDashboard },
+  { href: "/casos", label: "Casos", icon: ClipboardList },
+  { href: "/solicitudes/nueva", label: "Nueva solicitud", icon: FilePlus2 },
+  { href: "/protocolos/nuevo", label: "Subir protocolo", icon: FileScan },
+  { href: "/catalogo", label: "Catálogo Fonasa", icon: BookOpen },
+  { href: "/plantillas", label: "Plantillas", icon: FileStack },
+  { href: "/reportes", label: "Reportes", icon: BarChart3 },
+  { href: "/configuracion", label: "Configuración", icon: Settings },
+];
 
-export function SidebarNav({ items }: { items: NavItem[] }) {
+export function SidebarNav() {
   const pathname = usePathname();
 
   return (
     <nav className="flex-1 space-y-0.5 px-3">
-      {items.map((item) => {
+      {NAV.map((item) => {
         const activo =
           item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         const Icon = item.icon;
