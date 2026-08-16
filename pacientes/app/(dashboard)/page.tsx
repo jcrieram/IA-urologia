@@ -1,6 +1,18 @@
 import Link from "next/link";
+import {
+  FileClock,
+  CalendarCheck2,
+  Scissors,
+  BadgeCheck,
+  CheckCircle2,
+  AlertTriangle,
+  CircleDollarSign,
+  ArrowRight,
+} from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/server";
 import { CASO_ESTADO_LABEL, type CasoEstado } from "@/lib/types";
+import { StatTile } from "@/components/ui/StatTile";
+import { Card, CardHeader } from "@/components/ui/Card";
 
 export const dynamic = "force-dynamic";
 
@@ -54,12 +66,12 @@ async function obtenerResumen() {
   };
 }
 
-const ESTADOS_PIPELINE: CasoEstado[] = [
-  "solicitud",
-  "agendada",
-  "operada",
-  "alta",
-  "cerrada",
+const ESTADOS_PIPELINE: { estado: CasoEstado; icon: typeof FileClock }[] = [
+  { estado: "solicitud", icon: FileClock },
+  { estado: "agendada", icon: CalendarCheck2 },
+  { estado: "operada", icon: Scissors },
+  { estado: "alta", icon: BadgeCheck },
+  { estado: "cerrada", icon: CheckCircle2 },
 ];
 
 export default async function DashboardPage() {
@@ -69,92 +81,111 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-lg font-semibold text-slate-900">Resumen</h1>
-        <p className="text-sm text-slate-500">Estado general del pipeline de casos.</p>
+        <h1 className="text-xl font-semibold text-ink">Resumen</h1>
+        <p className="text-sm text-ink-muted">Estado general del pipeline de casos.</p>
       </div>
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-        {ESTADOS_PIPELINE.map((estado) => (
-          <div
+        {ESTADOS_PIPELINE.map(({ estado, icon }) => (
+          <StatTile
             key={estado}
-            className="rounded-xl border border-slate-200 bg-white p-4"
-          >
-            <p className="text-2xl font-semibold text-slate-900">
-              {conteos[estado] ?? 0}
-            </p>
-            <p className="mt-1 text-xs text-slate-500">
-              {CASO_ESTADO_LABEL[estado]}
-            </p>
-          </div>
+            label={CASO_ESTADO_LABEL[estado]}
+            value={conteos[estado] ?? 0}
+            icon={icon}
+          />
         ))}
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">Resumen semanal</h2>
-        <div className="mt-3 grid grid-cols-3 gap-4 text-sm">
+      <Card>
+        <CardHeader title="Resumen semanal" subtitle="Últimos 7 días" />
+        <div className="grid grid-cols-3 gap-4 px-5 py-5 text-sm">
           <div>
-            <p className="text-xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold tabular-nums text-ink">
               {resumenSemanal.solicitudes}
             </p>
-            <p className="text-slate-500">Solicitudes (7 días)</p>
+            <p className="mt-0.5 text-ink-muted">Solicitudes</p>
           </div>
           <div>
-            <p className="text-xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold tabular-nums text-ink">
               {resumenSemanal.cirugias}
             </p>
-            <p className="text-slate-500">Cirugías (7 días)</p>
+            <p className="mt-0.5 text-ink-muted">Cirugías</p>
           </div>
           <div>
-            <p className="text-xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold tabular-nums text-ink">
               {resumenSemanal.pagos}
             </p>
-            <p className="text-slate-500">Pagos registrados (7 días)</p>
+            <p className="mt-0.5 text-ink-muted">Pagos registrados</p>
           </div>
         </div>
-      </section>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <section className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <h2 className="text-sm font-semibold text-amber-900">
-            No concretadas (&gt;18 días sin agendar) · {noConcretadas.length}
-          </h2>
-          <ul className="mt-3 space-y-2">
+        <Card>
+          <CardHeader
+            title="No concretadas"
+            subtitle="Más de 18 días desde la solicitud, sin agendar"
+            action={
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-warning-bg text-xs font-semibold text-warning">
+                {noConcretadas.length}
+              </span>
+            }
+          />
+          <ul className="divide-y divide-border">
             {noConcretadas.map((c) => (
-              <li key={c.id} className="text-sm">
+              <li key={c.id}>
                 <Link
                   href={`/casos/${c.id}`}
-                  className="text-amber-900 underline underline-offset-2"
+                  className="flex items-center justify-between gap-3 px-5 py-3 text-sm transition hover:bg-page"
                 >
-                  {c.paciente_nombre} · {c.paciente_rut}
+                  <span className="flex items-center gap-2.5 text-ink">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-warning" strokeWidth={2} />
+                    <span>
+                      {c.paciente_nombre} <span className="text-ink-muted">· {c.paciente_rut}</span>
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-ink-muted" />
                 </Link>
               </li>
             ))}
             {noConcretadas.length === 0 && (
-              <li className="text-sm text-amber-700">Sin alertas.</li>
+              <li className="px-5 py-6 text-sm text-ink-muted">Sin alertas.</li>
             )}
           </ul>
-        </section>
+        </Card>
 
-        <section className="rounded-xl border border-red-200 bg-red-50 p-4">
-          <h2 className="text-sm font-semibold text-red-900">
-            Pago pendiente (&gt;30 días post-cirugía) · {pagoPendiente.length}
-          </h2>
-          <ul className="mt-3 space-y-2">
+        <Card>
+          <CardHeader
+            title="Pago pendiente"
+            subtitle="Más de 30 días desde la cirugía, sin pago"
+            action={
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-critical-bg text-xs font-semibold text-critical">
+                {pagoPendiente.length}
+              </span>
+            }
+          />
+          <ul className="divide-y divide-border">
             {pagoPendiente.map((c) => (
-              <li key={c.id} className="text-sm">
+              <li key={c.id}>
                 <Link
                   href={`/casos/${c.id}`}
-                  className="text-red-900 underline underline-offset-2"
+                  className="flex items-center justify-between gap-3 px-5 py-3 text-sm transition hover:bg-page"
                 >
-                  {c.paciente_nombre} · {c.paciente_rut}
+                  <span className="flex items-center gap-2.5 text-ink">
+                    <CircleDollarSign className="h-4 w-4 shrink-0 text-critical" strokeWidth={2} />
+                    <span>
+                      {c.paciente_nombre} <span className="text-ink-muted">· {c.paciente_rut}</span>
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-ink-muted" />
                 </Link>
               </li>
             ))}
             {pagoPendiente.length === 0 && (
-              <li className="text-sm text-red-700">Sin alertas.</li>
+              <li className="px-5 py-6 text-sm text-ink-muted">Sin alertas.</li>
             )}
           </ul>
-        </section>
+        </Card>
       </div>
     </div>
   );

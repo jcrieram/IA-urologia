@@ -1,8 +1,20 @@
 import Link from "next/link";
+import { UserRound } from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/server";
-import { CASO_ESTADO_LABEL } from "@/lib/types";
+import { CASO_ESTADO_LABEL, type CasoEstado } from "@/lib/types";
+import { Badge } from "@/components/ui/Badge";
+import BuscadorCasos from "@/components/casos/BuscadorCasos";
 
 export const dynamic = "force-dynamic";
+
+const ESTADO_TONE: Record<CasoEstado, "neutral" | "good" | "warning" | "critical" | "brand"> = {
+  solicitud: "brand",
+  agendada: "brand",
+  operada: "neutral",
+  alta: "good",
+  no_concretada: "warning",
+  cerrada: "good",
+};
 
 export default async function CasosPage({
   searchParams,
@@ -12,6 +24,21 @@ export default async function CasosPage({
   const { estado, q } = await searchParams;
   const admin = crearClienteAdmin();
 
+  let pacienteIds: string[] | null = null;
+  if (q) {
+    const qLimpio = q.replace(/[.\s]/g, "");
+    const { data: pacientesMatch } = await admin
+      .from("pacientes")
+      .select("id")
+      .or(`nombre.ilike.%${q}%,rut.ilike.%${qLimpio}%`);
+    pacienteIds = (pacientesMatch ?? []).map((p) => p.id);
+    if (pacienteIds.length === 0) {
+      return (
+        <ListadoCasos casos={[]} estado={estado} totalLabel="0 casos" />
+      );
+    }
+  }
+
   let query = admin
     .from("casos")
     .select("*, paciente:pacientes(*)")
@@ -19,66 +46,92 @@ export default async function CasosPage({
     .limit(100);
 
   if (estado) query = query.eq("estado", estado);
-  if (q) query = query.ilike("paciente.nombre", `%${q}%`);
+  if (pacienteIds) query = query.in("paciente_id", pacienteIds);
 
   const { data: casos } = await query;
 
   return (
+    <ListadoCasos
+      casos={casos ?? []}
+      estado={estado}
+      totalLabel={`${casos?.length ?? 0} casos${estado ? ` en estado "${CASO_ESTADO_LABEL[estado as CasoEstado]}"` : ""}`}
+    />
+  );
+}
+
+function ListadoCasos({
+  casos,
+  totalLabel,
+}: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  casos: any[];
+  estado?: string;
+  totalLabel: string;
+}) {
+  return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">Casos</h1>
-          <p className="text-sm text-slate-500">
-            {casos?.length ?? 0} casos {estado ? `en estado "${CASO_ESTADO_LABEL[estado as keyof typeof CASO_ESTADO_LABEL]}"` : ""}
-          </p>
+          <h1 className="text-xl font-semibold text-ink">Casos</h1>
+          <p className="text-sm text-ink-muted">{totalLabel}</p>
         </div>
         <Link
           href="/casos/nuevo"
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-600"
         >
           + Alta manual
         </Link>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+      <BuscadorCasos />
+
+      <div className="overflow-hidden rounded-2xl border border-border bg-surface-raised">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-page text-left text-xs uppercase tracking-wide text-ink-muted">
             <tr>
-              <th className="px-4 py-3">Paciente</th>
-              <th className="px-4 py-3">RUT</th>
-              <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Rol</th>
-              <th className="px-4 py-3">Clínica</th>
-              <th className="px-4 py-3">Fecha solicitud</th>
+              <th className="px-4 py-3 font-medium">Paciente</th>
+              <th className="px-4 py-3 font-medium">RUT</th>
+              <th className="px-4 py-3 font-medium">Estado</th>
+              <th className="px-4 py-3 font-medium">Rol</th>
+              <th className="px-4 py-3 font-medium">Clínica</th>
+              <th className="px-4 py-3 font-medium">Fecha solicitud</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
-            {(casos ?? []).map((c) => (
-              <tr key={c.id} className="hover:bg-slate-50">
+          <tbody className="divide-y divide-border">
+            {casos.map((c) => (
+              <tr key={c.id} className="transition hover:bg-page">
                 <td className="px-4 py-3">
-                  <Link href={`/casos/${c.id}`} className="font-medium text-slate-900 hover:underline">
+                  <Link
+                    href={`/casos/${c.id}`}
+                    className="flex items-center gap-2 font-medium text-ink hover:text-brand-600"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+                      <UserRound className="h-3.5 w-3.5" strokeWidth={2} />
+                    </span>
                     {c.paciente?.nombre ?? "—"}
                   </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-500">{c.paciente?.rut ?? "—"}</td>
-                <td className="px-4 py-3">
-                  <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700">
-                    {CASO_ESTADO_LABEL[c.estado as keyof typeof CASO_ESTADO_LABEL]}
-                  </span>
+                <td className="px-4 py-3 text-ink-secondary">
+                  <Link href={`/pacientes/${c.paciente_id}`} className="hover:text-brand-600 hover:underline">
+                    {c.paciente?.rut ?? "—"}
+                  </Link>
                 </td>
-                <td className="px-4 py-3 text-slate-500 capitalize">{c.rol}</td>
-                <td className="px-4 py-3 text-slate-500">
+                <td className="px-4 py-3">
+                  <Badge tone={ESTADO_TONE[c.estado as CasoEstado]}>
+                    {CASO_ESTADO_LABEL[c.estado as CasoEstado]}
+                  </Badge>
+                </td>
+                <td className="px-4 py-3 text-ink-secondary capitalize">{c.rol}</td>
+                <td className="px-4 py-3 text-ink-secondary">
                   {c.clinica_final ?? c.clinica_derivada ?? "—"}
                 </td>
-                <td className="px-4 py-3 text-slate-500">
-                  {c.fecha_solicitud ?? "—"}
-                </td>
+                <td className="px-4 py-3 text-ink-secondary">{c.fecha_solicitud ?? "—"}</td>
               </tr>
             ))}
-            {(casos ?? []).length === 0 && (
+            {casos.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
-                  No hay casos todavía.
+                <td colSpan={6} className="px-4 py-10 text-center text-ink-muted">
+                  No hay casos que coincidan con la búsqueda.
                 </td>
               </tr>
             )}

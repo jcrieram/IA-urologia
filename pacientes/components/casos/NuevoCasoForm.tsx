@@ -48,52 +48,52 @@ export default function NuevoCasoForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5 rounded-xl border border-slate-200 bg-white p-6">
+    <form onSubmit={onSubmit} className="space-y-5 rounded-2xl border border-border bg-surface-raised p-6 shadow-sm">
       {error && (
-        <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+        <p className="rounded-lg bg-critical-bg px-3 py-2 text-sm text-critical">{error}</p>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="text-sm font-medium text-slate-700">RUT *</label>
+          <label className="text-sm font-medium text-ink-secondary">RUT *</label>
           <input
             name="rut"
             required
             placeholder="12.345.678-9"
             onBlur={(e) => (e.target.value = formatearRut(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Nombre completo *</label>
-          <input name="nombre" required className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Nombre completo *</label>
+          <input name="nombre" required className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Edad</label>
-          <input name="edad" type="number" min={0} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Edad</label>
+          <input name="edad" type="number" min={0} className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Teléfono</label>
-          <input name="telefono" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Teléfono</label>
+          <input name="telefono" className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Email</label>
-          <input name="email" type="email" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Email</label>
+          <input name="email" type="email" className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Clínica derivada</label>
-          <input name="clinica_derivada" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Clínica derivada</label>
+          <input name="clinica_derivada" className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Fecha de solicitud</label>
-          <input name="fecha_solicitud" type="date" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Fecha de solicitud</label>
+          <input name="fecha_solicitud" type="date" className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700">Rol del Dr. Riera *</label>
+          <label className="text-sm font-medium text-ink-secondary">Rol del Dr. Riera *</label>
           <select
             value={rol}
             onChange={(e) => setRol(e.target.value as "cirujano" | "ayudante")}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           >
             <option value="cirujano">Cirujano</option>
             <option value="ayudante">Primer ayudante</option>
@@ -101,26 +101,26 @@ export default function NuevoCasoForm() {
         </div>
         {rol === "ayudante" && (
           <div className="sm:col-span-2">
-            <label className="text-sm font-medium text-slate-700">
+            <label className="text-sm font-medium text-ink-secondary">
               Cirujano principal (tratante) *
             </label>
             <input
               name="cirujano_principal"
               required
-              className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
         )}
         <div className="sm:col-span-2">
-          <label className="text-sm font-medium text-slate-700">Observaciones</label>
-          <textarea name="observaciones" rows={2} className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+          <label className="text-sm font-medium text-ink-secondary">Observaciones</label>
+          <textarea name="observaciones" rows={2} className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500" />
         </div>
       </div>
 
       <button
         type="submit"
         disabled={enviando}
-        className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+        className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-600 disabled:opacity-60"
       >
         {enviando ? "Guardando…" : "Crear caso"}
       </button>

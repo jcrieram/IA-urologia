@@ -1,16 +1,29 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { UserRound } from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/server";
-import { CASO_ESTADO_LABEL } from "@/lib/types";
+import { CASO_ESTADO_LABEL, type CasoEstado } from "@/lib/types";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 import RegistrarPagoForm from "@/components/casos/RegistrarPagoForm";
 import AccionesEstado from "@/components/casos/AccionesEstado";
 
 export const dynamic = "force-dynamic";
 
+const ESTADO_TONE: Record<CasoEstado, "neutral" | "good" | "warning" | "critical" | "brand"> = {
+  solicitud: "brand",
+  agendada: "brand",
+  operada: "neutral",
+  alta: "good",
+  no_concretada: "warning",
+  cerrada: "good",
+};
+
 function Campo({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">{label}</p>
-      <p className="mt-0.5 text-sm text-slate-900">{value ?? "—"}</p>
+      <p className="text-xs font-medium uppercase tracking-wide text-ink-muted">{label}</p>
+      <p className="mt-0.5 text-sm text-ink">{value ?? "—"}</p>
     </div>
   );
 }
@@ -38,28 +51,36 @@ export default async function CasoDetallePage({
     <div className="max-w-4xl space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">{caso.paciente.nombre}</h1>
-          <p className="text-sm text-slate-500">{caso.paciente.rut}</p>
+          <Link
+            href={`/pacientes/${caso.paciente_id}`}
+            className="flex items-center gap-2 text-lg font-semibold text-ink hover:text-brand-600"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 text-brand-700">
+              <UserRound className="h-4 w-4" strokeWidth={2} />
+            </span>
+            {caso.paciente.nombre}
+          </Link>
+          <p className="mt-1 text-sm text-ink-muted">{caso.paciente.rut}</p>
         </div>
-        <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-          {CASO_ESTADO_LABEL[caso.estado as keyof typeof CASO_ESTADO_LABEL]}
-        </span>
+        <Badge tone={ESTADO_TONE[caso.estado as CasoEstado]}>
+          {CASO_ESTADO_LABEL[caso.estado as CasoEstado]}
+        </Badge>
       </div>
 
       <AccionesEstado casoId={caso.id} estado={caso.estado} />
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">Datos del paciente</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <Card>
+        <CardHeader title="Datos del paciente" />
+        <div className="grid grid-cols-2 gap-4 px-5 py-5 sm:grid-cols-3">
           <Campo label="Edad" value={caso.paciente.edad} />
           <Campo label="Teléfono" value={caso.paciente.telefono} />
           <Campo label="Email" value={caso.paciente.email} />
         </div>
-      </section>
+      </Card>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold text-slate-900">Datos de la cirugía</h2>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <Card>
+        <CardHeader title="Datos de la cirugía" />
+        <div className="grid grid-cols-2 gap-4 px-5 py-5 sm:grid-cols-3">
           <Campo label="Rol" value={caso.rol === "cirujano" ? "Cirujano" : "Primer ayudante"} />
           {caso.rol === "ayudante" && (
             <Campo label="Cirujano principal" value={caso.cirujano_principal} />
@@ -73,27 +94,27 @@ export default async function CasoDetallePage({
           <Campo label="Fecha de alta" value={caso.fecha_alta} />
         </div>
         {caso.observaciones && (
-          <div className="mt-4">
+          <div className="border-t border-border px-5 py-4">
             <Campo label="Observaciones" value={caso.observaciones} />
           </div>
         )}
-      </section>
+      </Card>
 
-      <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">Pago (honorario clínica)</h2>
+      <div>
+        <h2 className="mb-2 text-sm font-semibold text-ink">Pago (honorario clínica)</h2>
         <RegistrarPagoForm casoId={caso.id} pago={pago} />
-      </section>
+      </div>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-5">
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">Encuesta post-alta</h2>
-        <p className="text-sm text-slate-500">
+      <Card>
+        <CardHeader title="Encuesta post-alta" />
+        <p className="px-5 py-5 text-sm text-ink-muted">
           {encuesta?.respondida_at
             ? `Respondida el ${new Date(encuesta.respondida_at).toLocaleDateString("es-CL")}`
             : encuesta?.enviada_at
               ? "Enviada, esperando respuesta."
               : "Aún no se ha enviado."}
         </p>
-      </section>
+      </Card>
     </div>
   );
 }

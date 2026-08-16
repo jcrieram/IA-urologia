@@ -45,7 +45,7 @@ export default function AccionesEstado({
           key={op.a}
           onClick={() => cambiarEstado(op.a)}
           disabled={cargando !== null}
-          className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+          className="rounded-lg border border-border-strong bg-surface-raised px-3 py-1.5 text-sm text-ink-secondary shadow-sm hover:bg-page disabled:opacity-60"
         >
           {cargando === op.a ? "Guardando…" : op.label}
         </button>

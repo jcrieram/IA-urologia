@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CheckCircle2 } from "lucide-react";
 import type { Pago } from "@/lib/types";
 
 export default function RegistrarPagoForm({
@@ -46,51 +47,57 @@ export default function RegistrarPagoForm({
 
   if (pago) {
     return (
-      <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm">
-        <p className="font-medium text-emerald-900">Pago registrado</p>
-        <p className="mt-1 text-emerald-800">
-          ${Number(pago.monto).toLocaleString("es-CL")} · {pago.fecha_pago}
-        </p>
-        {pago.observaciones && (
-          <p className="mt-1 text-emerald-700">{pago.observaciones}</p>
-        )}
+      <div className="flex items-start gap-3 rounded-2xl border border-good/20 bg-good-bg p-4 text-sm">
+        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-good" strokeWidth={2} />
+        <div>
+          <p className="font-medium text-good">Pago registrado</p>
+          <p className="mt-1 text-ink-secondary">
+            ${Number(pago.monto).toLocaleString("es-CL")} · {pago.fecha_pago}
+          </p>
+          {pago.observaciones && (
+            <p className="mt-1 text-ink-muted">{pago.observaciones}</p>
+          )}
+        </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
-      <p className="text-sm font-semibold text-slate-900">Registrar pago de la clínica</p>
-      {error && <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+    <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
+      <p className="text-sm font-semibold text-ink">Registrar pago de la clínica</p>
+      {error && <p className="rounded-lg bg-critical-bg px-3 py-2 text-sm text-critical">{error}</p>}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="text-xs font-medium text-slate-600">Monto (CLP)</label>
+          <label className="text-xs font-medium text-ink-secondary">Monto (CLP)</label>
           <input
             name="monto"
             type="number"
             min={0}
             required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
         <div>
-          <label className="text-xs font-medium text-slate-600">Fecha de pago</label>
+          <label className="text-xs font-medium text-ink-secondary">Fecha de pago</label>
           <input
             name="fecha_pago"
             type="date"
             required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
           />
         </div>
       </div>
       <div>
-        <label className="text-xs font-medium text-slate-600">Observaciones</label>
-        <input name="observaciones" className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm" />
+        <label className="text-xs font-medium text-ink-secondary">Observaciones</label>
+        <input
+          name="observaciones"
+          className="mt-1 w-full rounded-lg border border-border-strong px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+        />
       </div>
       <button
         type="submit"
         disabled={enviando}
-        className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+        className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-600 disabled:opacity-60"
       >
         {enviando ? "Guardando…" : "Registrar pago"}
       </button>
