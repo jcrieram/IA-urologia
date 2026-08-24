@@ -103,7 +103,13 @@ Botón **"Enviar por correo"** (o di «enviar por correo»):
 - **En el celular:** abre la hoja de **Compartir** de iPhone/Android con el **Word adjunto** — eliges Mail (o WhatsApp) y lo mandas a donde lo puedas imprimir.
 - **En el computador:** abre tu programa de correo con el **texto del informe ya escrito** y **descarga el Word** para que lo adjuntes. Puedes guardar un **correo de destino** en el recuadro "Correo para enviar el informe" y queda recordado.
 
-## Imágenes del estudio
+## Imágenes del estudio — insertar en la web
+
+En la vista previa del informe, los **3 recuadros de "Imágenes del estudio" son clicables**: haz clic en uno, eliges la foto, y **queda insertada ahí mismo, ajustada al recuadro** (con una ✕ para quitarla o cambiarla). Al **Descargar Word** o **Imprimir/PDF**, el documento sale **ya armado con las fotos incrustadas** — no hay que insertarlas después. Las fotos son de cada paciente: se borran con **"Nuevo informe"**.
+
+Si prefieres dejar los recuadros vacíos y poner las fotos en Word, también puedes: cada recuadro vacío queda como imagen de referencia (clic derecho → *Cambiar imagen*).
+
+## Imágenes del estudio (nota técnica)
 
 - Casilla **"Incluir espacio para 3 imágenes del estudio"** (activada por defecto): reserva, entre la conducta y la firma, una fila de 3 recuadros.
 - En el **Word**, cada recuadro es un **control de contenido de imagen**: basta **hacer clic dentro del recuadro** y se abre el diálogo para elegir la foto; la imagen queda **ajustada al recuadro automáticamente**, sin tener que redimensionarla a mano.
